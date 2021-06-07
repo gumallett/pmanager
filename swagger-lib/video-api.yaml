@@ -119,14 +119,14 @@ components:
       type: object
       properties:
         id:
-          type: number
+          type: integer
           format: int64
           example: 222
     VideoResponse:
       type: object
       properties:
         id:
-          type: number
+          type: integer
           format: int64
           example: 222
         title:
@@ -143,15 +143,17 @@ components:
           example: www.example.com
         rating:
           type: integer
+          format: int16
           example: 5
         views:
           type: integer
+          format: int64
           example: 1
         notes:
           type: string
           example: A video
         videoFileInfo:
-          $ref: '#/components/schemas/VideoFileInfo'
+          $ref: '#/components/schemas/VideoFileInfoResponse'
         lastModified:
           type: string
           format: date-time
@@ -180,7 +182,7 @@ components:
           type: string
           example: ACME Corporation
       type: object
-    VideoFileInfo:
+    VideoFileInfoResponse:
       type: object
       properties:
         filename:
@@ -191,9 +193,11 @@ components:
           example: video/mp4
         size:
           type: integer
+          format: int64
           example: 10000
         length:
           type: integer
+          format: int64
           example: 12345
         createDate:
           type: string

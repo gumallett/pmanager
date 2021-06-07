@@ -1,10 +1,16 @@
 package com.gum.pmanager.data.model
 
+import com.gum.pmanager.model.CategoryResponse
+import com.gum.pmanager.model.TagResponse
+import com.gum.pmanager.model.VideoFileInfoResponse
+import com.gum.pmanager.model.VideoResponse
 import org.hibernate.search.engine.backend.types.Projectable
 import org.hibernate.search.engine.backend.types.Sortable
+import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneOffset
 import javax.persistence.*
 
 @Entity
@@ -25,12 +31,14 @@ class VideoMetadataEntity(
     @KeywordField(sortable = Sortable.YES, projectable = Projectable.YES)
     var uri: String,
 
-    @OneToMany(mappedBy = "video", cascade = [CascadeType.ALL])
+    @OneToMany(cascade = [CascadeType.ALL])
     @IndexedEmbedded
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
     var categories: MutableList<CategoryEntity> = ArrayList(),
 
-    @OneToMany(mappedBy = "video", cascade = [CascadeType.ALL])
+    @OneToMany(cascade = [CascadeType.ALL])
     @IndexedEmbedded
+    @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
     var tags: MutableList<TagEntity> = ArrayList(),
 
     @KeywordField(sortable = Sortable.YES, projectable = Projectable.YES)
@@ -57,23 +65,23 @@ class VideoFileInfo(
 
     @Column(name = "filename")
     @KeywordField(sortable = Sortable.YES, projectable = Projectable.YES)
-    var filename: String,
+    var filename: String = "",
 
     @Column(name = "content_type")
     @KeywordField(sortable = Sortable.YES, projectable = Projectable.YES)
-    var contentType: String,
+    var contentType: String = "",
 
     @Column(name = "size")
     @GenericField(sortable = Sortable.YES, projectable = Projectable.YES)
-    var size: Long,
+    var size: Long = 0,
 
     @Column(name = "length")
     @GenericField(sortable = Sortable.YES, projectable = Projectable.YES)
-    var length: Duration,
+    var length: Duration = Duration.ZERO,
 
-    @Column(name = "create_date")
+    @Column(name = "file_create_date")
     @GenericField(sortable = Sortable.YES, projectable = Projectable.YES)
-    var createDate: Instant
+    var createDate: Instant = Instant.now()
 )
 
 @Entity
@@ -84,10 +92,7 @@ class CategoryEntity(
     var id: Long? = null,
 
     @KeywordField(sortable = Sortable.YES, projectable = Projectable.YES)
-    var name: String,
-
-    @ManyToOne
-    var video: VideoMetadataEntity
+    var name: String
 )
 
 @Entity
@@ -98,8 +103,67 @@ class TagEntity(
     var id: Long? = null,
 
     @KeywordField
-    var name: String,
+    var name: String
+)
 
-    @ManyToOne
-    var video: VideoMetadataEntity
+fun CategoryResponse.toCategoryEntity() = CategoryEntity(
+    name = name
+)
+
+fun CategoryEntity.toCategoryResponse() = CategoryResponse(
+    name = name
+)
+
+fun TagResponse.toTagEntity() = TagEntity(
+    name = name
+)
+
+fun TagEntity.toTagResponse() = TagResponse(
+    name = name
+)
+
+fun VideoFileInfoResponse.toVideoFileInfoEntity() = VideoFileInfo(
+    filename = filename ?: "",
+    contentType = contentType ?: "",
+    size = size ?: 0L,
+    length = Duration.ofMillis(length ?: 0),
+    createDate = createDate?.toInstant() ?: Instant.now()
+)
+
+fun VideoFileInfo.toVideoFileInfoResponse() = VideoFileInfoResponse(
+    filename = filename,
+    contentType = contentType,
+    size = size,
+    length = length.toMillis(),
+    createDate = createDate.atOffset(ZoneOffset.UTC)
+)
+
+fun VideoResponse.toVideoMetadataEntity() = VideoMetadataEntity(
+    id = id,
+    title = title ?: "",
+    description = description ?: "",
+    uri = uri ?: "",
+    categories = categories?.map { it.toCategoryEntity() }?.toMutableList() ?: mutableListOf(),
+    tags = tags?.map { it.toTagEntity() }?.toMutableList() ?: mutableListOf(),
+    source = source ?: "",
+    rating = rating?.toShort(),
+    views = views ?: 0L,
+    notes = notes ?: "",
+    videoFileInfo = videoFileInfo?.toVideoFileInfoEntity() ?: VideoFileInfo(),
+    lastModified = lastModified?.toInstant() ?: Instant.now()
+)
+
+fun VideoMetadataEntity.toVideoMetadataEntity() = VideoResponse(
+    id = id,
+    title = title,
+    description = description,
+    uri = uri,
+    categories = categories.map { it.toCategoryResponse() },
+    tags = tags.map { it.toTagResponse() },
+    source = source,
+    rating = rating?.toInt(),
+    views = views,
+    notes = notes,
+    videoFileInfo = videoFileInfo.toVideoFileInfoResponse(),
+    lastModified = lastModified.atOffset(ZoneOffset.UTC)
 )
