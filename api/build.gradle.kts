@@ -73,7 +73,8 @@ openApiGenerate {
         "invoker" to "false"
     ))
     configOptions.set(mapOf(
-        "dateLibrary" to "java8"
+        "dateLibrary" to "java8",
+        "interfaceOnly" to "true"
     ))
 }
 

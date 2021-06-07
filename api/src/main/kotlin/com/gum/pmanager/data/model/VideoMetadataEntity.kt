@@ -153,7 +153,7 @@ fun VideoResponse.toVideoMetadataEntity() = VideoMetadataEntity(
     lastModified = lastModified?.toInstant() ?: Instant.now()
 )
 
-fun VideoMetadataEntity.toVideoMetadataEntity() = VideoResponse(
+fun VideoMetadataEntity.toVideoMetadataResponse() = VideoResponse(
     id = id,
     title = title,
     description = description,

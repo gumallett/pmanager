@@ -89,6 +89,30 @@ paths:
               $ref: '#/components/schemas/VideoResponse'
         description: video item to add
   /videos/{id}:
+    get:
+      tags:
+        - videos
+      summary: get video
+      operationId: getVideo
+      description: |
+        Gets one video's metadata
+      parameters:
+        - in: path
+          name: id
+          description: id of video to fetch
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: gets one video's metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoResponse'
+        '400':
+          description: bad input parameter
     put:
       tags:
         - videos
@@ -113,6 +137,26 @@ paths:
             schema:
               $ref: '#/components/schemas/VideoResponse'
         description: video item to update
+    delete:
+      tags:
+        - videos
+      summary: delete video
+      operationId: deleteVideo
+      description: |
+        Deletes one video's metadata
+      parameters:
+        - in: path
+          name: id
+          description: id of video to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: video deleted
+        '400':
+          description: bad input parameter
 components:
   schemas:
     CreateVideoResponse:
