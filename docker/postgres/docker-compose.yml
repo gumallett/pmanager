@@ -1,0 +1,21 @@
+version: '2.2'
+services:
+  es01:
+    image: postgres
+    container_name: pg01
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - data01:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - postgres
+volumes:
+  data01:
+    driver: local
+
+networks:
+  postgres:
+    driver: bridge

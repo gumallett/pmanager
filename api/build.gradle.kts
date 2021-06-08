@@ -82,6 +82,11 @@ tasks.create<Exec>("dockerStartPostgres") {
     commandLine("docker", "run", "-d", "--name", "pm-pgsql", "-p", "5432:5432", "-e", "POSTGRES_PASSWORD=postgres", "postgres")
 }
 
+tasks.create<Exec>("dockerStartPostgresProd") {
+    workingDir("$rootDir/docker/postgres")
+    commandLine("docker-compose", "-f", "docker-compose.yml", "up", "-d")
+}
+
 tasks.create("dockerStopPostgres") {
     doLast {
         exec {
@@ -94,13 +99,10 @@ tasks.create("dockerStopPostgres") {
     }
 }
 
-//tasks.create<Exec>("dockerStopPostgres") {
-//    commandLine("docker", "stop", "pm-pgsql")
-//}
-//
-//tasks.create<Exec>("dockerRemovePostgres") {
-//    commandLine("docker", "rm", "pm-pgsql")
-//}
+tasks.create<Exec>("dockerStopPostgresProd") {
+    workingDir("$rootDir/docker/postgres")
+    commandLine("docker-compose", "-f", "docker-compose.yml", "down")
+}
 
 tasks.create<Exec>("dockerStartElasticsearch") {
     commandLine("docker", "run", "-d", "--name", "pm-elastic", "-p", "9200:9200", "-p", "9300:9300", "-e", "discovery.type=single-node", "-e", "ES_JAVA_OPTS=-Xms750m -Xmx750m", "docker.elastic.co/elasticsearch/elasticsearch:7.12.1")
