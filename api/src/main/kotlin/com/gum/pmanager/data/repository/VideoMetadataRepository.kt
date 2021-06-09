@@ -5,5 +5,4 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface VideoMetadataRepository: JpaRepository<VideoMetadataEntity, Long> {
-}
+interface VideoMetadataRepository : JpaRepository<VideoMetadataEntity, Long>, SearchRepository

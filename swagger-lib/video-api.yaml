@@ -32,7 +32,7 @@ paths:
         available videos in the system
       parameters:
         - in: query
-          name: searchString
+          name: q
           description: pass an optional search string for looking up inventory
           required: false
           schema:
@@ -126,6 +126,7 @@ paths:
           required: true
           schema:
             type: integer
+            format: int64
       responses:
         '200':
           description: item updated

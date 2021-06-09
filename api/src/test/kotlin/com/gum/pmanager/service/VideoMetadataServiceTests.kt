@@ -1,9 +1,9 @@
 package com.gum.pmanager.service
 
-import com.gum.pmanager.data.model.VideoFileInfo
+import com.gum.pmanager.createTestEntity
+import com.gum.pmanager.createTestVideoResponse
 import com.gum.pmanager.data.model.VideoMetadataEntity
 import com.gum.pmanager.data.repository.VideoMetadataRepository
-import com.gum.pmanager.model.VideoFileInfoResponse
 import com.gum.pmanager.model.VideoResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -11,9 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
 import org.springframework.transaction.annotation.Transactional
-import java.time.Duration
-import java.time.Instant
-import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 @SpringBootTest
@@ -39,24 +36,7 @@ class VideoMetadataServiceTests {
     @Test
     @Transactional
     fun `create should create video`() {
-        val request = VideoResponse(
-            title = "test",
-            description = "test",
-            uri = "test",
-            categories = mutableListOf(),
-            tags = mutableListOf(),
-            source = "test",
-            views = 0L,
-            notes = "",
-            lastModified = OffsetDateTime.now(),
-            videoFileInfo = VideoFileInfoResponse(
-                filename = "test.mp4",
-                contentType = "video/mp4",
-                size = 1L,
-                length = Duration.ofMinutes(10).toMillis(),
-                createDate = OffsetDateTime.now()
-            )
-        )
+        val request = createTestVideoResponse()
 
         val res = videoMetadataService.create(request)
         assertThat(res.id).isNotNull
@@ -98,25 +78,6 @@ class VideoMetadataServiceTests {
         val updated = videoMetadataService.get(res.id!!)
         assertThat(updated.description).isEqualTo(request.description)
     }
-
-    private fun createTestEntity() = VideoMetadataEntity(
-        title = "test",
-        description = "test",
-        uri = "test",
-        categories = mutableListOf(),
-        tags = mutableListOf(),
-        source = "test",
-        views = 0L,
-        notes = "",
-        lastModified = Instant.now(),
-        videoFileInfo = VideoFileInfo(
-            filename = "test.mp4",
-            contentType = "video/mp4",
-            size = 1L,
-            length = Duration.ofMinutes(10),
-            createDate = Instant.now()
-        )
-    )
 
     private fun createAndSaveTestEntity(): VideoMetadataEntity {
         return videoMetadataRepository.saveAndFlush(createTestEntity())

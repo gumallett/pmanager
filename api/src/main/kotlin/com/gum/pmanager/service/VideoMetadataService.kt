@@ -17,7 +17,7 @@ import java.time.Duration
 
 interface VideoMetadataService {
     fun create(request: VideoResponse): CreateVideoResponse
-    fun update(request: VideoResponse): CreateVideoResponse
+    fun update(id: Long?, request: VideoResponse): CreateVideoResponse
     fun delete(id: Long)
     fun get(id: Long): VideoResponse
     fun search(query: String, pageable: Pageable): List<VideoResponse>
@@ -34,9 +34,9 @@ class VideoMetadataServiceImpl(
     }
 
     @Transactional
-    override fun update(request: VideoResponse): CreateVideoResponse {
-        requireNotNull(request.id)
-        val update = videoMetadataRepository.findById(request.id).orElseThrow { VideoNotFoundException("Not found") }
+    override fun update(id: Long?, request: VideoResponse): CreateVideoResponse {
+        requireNotNull(id)
+        val update = videoMetadataRepository.findById(id).orElseThrow { VideoNotFoundException("Not found") }
 
         when {
             request.description != null -> {
@@ -108,7 +108,7 @@ class VideoMetadataServiceImpl(
 
     @Transactional(readOnly = true)
     override fun search(query: String, pageable: Pageable): List<VideoResponse> {
-        TODO("Not yet implemented")
+        return videoMetadataRepository.search(query, pageable).map { it.toVideoMetadataResponse() }
     }
 }
 
