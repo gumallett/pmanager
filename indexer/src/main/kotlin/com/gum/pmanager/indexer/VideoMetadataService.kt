@@ -20,7 +20,8 @@ class VideoMetadataService {
             FileType.Avi -> AviMetadataReader.readMetadata(fis)
             FileType.Asf -> null
             FileType.Flv -> null
-            else -> throw IllegalArgumentException("Unsupported filetype detected")
+            FileType.Unknown -> null
+            else -> null
         }
     }
 

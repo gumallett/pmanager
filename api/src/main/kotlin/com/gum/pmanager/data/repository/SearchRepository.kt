@@ -4,6 +4,7 @@ import com.gum.pmanager.data.model.VideoMetadataEntity
 import org.hibernate.search.engine.search.query.SearchResult
 import org.hibernate.search.mapper.orm.Search
 import org.springframework.data.domain.Pageable
+import org.springframework.util.StringUtils
 import javax.persistence.EntityManager
 
 interface SearchRepository {
@@ -19,10 +20,11 @@ class SearchRepositoryImpl(private val entityManager: EntityManager) : SearchRep
             .search(VideoMetadataEntity::class.java)
             .where { p ->
                 p.bool().must(
-                    p.simpleQueryString()
+                    if (StringUtils.hasLength(query)) p.simpleQueryString()
                         .field("title")
                         .field("description")
-                        .matching(query)
+                        .field("notes")
+                        .matching(query) else p.matchAll()
                 )
             }
             .fetch(pageable.pageSize * pageable.pageNumber, pageable.pageSize) as SearchResult<VideoMetadataEntity>

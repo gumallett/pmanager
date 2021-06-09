@@ -244,6 +244,14 @@ components:
           type: integer
           format: int64
           example: 12345
+        width:
+          type: integer
+          format: int64
+          example: 12345
+        height:
+          type: integer
+          format: int64
+          example: 12345
         createDate:
           type: string
           format: date-time

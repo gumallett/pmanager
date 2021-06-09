@@ -1,7 +1,9 @@
 package com.gum.pmanager.indexer
 
+import com.drew.metadata.Tag
 import com.gum.pmanager.config.IndexingProperties
 import org.openapitools.client.apis.VideosApi
+import org.openapitools.client.infrastructure.ClientException
 import org.openapitools.client.infrastructure.ServerException
 import org.openapitools.client.models.VideoFileInfoResponse
 import org.openapitools.client.models.VideoResponse
@@ -21,16 +23,23 @@ class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataServ
     private val LOG = LoggerFactory.getLogger(PManagerIndexer::class.java)
 
     fun index() {
-        indexingProperties.paths.forEach { path ->
-            val dir = File(URI.create(path))
-            LOG.info("Reading file metadata in directory {} {}", dir, path)
-            Files.list(dir.toPath()).forEach { indexDirectory(it) }
-        }
+        indexingProperties.paths.forEach { index(it)}
     }
 
-    fun indexDirectory(path: Path) {
+    fun index(path: String) {
+        val dir = File(URI.create(path))
+        LOG.info("Reading file metadata in directory {} {}", dir, path)
+        Files.list(dir.toPath()).forEach { indexDirectoryContents(it) }
+    }
+
+    fun indexDirectoryContents(path: Path) {
         LOG.info("Reading file metadata for {}", path)
         val file = path.toFile()
+
+        if (file.isDirectory) {
+            return index(path.toUri().toString())
+        }
+
         val metadata = try {
             metadataService.getMetadata(file)
         } catch (e: Exception) {
@@ -38,37 +47,52 @@ class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataServ
             null
         }
 
-        val allTags = metadata?.allTags()
         val duration = metadata?.findTag("Duration")?.description?.toLongOrNull()
         val timescale = metadata?.findTag("Media Time Scale")?.description?.toLongOrNull()
+        val width = metadata?.findTag("Width")?.description
+            ?.replace("pixels", "")?.trim()?.toLongOrNull()
+        val height = metadata?.findTag("Height")?.description
+            ?.replace("pixels", "")?.trim()?.toLongOrNull()
 
-        allTags?.forEach { tag ->
-            println("description: ${tag.description}")
-            println("directory name: ${tag.directoryName}")
-            println("tag name: ${tag.tagName}")
-            println("tag type: ${tag.tagType}")
+        val titleCorrectionRegex = "[_]".toRegex()
+        val contentType = when (file.extension) {
+            "mp4", "m4v" -> "video/mp4"
+            "avi" -> "video/x-msvideo"
+            "flv", "f4v" -> "video/x-flv"
+            "mpg", "mpeg" -> "video/mpeg"
+            "mov" -> "video/quicktime"
+            "asf", "wmv" -> "video/x-ms-asf"
+            "webm" -> "video/webm"
+            else -> "video/other"
+        }
+
+        if (contentType == "video/other") {
+            LOG.info("Skipping unknown video type for {}", path)
+            return
         }
 
         val request = VideoResponse(
-            title = file.name,
-            description = file.name,
+            title = file.nameWithoutExtension.replace(titleCorrectionRegex, "-"),
+            description = file.nameWithoutExtension.replace(titleCorrectionRegex, "-"),
             uri = path.toUri().toString(),
             source = file.name,
             videoFileInfo = VideoFileInfoResponse(
                 filename = file.name,
-                contentType = when (file.extension) {
-                    "mp4" -> "video/mp4"
-                    else -> "video/other"
-                },
+                contentType = contentType,
                 size = file.length(),
                 length = getDurationInMillis(duration, timescale),
+                width = width,
+                height = height,
                 createDate = Instant.ofEpochMilli(file.lastModified()).atOffset(ZoneOffset.UTC)
             )
         )
-        println(request)
+        LOG.info("Sending request {}", request)
         try {
             api.addVideo(request)
         } catch (e: ServerException) {
+            LOG.warn("Failed indexing {}", path)
+            LOG.warn("Indexing failed", e)
+        } catch (e: ClientException) {
             LOG.warn("Failed indexing {}", path)
             LOG.warn("Indexing failed", e)
         }
@@ -87,4 +111,13 @@ fun getDurationInMillis(duration: Long?, timescale: Long?): Long {
         null
     }
     return milliVal?.toLong() ?: 0L
+}
+
+fun printMetadata(allTags: Collection<Tag>?) {
+    allTags?.forEach { tag ->
+        println("description: ${tag.description}")
+        println("directory name: ${tag.directoryName}")
+        println("tag name: ${tag.tagName}")
+        println("tag type: ${tag.tagType}")
+    }
 }

@@ -10,6 +10,8 @@ create table video_metadata (
     views integer,
     size int8 not null,
     length int8 not null,
+    width int8,
+    height int8,
     notes varchar(1000) not null,
     file_create_date timestamp not null,
     last_modified timestamp not null

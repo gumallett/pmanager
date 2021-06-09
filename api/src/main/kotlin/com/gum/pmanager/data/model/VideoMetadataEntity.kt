@@ -18,6 +18,7 @@ import javax.persistence.*
 @Indexed
 class VideoMetadataEntity(
     @Id
+    @DocumentId
     @GeneratedValue
     var id: Long? = null,
 
@@ -79,6 +80,14 @@ class VideoFileInfo(
     @GenericField(sortable = Sortable.YES, projectable = Projectable.YES)
     var length: Duration = Duration.ZERO,
 
+    @Column(name = "width")
+    @GenericField(sortable = Sortable.YES, projectable = Projectable.YES)
+    var width: Long? = null,
+
+    @Column(name = "height")
+    @GenericField(sortable = Sortable.YES, projectable = Projectable.YES)
+    var height: Long? = null,
+
     @Column(name = "file_create_date")
     @GenericField(sortable = Sortable.YES, projectable = Projectable.YES)
     var createDate: Instant = Instant.now()
@@ -127,6 +136,8 @@ fun VideoFileInfoResponse.toVideoFileInfoEntity() = VideoFileInfo(
     contentType = contentType ?: "",
     size = size ?: 0L,
     length = Duration.ofMillis(length ?: 0),
+    width = width,
+    height = height,
     createDate = createDate?.toInstant() ?: Instant.now()
 )
 
@@ -135,6 +146,8 @@ fun VideoFileInfo.toVideoFileInfoResponse() = VideoFileInfoResponse(
     contentType = contentType,
     size = size,
     length = length.toMillis(),
+    width = width,
+    height = height,
     createDate = createDate.atOffset(ZoneOffset.UTC)
 )
 
