@@ -2,6 +2,7 @@ package com.gum.pmanager.indexer
 
 import com.gum.pmanager.config.IndexingProperties
 import org.openapitools.client.apis.VideosApi
+import org.openapitools.client.infrastructure.ServerException
 import org.openapitools.client.models.VideoFileInfoResponse
 import org.openapitools.client.models.VideoResponse
 import org.slf4j.LoggerFactory
@@ -65,8 +66,12 @@ class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataServ
             )
         )
         println(request)
-        val response = api.addVideo(request)
-        println("responseId: $response.id")
+        try {
+            api.addVideo(request)
+        } catch (e: ServerException) {
+            LOG.warn("Failed indexing {}", path)
+            LOG.warn("Indexing failed", e)
+        }
     }
 
     @EventListener(ContextRefreshedEvent::class)
