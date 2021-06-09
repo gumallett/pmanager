@@ -1,16 +1,20 @@
 package com.gum.pmanager.service
 
-import com.gum.pmanager.VideoMetadataService
 import com.gum.pmanager.data.model.VideoFileInfo
 import com.gum.pmanager.data.model.VideoMetadataEntity
 import com.gum.pmanager.data.repository.VideoMetadataRepository
+import com.gum.pmanager.model.VideoFileInfoResponse
+import com.gum.pmanager.model.VideoResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
+import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 @SpringBootTest
 @TestPropertySource(properties = ["spring.flyway.cleanOnValidationError=true"])
@@ -23,16 +27,19 @@ class VideoMetadataServiceTests {
     lateinit var videoMetadataRepository: VideoMetadataRepository
 
     @Test
+    @Transactional
     fun `delete should delete existing video`() {
-        val entityId = createTestEntity()
+        val entityId = createAndSaveTestEntity().id!!
         videoMetadataService.delete(entityId)
 
         val entity = videoMetadataRepository.findById(entityId)
         assertThat(entity.isEmpty).isTrue
     }
 
-    private fun createTestEntity(): Long {
-        var entity = VideoMetadataEntity(
+    @Test
+    @Transactional
+    fun `create should create video`() {
+        val request = VideoResponse(
             title = "test",
             description = "test",
             uri = "test",
@@ -41,16 +48,77 @@ class VideoMetadataServiceTests {
             source = "test",
             views = 0L,
             notes = "",
-            lastModified = Instant.now(),
-            videoFileInfo = VideoFileInfo(
+            lastModified = OffsetDateTime.now(),
+            videoFileInfo = VideoFileInfoResponse(
                 filename = "test.mp4",
                 contentType = "video/mp4",
                 size = 1L,
-                length = Duration.ofMinutes(10),
-                createDate = Instant.now()
+                length = Duration.ofMinutes(10).toMillis(),
+                createDate = OffsetDateTime.now()
             )
         )
-        entity = videoMetadataRepository.saveAndFlush(entity)
-        return entity.id!!
+
+        val res = videoMetadataService.create(request)
+        assertThat(res.id).isNotNull
+    }
+
+    @Test
+    @Transactional
+    fun `get should return video`() {
+        val entity = createAndSaveTestEntity()
+        val res = videoMetadataService.get(entity.id!!)
+        assertThat(res.id).isEqualTo(entity.id)
+
+        assertThat(res.title).isEqualTo(entity.title)
+        assertThat(res.description).isEqualTo(entity.description)
+        assertThat(res.source).isEqualTo(entity.source)
+        assertThat(res.views).isEqualTo(entity.views)
+        assertThat(res.notes).isEqualTo(entity.notes)
+        assertThat(res.lastModified).isEqualTo(entity.lastModified.atOffset(ZoneOffset.UTC))
+        assertThat(res.uri).isEqualTo(entity.uri)
+
+        assertThat(res.videoFileInfo?.contentType).isEqualTo(entity.videoFileInfo.contentType)
+        assertThat(res.videoFileInfo?.createDate).isEqualTo(entity.videoFileInfo.createDate.atOffset(ZoneOffset.UTC))
+        assertThat(res.videoFileInfo?.filename).isEqualTo(entity.videoFileInfo.filename)
+        assertThat(res.videoFileInfo?.length).isEqualTo(entity.videoFileInfo.length.toMillis())
+        assertThat(res.videoFileInfo?.size).isEqualTo(entity.videoFileInfo.size)
+    }
+
+    @Test
+    @Transactional
+    fun `update should update video`() {
+        val entity = createAndSaveTestEntity()
+        val request = VideoResponse(
+            id = entity.id,
+            description = "test2"
+        )
+        val res = videoMetadataService.update(request)
+        assertThat(res.id).isEqualTo(entity.id)
+
+        val updated = videoMetadataService.get(res.id!!)
+        assertThat(updated.description).isEqualTo(request.description)
+    }
+
+    private fun createTestEntity() = VideoMetadataEntity(
+        title = "test",
+        description = "test",
+        uri = "test",
+        categories = mutableListOf(),
+        tags = mutableListOf(),
+        source = "test",
+        views = 0L,
+        notes = "",
+        lastModified = Instant.now(),
+        videoFileInfo = VideoFileInfo(
+            filename = "test.mp4",
+            contentType = "video/mp4",
+            size = 1L,
+            length = Duration.ofMinutes(10),
+            createDate = Instant.now()
+        )
+    )
+
+    private fun createAndSaveTestEntity(): VideoMetadataEntity {
+        return videoMetadataRepository.saveAndFlush(createTestEntity())
     }
 }

@@ -1,6 +1,6 @@
 version: '2.2'
 services:
-  es01:
+  pg01:
     image: postgres
     container_name: pg01
     restart: always
