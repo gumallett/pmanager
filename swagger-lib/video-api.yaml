@@ -158,6 +158,32 @@ paths:
           description: video deleted
         '400':
           description: bad input parameter
+  /videos/{id}/download:
+    get:
+      tags:
+        - videos
+      summary: downloads video
+      operationId: downloadVideo
+      description: |
+        Downloads a video for viewing
+      parameters:
+        - in: path
+          name: id
+          description: id of video to fetch
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: gets one video for download
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: bad input parameter
 components:
   schemas:
     CreateVideoResponse:

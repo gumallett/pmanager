@@ -72,7 +72,7 @@ class VideoMetadataServiceTests {
             id = entity.id,
             description = "test2"
         )
-        val res = videoMetadataService.update(request)
+        val res = videoMetadataService.update(request.id, request)
         assertThat(res.id).isEqualTo(entity.id)
 
         val updated = videoMetadataService.get(res.id!!)

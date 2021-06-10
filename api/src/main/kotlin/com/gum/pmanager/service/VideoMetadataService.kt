@@ -10,9 +10,12 @@ import com.gum.pmanager.model.CreateVideoResponse
 import com.gum.pmanager.model.VideoResponse
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.core.io.PathResource
+import org.springframework.core.io.Resource
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.net.URI
 import java.time.Duration
 
 interface VideoMetadataService {
@@ -21,6 +24,7 @@ interface VideoMetadataService {
     fun delete(id: Long)
     fun get(id: Long): VideoResponse
     fun search(query: String, pageable: Pageable): List<VideoResponse>
+    fun download(id: Long): Resource
 }
 
 @Service
@@ -109,6 +113,13 @@ class VideoMetadataServiceImpl(
     @Transactional(readOnly = true)
     override fun search(query: String, pageable: Pageable): List<VideoResponse> {
         return videoMetadataRepository.search(query, pageable).map { it.toVideoMetadataResponse() }
+    }
+
+    override fun download(id: Long): Resource {
+        val videoDetails = videoMetadataRepository.findById(id)
+            .orElseThrow { VideoNotFoundException("Not found") }
+
+        return PathResource(URI.create(videoDetails.uri))
     }
 }
 

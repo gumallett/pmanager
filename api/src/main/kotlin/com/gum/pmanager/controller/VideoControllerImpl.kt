@@ -4,6 +4,7 @@ import com.gum.pmanager.api.VideosApi
 import com.gum.pmanager.model.CreateVideoResponse
 import com.gum.pmanager.model.VideoResponse
 import com.gum.pmanager.service.VideoMetadataService
+import org.springframework.core.io.Resource
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -33,5 +34,9 @@ class VideoControllerImpl(
 
     override fun deleteVideo(id: Long): ResponseEntity<Unit> {
         return ResponseEntity.ok(videoService.delete(id))
+    }
+
+    override fun downloadVideo(id: Long): ResponseEntity<Resource> {
+        return ResponseEntity.ok(videoService.download(id))
     }
 }
