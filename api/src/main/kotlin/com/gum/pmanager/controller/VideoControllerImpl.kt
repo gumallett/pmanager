@@ -6,6 +6,7 @@ import com.gum.pmanager.model.VideoResponse
 import com.gum.pmanager.service.VideoMetadataService
 import org.springframework.core.io.Resource
 import org.springframework.data.domain.PageRequest
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
@@ -36,7 +37,13 @@ class VideoControllerImpl(
         return ResponseEntity.ok(videoService.delete(id))
     }
 
-    override fun downloadVideo(id: Long): ResponseEntity<Resource> {
-        return ResponseEntity.ok(videoService.download(id))
+    override fun downloadVideo(id: Long, asFile: Boolean): ResponseEntity<Resource> {
+        val headers = HttpHeaders()
+        val resource = videoService.download(id)
+        if (asFile) {
+            headers.set("Content-Disposition", "attachment; filename=\"${resource.filename}\"")
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(resource)
     }
 }
