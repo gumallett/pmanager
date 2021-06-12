@@ -15,7 +15,7 @@ import java.io.File
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
-import java.time.Instant
+import java.nio.file.attribute.BasicFileAttributeView
 import java.time.ZoneOffset
 
 @Service
@@ -71,6 +71,8 @@ class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataServ
             return
         }
 
+        val fileAttributes = Files.getFileAttributeView(path, BasicFileAttributeView::class.java).readAttributes()
+
         val request = VideoResponse(
             title = file.nameWithoutExtension.replace(titleCorrectionRegex, "-"),
             description = file.nameWithoutExtension.replace(titleCorrectionRegex, "-"),
@@ -83,7 +85,7 @@ class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataServ
                 length = getDurationInMillis(duration, timescale),
                 width = width,
                 height = height,
-                createDate = Instant.ofEpochMilli(file.lastModified()).atOffset(ZoneOffset.UTC)
+                createDate = fileAttributes.creationTime().toInstant().atOffset(ZoneOffset.UTC)
             )
         )
         LOG.info("Sending request {}", request)

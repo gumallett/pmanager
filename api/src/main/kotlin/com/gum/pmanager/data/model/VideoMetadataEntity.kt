@@ -58,6 +58,9 @@ class VideoMetadataEntity(
     var videoFileInfo: VideoFileInfo,
 
     @GenericField(sortable = Sortable.YES, projectable = Projectable.YES)
+    var lastAccessed: Instant? = null,
+
+    @GenericField(sortable = Sortable.YES, projectable = Projectable.YES)
     var lastModified: Instant
 )
 
@@ -163,6 +166,7 @@ fun VideoResponse.toVideoMetadataEntity() = VideoMetadataEntity(
     views = views ?: 0L,
     notes = notes ?: "",
     videoFileInfo = videoFileInfo?.toVideoFileInfoEntity() ?: VideoFileInfo(),
+    lastAccessed = lastAccessed?.toInstant(),
     lastModified = lastModified?.toInstant() ?: Instant.now()
 )
 
@@ -178,5 +182,6 @@ fun VideoMetadataEntity.toVideoMetadataResponse() = VideoResponse(
     views = views,
     notes = notes,
     videoFileInfo = videoFileInfo.toVideoFileInfoResponse(),
+    lastAccessed = lastAccessed?.atOffset(ZoneOffset.UTC),
     lastModified = lastModified.atOffset(ZoneOffset.UTC)
 )

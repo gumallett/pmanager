@@ -37,10 +37,10 @@ class VideoControllerImpl(
         return ResponseEntity.ok(videoService.delete(id))
     }
 
-    override fun downloadVideo(id: Long, asFile: Boolean): ResponseEntity<Resource> {
+    override fun downloadVideo(id: Long, download: Boolean): ResponseEntity<Resource> {
         val headers = HttpHeaders()
         val resource = videoService.download(id)
-        if (asFile) {
+        if (download) {
             headers.set("Content-Disposition", "attachment; filename=\"${resource.filename}\"")
         }
 

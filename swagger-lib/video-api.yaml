@@ -158,7 +158,7 @@ paths:
           description: video deleted
         '400':
           description: bad input parameter
-  /videos/{id}/download:
+  /videos/{id}/view:
     get:
       tags:
         - videos
@@ -175,7 +175,7 @@ paths:
             type: integer
             format: int64
         - in: query
-          name: asFile
+          name: download
           description: Download the file as an attachment
           required: false
           schema:
@@ -183,7 +183,7 @@ paths:
             default: false
       responses:
         '200':
-          description: gets one video for download
+          description: View or download video
           content:
             application/octet-stream:
               schema:
@@ -232,6 +232,10 @@ components:
           example: A video
         videoFileInfo:
           $ref: '#/components/schemas/VideoFileInfoResponse'
+        lastAccessed:
+          type: string
+          format: date-time
+          example: '2016-08-29T09:12:33.001Z'
         lastModified:
           type: string
           format: date-time

@@ -14,5 +14,6 @@ create table video_metadata (
     height int8,
     notes varchar(1000) not null,
     file_create_date timestamp not null,
+    last_accessed timestamp,
     last_modified timestamp not null
 );
