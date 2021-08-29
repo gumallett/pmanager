@@ -1,27 +1,62 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import VideoApi from "../api/api";
-import {Link as RouterLink} from "react-router-dom";
-import {Link} from "@material-ui/core";
+import { Grid, makeStyles } from "@material-ui/core";
+import { Pagination } from "@material-ui/lab";
+import VideoCard from "./video/VideoCard";
 
 
-function VideosList(props = { searchQuery: "" }) {
+const useStyles = makeStyles((theme) => ({
+    topPager: {
+        marginTop: 15
+    },
+    bottomPager: {
+        marginTop: 15,
+        paddingBottom: 20
+    }
+}));
+
+function VideosList(props = {searchQuery: ""}) {
+    const classes = useStyles();
     const [videos, setVideos] = useState([]);
+    const [totalPages, setTotalPages] = useState();
+    const [page, setPage] = useState(1);
 
     useEffect(() => {
-        VideoApi.loadVideos(props.searchQuery).then(videos => setVideos(videos))
+        loadVideos(props.searchQuery, 1).then(() => setPage(1));
     }, [props.searchQuery]);
+
+    useEffect(() => {
+        loadVideos(props.searchQuery, page);
+    }, [page]);
 
     return (
         <div className="App">
-            {videos.map(video =>
-                (
-                    <div key={video.id}>
-                        <Link variant="body2" color="secondary" component={RouterLink} to={`/videos/${video.id}`}>{video.title}</Link>
-                    </div>
-                )
-            )}
+            <Pagination className={classes.topPager} page={page} count={totalPages} shape="rounded" onChange={changePage}/>
+            <Grid container spacing={0} direction="row" alignItems="flex-start" justify="flex-start">
+                {videos.map(video => (
+                    <Grid item xs={3} key={video.id}>
+                        <VideoCard video={video} />
+                    </Grid>
+                ))}
+            </Grid>
+            <Pagination className={classes.bottomPager} page={page} count={totalPages} shape="rounded" onChange={changePage}/>
         </div>
     );
+
+    function loadVideos(q, page) {
+        return VideoApi
+            .loadVideos(q, page ? page - 1 : 0)
+            .then(data => initList(data));
+    }
+
+    function initList(data) {
+        setVideos(data.records);
+        setTotalPages(data.totalPages);
+    }
+
+    function changePage(e, val) {
+        setPage(val);
+    }
 }
 
 export default VideosList;

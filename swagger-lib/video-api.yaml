@@ -60,9 +60,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/VideoResponse'
+                $ref: '#/components/schemas/VideosApiResponse'
         '400':
           description: bad input parameter
     post:
@@ -110,7 +108,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VideoResponse'
+                $ref: '#/components/schemas/VideoApiResponse'
         '400':
           description: bad input parameter
     put:
@@ -191,8 +189,63 @@ paths:
                 format: binary
         '400':
           description: bad input parameter
+  /videos/static:
+    get:
+      tags:
+        - videos
+      summary: Gets static video resource
+      operationId: downloadStatic
+      description: |
+        Downloads a thumbnail video for preview
+      parameters:
+        - in: query
+          name: path
+          description: path of static asset to fetch
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: download
+          description: Download the file as an attachment
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - in: query
+          name: videoId
+          description: id of video if fetching video
+          required: false
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: bad input parameter
 components:
   schemas:
+    ApiResponse:
+      type: object
+      properties:
+        meta:
+          type: object
+        data:
+          type: object
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    ApiErrorResponse:
+      type: object
+      properties:
+        description:
+          type: string
     CreateVideoResponse:
       type: object
       properties:
@@ -200,6 +253,48 @@ components:
           type: integer
           format: int64
           example: 222
+    PagedApiResponse:
+      type: object
+      properties:
+        page:
+          type: integer
+        size:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+          format: int64
+        records:
+          type: array
+          items:
+            type: object
+    VideoPagedResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PagedApiResponse'
+        - type: object
+          properties:
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/VideoResponse'
+    VideosApiResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/VideoPagedResponse'
+    VideoApiResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/VideoResponse'
     VideoResponse:
       type: object
       properties:
@@ -216,6 +311,12 @@ components:
         uri:
           type: string
           example: file://xy/y/z.mp4
+        previewUri:
+          type: string
+          example: file://xy/y/z.mp4
+        thumbUri:
+          type: string
+          example: file://xy/y/z.png
         source:
           type: string
           example: www.example.com

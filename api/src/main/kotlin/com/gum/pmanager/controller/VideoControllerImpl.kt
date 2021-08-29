@@ -1,31 +1,50 @@
 package com.gum.pmanager.controller
 
 import com.gum.pmanager.api.VideosApi
-import com.gum.pmanager.model.CreateVideoResponse
-import com.gum.pmanager.model.VideoResponse
+import com.gum.pmanager.model.*
+import com.gum.pmanager.service.ResourceService
 import com.gum.pmanager.service.VideoMetadataService
+import org.springframework.core.io.FileSystemResource
+import org.springframework.core.io.FileSystemResourceLoader
 import org.springframework.core.io.Resource
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.OffsetDateTime
 
 @RestController
 class VideoControllerImpl(
-    private val videoService: VideoMetadataService
+    private val videoService: VideoMetadataService,
+    private val resourceService: ResourceService
 ): VideosApi {
 
-    override fun getVideo(id: Long): ResponseEntity<VideoResponse> {
-        return ResponseEntity.ok(videoService.get(id))
+    override fun getVideo(id: Long): ResponseEntity<VideoApiResponse> {
+        return ResponseEntity.ok(
+            VideoApiResponse(
+            data = videoService.get(id)
+        ))
     }
 
     override fun addVideo(videoResponse: VideoResponse?): ResponseEntity<CreateVideoResponse> {
         return ResponseEntity.status(HttpStatus.CREATED).body(videoService.create(videoResponse!!))
     }
 
-    override fun searchVideos(q: String?, page: Int, size: Int): ResponseEntity<List<VideoResponse>> {
-        return ResponseEntity.ok(videoService.search(q ?: "", PageRequest.of(page, size)))
+    override fun searchVideos(q: String?, page: Int, size: Int): ResponseEntity<VideosApiResponse> {
+        val pages = videoService.pagedSearch(q ?: "", PageRequest.of(page, size))
+        return ResponseEntity.ok(
+            VideosApiResponse(
+            data = VideoPagedResponse(
+                page = page,
+                size = size,
+                totalPages = pages.totalPages,
+                totalRecords = pages.totalElements,
+                records = pages.toList()
+            )
+        )
+        )
     }
 
     override fun updateVideo(id: Long, videoResponse: VideoResponse?): ResponseEntity<Unit> {
@@ -44,6 +63,20 @@ class VideoControllerImpl(
             headers.set("Content-Disposition", "attachment; filename=\"${resource.filename}\"")
         }
 
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(resource)
+    }
+
+    override fun downloadStatic(path: String, download: Boolean, videoId: Long?): ResponseEntity<Resource> {
+        val headers = HttpHeaders()
+        when {
+            videoId != null -> videoService.update(videoId, VideoResponse(
+                id = videoId, lastAccessed = OffsetDateTime.now()))
+        }
+
+        val resource = resourceService.downloadStatic(path)
+        if (download) {
+            headers.set("Content-Disposition", "attachment; filename=\"${resource.filename}\"")
+        }
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(resource)
     }
 }

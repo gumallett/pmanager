@@ -3,7 +3,7 @@ import VideosList from "./components/VideosList";
 import {BrowserRouter as Router, Link as RouterLink, Route, Switch} from "react-router-dom";
 import ShowVideo from "./components/ShowVideo";
 import {
-    AppBar,
+    AppBar, Button,
     Container,
     createMuiTheme,
     fade,
@@ -17,6 +17,7 @@ import {
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import {useState} from "react";
+import SaveIcon from "@material-ui/icons/Save";
 
 const darkTheme = createMuiTheme({
     palette: {
@@ -113,10 +114,19 @@ function App() {
                                                     root: classes.inputRoot,
                                                     input: classes.inputInput,
                                                 }}
+                                                value={searchQuery}
                                                 onChange={(event) => setSearchQuery(event.target.value)}
                                                 inputProps={{ 'aria-label': 'search' }}
                                             />
                                         </div>
+                                        <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            size="small"
+                                            onClick={() => setSearchQuery("")}
+                                        >
+                                            Clear
+                                        </Button>
                                         <div className={classes.grow} />
                                     </Toolbar>
                                 </Toolbar>

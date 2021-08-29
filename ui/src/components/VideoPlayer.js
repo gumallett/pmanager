@@ -20,10 +20,11 @@ function VideoPlayer({ videoDetail = {} }) {
         }
     }, [videoDetail, playerRef, videoRef]);
 
+    const apiStaticPath = `${VideoApi.baseUrl}/static?path=${encodeURIComponent(videoDetail.uri)}&videoId=${encodeURIComponent(videoDetail.id)}`;
     return (
         <div className="show-video-video">
-            <video id="player" controls width="650" className="video-js" ref={videoRef}>
-                {videoDetail.id ? <source src={`${VideoApi.baseUrl}/${videoDetail.id}/download`} type={videoDetail.videoFileInfo.contentType} /> : <Fragment />}
+            <video id="player" controls width="650" preload="auto" className="video-js" ref={videoRef}>
+                {videoDetail.id ? <source src={apiStaticPath} type={videoDetail.videoFileInfo.contentType} /> : <Fragment />}
                 Sorry, your browser doesn't support embedded videos.
             </video>
         </div>

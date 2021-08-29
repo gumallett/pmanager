@@ -3,6 +3,8 @@ create table video_metadata (
     title varchar(255) not null,
     description varchar(1000) not null,
     uri varchar(1000) not null,
+    preview_uri varchar(1000) not null,
+    thumb_uri varchar(1000) not null,
     filename varchar(255) not null,
     content_type varchar(255) not null,
     source varchar(255) not null,

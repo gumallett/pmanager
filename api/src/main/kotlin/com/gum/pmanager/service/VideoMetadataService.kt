@@ -12,6 +12,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.PathResource
 import org.springframework.core.io.Resource
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -24,6 +25,7 @@ interface VideoMetadataService {
     fun delete(id: Long)
     fun get(id: Long): VideoResponse
     fun search(query: String, pageable: Pageable): List<VideoResponse>
+    fun pagedSearch(query: String, pageable: Pageable): Page<VideoResponse>
     fun download(id: Long): Resource
 }
 
@@ -63,6 +65,9 @@ class VideoMetadataServiceImpl(
             }
             request.rating != null -> {
                 update.rating = request.rating.toShort()
+            }
+            request.lastAccessed != null -> {
+                update.lastAccessed = request.lastAccessed.toInstant()
             }
             request.lastModified != null -> {
                 update.lastModified = request.lastModified.toInstant()
@@ -112,7 +117,12 @@ class VideoMetadataServiceImpl(
 
     @Transactional(readOnly = true)
     override fun search(query: String, pageable: Pageable): List<VideoResponse> {
-        return videoMetadataRepository.search(query, pageable).map { it.toVideoMetadataResponse() }
+        return pagedSearch(query, pageable).toList()
+    }
+
+    @Transactional(readOnly = true)
+    override fun pagedSearch(query: String, pageable: Pageable): Page<VideoResponse> {
+        return videoMetadataRepository.pagedSearch(query, pageable).map { it.toVideoMetadataResponse() }
     }
 
     override fun download(id: Long): Resource {

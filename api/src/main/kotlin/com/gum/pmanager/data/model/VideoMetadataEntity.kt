@@ -32,6 +32,12 @@ class VideoMetadataEntity(
     @KeywordField(sortable = Sortable.YES, projectable = Projectable.YES)
     var uri: String,
 
+    @KeywordField(sortable = Sortable.YES, projectable = Projectable.YES)
+    var previewUri: String,
+
+    @KeywordField(sortable = Sortable.YES, projectable = Projectable.YES)
+    var thumbUri: String,
+
     @OneToMany(cascade = [CascadeType.ALL])
     @IndexedEmbedded
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
@@ -159,6 +165,8 @@ fun VideoResponse.toVideoMetadataEntity() = VideoMetadataEntity(
     title = title ?: "",
     description = description ?: "",
     uri = uri ?: "",
+    thumbUri = thumbUri ?: "",
+    previewUri = previewUri ?: "",
     categories = categories?.map { it.toCategoryEntity() }?.toMutableList() ?: mutableListOf(),
     tags = tags?.map { it.toTagEntity() }?.toMutableList() ?: mutableListOf(),
     source = source ?: "",
@@ -175,6 +183,8 @@ fun VideoMetadataEntity.toVideoMetadataResponse() = VideoResponse(
     title = title,
     description = description,
     uri = uri,
+    thumbUri = thumbUri,
+    previewUri = previewUri,
     categories = categories.map { it.toCategoryResponse() },
     tags = tags.map { it.toTagResponse() },
     source = source,

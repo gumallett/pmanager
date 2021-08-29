@@ -17,6 +17,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributeView
 import java.time.ZoneOffset
+import kotlin.io.path.nameWithoutExtension
 
 @Service
 class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataService, val indexingProperties: IndexingProperties) {
@@ -71,12 +72,19 @@ class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataServ
             return
         }
 
+        if (path.nameWithoutExtension.endsWith("-thumb")) {
+            LOG.info("Skipping thumbnail {}", path)
+            return
+        }
+
         val fileAttributes = Files.getFileAttributeView(path, BasicFileAttributeView::class.java).readAttributes()
 
         val request = VideoResponse(
             title = file.nameWithoutExtension.replace(titleCorrectionRegex, "-"),
             description = file.nameWithoutExtension.replace(titleCorrectionRegex, "-"),
             uri = path.toUri().toString(),
+            previewUri = getPreviewUri(path),
+            thumbUri = getThumbnailUri(path),
             source = file.name,
             videoFileInfo = VideoFileInfoResponse(
                 filename = file.name,
@@ -104,6 +112,16 @@ class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataServ
     fun onApplicationStart() {
         index()
     }
+}
+
+fun getThumbnailUri(path: Path): String {
+    val thumbnail = "${path.nameWithoutExtension}-thumb.png"
+    return File(path.parent.toFile(), thumbnail).toURI().toString()
+}
+
+fun getPreviewUri(path: Path): String {
+    val thumbnail = "${path.nameWithoutExtension}-thumb.mp4"
+    return File(path.parent.toFile(), thumbnail).toURI().toString()
 }
 
 fun getDurationInMillis(duration: Long?, timescale: Long?): Long {
