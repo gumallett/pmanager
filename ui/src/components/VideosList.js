@@ -3,7 +3,8 @@ import VideoApi from "../api/api";
 import { Grid, makeStyles } from "@material-ui/core";
 import { Pagination } from "@material-ui/lab";
 import VideoCard from "./video/VideoCard";
-
+import { useHistory, useLocation } from "react-router-dom";
+import routes from "../routes/routes";
 
 const useStyles = makeStyles((theme) => ({
     topPager: {
@@ -12,41 +13,41 @@ const useStyles = makeStyles((theme) => ({
     bottomPager: {
         marginTop: 15,
         paddingBottom: 20
+    },
+    noResults: {
+        textAlign: "left"
     }
 }));
 
-function VideosList(props = {searchQuery: ""}) {
+function VideosList(props = {searchQuery: "", page: 1}) {
     const classes = useStyles();
     const [videos, setVideos] = useState([]);
     const [totalPages, setTotalPages] = useState();
-    const [page, setPage] = useState(1);
+    const query = new URLSearchParams(useLocation().search);
+    const history = useHistory();
 
     useEffect(() => {
-        loadVideos(props.searchQuery, 1).then(() => setPage(1));
-    }, [props.searchQuery]);
-
-    useEffect(() => {
-        loadVideos(props.searchQuery, page);
-    }, [page]);
+        loadVideos(props.searchQuery, props.page)
+            .then(data => initList(data));
+    }, [props.searchQuery, props.page]);
 
     return (
         <div className="App">
-            <Pagination className={classes.topPager} page={page} count={totalPages} shape="rounded" onChange={changePage}/>
-            <Grid container spacing={0} direction="row" alignItems="flex-start" justify="flex-start">
-                {videos.map(video => (
+            <Pagination className={classes.topPager} page={props.page} count={totalPages} shape="rounded" onChange={changePage}/>
+            <Grid container spacing={0} direction="row" alignItems="flex-start" justifyContent="flex-start">
+                {videos.length > 0 ? videos.map(video => (
                     <Grid item xs={3} key={video.id}>
                         <VideoCard video={video} />
                     </Grid>
-                ))}
+                )) : <Grid item xs={12}><p className={classes.noResults}>No results found.</p></Grid> }
             </Grid>
-            <Pagination className={classes.bottomPager} page={page} count={totalPages} shape="rounded" onChange={changePage}/>
+            <Pagination className={classes.bottomPager} page={props.page} count={totalPages} shape="rounded" onChange={changePage}/>
         </div>
     );
 
     function loadVideos(q, page) {
         return VideoApi
-            .loadVideos(q, page ? page - 1 : 0)
-            .then(data => initList(data));
+            .loadVideos(q, page ? page - 1 : 0);
     }
 
     function initList(data) {
@@ -55,7 +56,12 @@ function VideosList(props = {searchQuery: ""}) {
     }
 
     function changePage(e, val) {
-        setPage(val);
+        query.set('page', val);
+        query.set('search', props.searchQuery);
+        history.push({
+            pathname: routes.video,
+            search: `?${query.toString()}`
+        });
     }
 }
 

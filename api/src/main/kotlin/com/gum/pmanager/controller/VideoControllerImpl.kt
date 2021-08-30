@@ -74,6 +74,10 @@ class VideoControllerImpl(
         }
 
         val resource = resourceService.downloadStatic(path)
+        if (listOf("png", "jpg").contains(resource.file.extension)) {
+            headers.lastModified = resource.lastModified()
+        }
+
         if (download) {
             headers.set("Content-Disposition", "attachment; filename=\"${resource.filename}\"")
         }

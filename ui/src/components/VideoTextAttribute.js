@@ -18,12 +18,12 @@ function VideoTextAttribute({ stringValue = "", label = "", span = 12 }) {
     const [editing, setEditing] = useState(true);
     return (
         <Fragment>
-            <Grid item xs={span} spacing={0}>
+            <Grid item xs={span}>
                 {editing ? <TextField
                         className={classes.text}
                         label={label}
                         color="secondary"
-                        multiline rows={1} maxRows={2} variant="outlined" value={stringValue} /> :
+                        multiline maxRows={2} variant="outlined" value={stringValue} /> :
                     <Typography className={classes.text} component="div">{stringValue}</Typography>}
             </Grid>
         </Fragment>
