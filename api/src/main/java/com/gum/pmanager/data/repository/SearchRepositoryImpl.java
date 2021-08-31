@@ -2,10 +2,12 @@ package com.gum.pmanager.data.repository;
 
 import com.gum.pmanager.data.model.VideoMetadataEntity;
 import org.hibernate.search.engine.search.query.SearchResult;
+import org.hibernate.search.engine.search.sort.dsl.SortOrder;
 import org.hibernate.search.mapper.orm.Search;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
@@ -29,6 +31,16 @@ public class SearchRepositoryImpl implements SearchRepository {
                             .field("notes")
                             .matching(query);
                     return p.bool().must(StringUtils.hasLength(query) ? qs : p.matchAll());
+                })
+                .sort(s -> {
+                    if (pageable.getSort().isUnsorted()) {
+                        return s.score().desc();
+                    }
+
+                    return s.composite(c -> pageable.getSort().stream()
+                            .forEach(sort ->
+                                    c.add(s.field(sort.getProperty())
+                                            .order(sort.isAscending() ? SortOrder.ASC : SortOrder.DESC))));
                 })
                 .fetch(pageable.getPageSize() * pageable.getPageNumber(), pageable.getPageSize());
 

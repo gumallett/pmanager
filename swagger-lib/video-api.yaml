@@ -54,6 +54,18 @@ paths:
             minimum: 0
             maximum: 50
             default: 10
+        - in: query
+          name: sort
+          description: Sort by parameter
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: order
+          description: Sort by order
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: search results matching criteria

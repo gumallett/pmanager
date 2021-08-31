@@ -8,6 +8,8 @@ import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.FileSystemResourceLoader
 import org.springframework.core.io.Resource
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -32,8 +34,9 @@ class VideoControllerImpl(
         return ResponseEntity.status(HttpStatus.CREATED).body(videoService.create(videoResponse!!))
     }
 
-    override fun searchVideos(q: String?, page: Int, size: Int): ResponseEntity<VideosApiResponse> {
-        val pages = videoService.pagedSearch(q ?: "", PageRequest.of(page, size))
+    override fun searchVideos(q: String?, page: Int, size: Int, sort: String?, order: String?): ResponseEntity<VideosApiResponse> {
+        val sortDomain = Sort.by(Sort.Direction.fromString(order ?: "desc"), sort ?: "videoFileInfo.createDate")
+        val pages = videoService.pagedSearch(q ?: "", PageRequest.of(page, size, sortDomain))
         return ResponseEntity.ok(
             VideosApiResponse(
             data = VideoPagedResponse(

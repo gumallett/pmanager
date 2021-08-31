@@ -35,8 +35,15 @@ class VideoMetadataServiceImpl(
 ) : VideoMetadataService {
     @Transactional
     override fun create(request: VideoResponse): CreateVideoResponse {
-        val entity = videoMetadataRepository.save(request.toVideoMetadataEntity())
-        return CreateVideoResponse(entity.id)
+        val existing = videoMetadataRepository.findByUri(request.uri ?: "")
+
+        if (existing == null) {
+            val entity = videoMetadataRepository.save(request.toVideoMetadataEntity())
+            return CreateVideoResponse(entity.id)
+        }
+
+        update(existing.id, request)
+        return CreateVideoResponse(existing.id)
     }
 
     @Transactional
