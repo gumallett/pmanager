@@ -85,7 +85,7 @@ class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataServ
             uri = path.toUri().toString(),
             previewUri = getPreviewUri(path),
             thumbUri = getThumbnailUri(path),
-            source = file.name,
+            source = "",
             videoFileInfo = VideoFileInfoResponse(
                 filename = file.name,
                 contentType = contentType,

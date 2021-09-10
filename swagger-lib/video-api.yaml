@@ -172,10 +172,10 @@ paths:
     get:
       tags:
         - videos
-      summary: downloads video
-      operationId: downloadVideo
+      summary: Views a video
+      operationId: viewVideo
       description: |
-        Downloads a video for viewing
+        View a video, returning video metadata
       parameters:
         - in: path
           name: id
@@ -184,21 +184,13 @@ paths:
           schema:
             type: integer
             format: int64
-        - in: query
-          name: download
-          description: Download the file as an attachment
-          required: false
-          schema:
-            type: boolean
-            default: false
       responses:
         '200':
-          description: View or download video
+          description: gets one video's metadata
           content:
-            application/octet-stream:
+            application/json:
               schema:
-                type: string
-                format: binary
+                $ref: '#/components/schemas/VideoApiResponse'
         '400':
           description: bad input parameter
   /videos/static:

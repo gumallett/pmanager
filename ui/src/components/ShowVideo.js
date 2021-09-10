@@ -7,6 +7,7 @@ import VideoPlayer from "./VideoPlayer";
 import VideoTextAttribute from "./VideoTextAttribute";
 import SaveIcon from '@material-ui/icons/Save';
 import { toDuration } from "../utils";
+import { format, formatDistanceToNow } from "date-fns";
 
 const useStyles = makeStyles(theme => ({
     attributes: {
@@ -61,11 +62,11 @@ function ShowVideo() {
                             <Typography>Length:</Typography>
                             <Typography>{toDuration(videoDetail.videoFileInfo.length)}</Typography>
                             <Typography>Last Accessed:</Typography>
-                            <Typography>{videoDetail.lastAccessed}</Typography>
+                            <Typography>{videoDetail.lastAccessed ? formatDistanceToNow(Date.parse(videoDetail.lastAccessed)) : videoDetail.lastAccessed}</Typography>
                             <Typography>Last Modified:</Typography>
-                            <Typography>{videoDetail.lastModified}</Typography>
+                            <Typography>{videoDetail.lastModified ? format(Date.parse(videoDetail.lastModified), 'MM/dd/yyyy HH:mm:ss') : videoDetail.lastModified}</Typography>
                             <Typography>Created:</Typography>
-                            <Typography>{videoDetail.videoFileInfo.createDate}</Typography>
+                            <Typography>{videoDetail.videoFileInfo.createDate ? format(Date.parse(videoDetail.videoFileInfo.createDate), 'MM/dd/yyyy HH:mm:ss') : videoDetail.videoFileInfo.createDate}</Typography>
                         </Grid>
                     </Grid>
                     <Grid container item justifyContent="flex-start" alignItems="flex-start">

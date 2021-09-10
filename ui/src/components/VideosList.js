@@ -34,7 +34,7 @@ function VideosList(props = {searchQuery: "", page: 1}) {
     return (
         <div className="App">
             <Pagination className={classes.topPager} page={props.page} count={totalPages} shape="rounded" onChange={changePage}/>
-            <Grid container spacing={0} direction="row" alignItems="flex-start" justifyContent="flex-start">
+            <Grid container spacing={0} direction="row" alignItems="flex-start">
                 {videos.length > 0 ? videos.map(video => (
                     <Grid item xs={3} key={video.id}>
                         <VideoCard video={video} />

@@ -1,13 +1,27 @@
-import { Card, CardContent, CardMedia, Link, makeStyles } from "@material-ui/core";
+import { Card, CardContent, CardMedia, Grid, Link, makeStyles, Typography } from "@material-ui/core";
 import { Link as RouterLink } from "react-router-dom";
 import VideoApi from "../../api/api";
 import routes from "../../routes/routes";
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import GradeIcon from '@material-ui/icons/Grade';
+import { toDuration } from "../../utils";
 
 const useStyles = makeStyles((theme) => ({
     card: {
         marginTop: 15,
         marginLeft: 15,
-        maxWidth: 320
+        maxWidth: 320,
+        textAlign: "left"
+    },
+    viewsIcon: {
+        paddingTop: 2
+    },
+    cardContent: {
+        padding: 7,
+        paddingBottom: "0 !important"
+    },
+    bottomRow: {
+
     }
 }));
 
@@ -15,7 +29,7 @@ function VideoCard({ video }) {
     const classes = useStyles();
 
     return (
-        <Card className={classes.card} variant="outlined">
+        <Card className={classes.card}>
             <CardMedia>
                 <Link component={RouterLink} to={`${routes.video}/${video.id}`}>
                     <img
@@ -23,9 +37,21 @@ function VideoCard({ video }) {
                         alt="Preview img"/>
                 </Link>
             </CardMedia>
-            <CardContent>
+            <CardContent className={`${classes.cardContent}`}>
                 <Link variant="body2" color="secondary" component={RouterLink}
-                      to={`${routes.video}/${video.id}`}>{video.title}</Link>
+                      to={`${routes.video}/${video.id}`}>{video.title}</Link><br/>
+                {`${video.source}`}
+                <Grid className={classes.bottomRow} container direction="row" spacing={2} justifyContent="flex-start" alignItems="center">
+                    <Grid container direction="row" spacing={1} item xs={3} justifyContent="flex-start" alignItems="stretch">
+                        <Grid item xs={6}><VisibilityIcon className={classes.viewsIcon} fontSize="small" /></Grid>
+                        <Grid item xs={6}><Typography variant="caption">{`${video.views ? video.views : "0"}`}</Typography></Grid>
+                    </Grid>
+                    <Grid container direction="row" spacing={1} item xs={3} justifyContent="flex-start" alignItems="stretch">
+                        <Grid item xs={6}><GradeIcon className={classes.viewsIcon} fontSize="small" /></Grid>
+                        <Grid item xs={6}><Typography variant="caption">{`${video.rating ? video.rating : "0.0"}`}</Typography></Grid>
+                    </Grid>
+                    <Grid container item xs={6} justifyContent="flex-end" alignItems="stretch"><Typography variant="caption">{toDuration(video.videoFileInfo.length)}</Typography></Grid>
+                </Grid>
             </CardContent>
         </Card>
     );

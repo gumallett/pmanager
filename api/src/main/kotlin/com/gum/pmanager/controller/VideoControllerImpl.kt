@@ -59,23 +59,15 @@ class VideoControllerImpl(
         return ResponseEntity.ok(videoService.delete(id))
     }
 
-    override fun downloadVideo(id: Long, download: Boolean): ResponseEntity<Resource> {
-        val headers = HttpHeaders()
-        val resource = videoService.download(id)
-        if (download) {
-            headers.set("Content-Disposition", "attachment; filename=\"${resource.filename}\"")
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(resource)
+    override fun viewVideo(id: Long): ResponseEntity<VideoApiResponse> {
+        return ResponseEntity.ok(
+            VideoApiResponse(
+                data = videoService.view(id)
+            ))
     }
 
     override fun downloadStatic(path: String, download: Boolean, videoId: Long?): ResponseEntity<Resource> {
         val headers = HttpHeaders()
-        when {
-            videoId != null -> videoService.update(videoId, VideoResponse(
-                id = videoId, lastAccessed = OffsetDateTime.now()))
-        }
-
         val resource = resourceService.downloadStatic(path)
         if (listOf("png", "jpg").contains(resource.file.extension)) {
             headers.lastModified = resource.lastModified()
