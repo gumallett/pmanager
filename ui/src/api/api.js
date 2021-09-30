@@ -13,8 +13,11 @@ const loadVideo = (id) => {
 const updateVideo = (id, data) => {
     return fetch(`${baseUrl}/${id}`, {
         method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify(data)
-    }).then(res => res.json());
+    });
 }
 
 const VideoApi = {

@@ -14,18 +14,21 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-function VideoTextAttribute({ stringValue = "", label = "", span = 12 }) {
+function VideoTextAttribute({ stringValue = "", label = "", span = 12, editable = true, onChange }) {
     const classes = useStyles();
-    const [editing, setEditing] = useState(true);
+    const [editing, setEditing] = useState(editable);
     return (
         <Fragment>
             <Grid item xs={span}>
-                {editing ? <TextField
-                        className={classes.text}
-                        label={label}
-                        color="secondary"
-                        multiline maxRows={2} variant="outlined" value={stringValue} /> :
-                    <Typography className={classes.text} component="div">{stringValue}</Typography>}
+                <form noValidate autoComplete="off">
+                    {editing ? <TextField
+                            className={classes.text}
+                            label={label}
+                            color="secondary"
+                            onChange={onChange}
+                            multiline maxRows={2} variant="outlined" value={stringValue} /> :
+                        <Typography className={classes.text} component="div">{stringValue}</Typography>}
+                </form>
             </Grid>
         </Fragment>
     )

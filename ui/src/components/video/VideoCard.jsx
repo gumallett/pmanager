@@ -5,7 +5,7 @@ import VideoApi from "../../api/api";
 import routes from "../../routes/routes";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import GradeIcon from '@mui/icons-material/Grade';
-import { toDuration } from "../../utils";
+import { displayRating, toDuration } from "../../utils";
 
 const useStyles = makeStyles((theme) => ({
     card: {
@@ -49,7 +49,7 @@ function VideoCard({ video }) {
                     </Grid>
                     <Grid container direction="row" spacing={1} item xs={3} justifyContent="flex-start" alignItems="stretch">
                         <Grid item xs={6}><GradeIcon className={classes.viewsIcon} fontSize="small" /></Grid>
-                        <Grid item xs={6}><Typography variant="caption">{`${video.rating ? video.rating : "0.0"}`}</Typography></Grid>
+                        <Grid item xs={6}><Typography variant="caption">{`${displayRating(video.rating)}`}</Typography></Grid>
                     </Grid>
                     <Grid container item xs={6} justifyContent="flex-end" alignItems="stretch"><Typography variant="caption">{toDuration(video.videoFileInfo.length)}</Typography></Grid>
                 </Grid>

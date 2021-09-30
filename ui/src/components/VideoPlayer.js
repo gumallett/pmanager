@@ -30,12 +30,10 @@ function VideoPlayer({ videoDetail = {} }) {
 
     const apiStaticPath = `${VideoApi.baseUrl}/static?path=${encodeURIComponent(videoDetail.uri)}&videoId=${encodeURIComponent(videoDetail.id)}`;
     return (
-        <div className="show-video-video">
-            <video id="player" controls width="660" preload="auto" className="video-js" ref={videoRef}>
-                {videoDetail.id ? <source src={apiStaticPath} type={videoDetail.videoFileInfo.contentType} /> : <Fragment />}
-                Sorry, your browser doesn't support embedded videos.
-            </video>
-        </div>
+        <video id="player" controls width="750" preload="auto" className="video-js" ref={videoRef}>
+            {videoDetail.id ? <source src={apiStaticPath} type={videoDetail.videoFileInfo.contentType} /> : <Fragment />}
+            Sorry, your browser doesn't support embedded videos.
+        </video>
     );
 }
 

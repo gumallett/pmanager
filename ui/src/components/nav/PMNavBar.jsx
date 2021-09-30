@@ -75,7 +75,7 @@ function PMNavBar(props) {
                         size="large">
                         <MenuIcon/>
                     </IconButton>
-                    <Link variant="h6" color="secondary" component={RouterLink} to={routes.video}>Home</Link>
+                    <Link variant="h6" color="primary" component={RouterLink} to={routes.video}>Home</Link>
                     <Toolbar>
                         <div className={classes.search}>
                             <div className={classes.searchIcon}><SearchIcon/></div>
@@ -92,7 +92,7 @@ function PMNavBar(props) {
                         </div>
                         <Button
                             variant="contained"
-                            color="secondary"
+                            color="primary"
                             size="small"
                             onClick={() => searchChanged("")}
                         >
