@@ -2,23 +2,24 @@ import './App.css';
 import VideosList from "./components/VideosList";
 import { Route, Switch, useLocation } from "react-router-dom";
 import ShowVideo from "./components/ShowVideo";
-import { Container, createTheme, makeStyles, MuiThemeProvider } from "@material-ui/core";
+import {
+    Container,
+    createTheme,
+    ThemeProvider,
+    StyledEngineProvider,
+    adaptV4Theme,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import routes from "./routes/routes";
 import PMNavBar from "./components/nav/PMNavBar";
 
-const darkTheme = createTheme({
+const darkTheme = createTheme(adaptV4Theme({
     palette: {
-        type: 'dark',
+        mode: 'dark',
     },
-});
-
-const useStyles = makeStyles((theme) => ({
-
 }));
 
 function App() {
-    const classes = useStyles();
     const [searchQuery, setSearchQuery] = useState("");
     const [page, setPage] = useState(1);
     const location = useLocation();
@@ -36,23 +37,25 @@ function App() {
     return (
         <div className="App">
             <header className="App-header">
-                <MuiThemeProvider theme={darkTheme}>
-                        <PMNavBar searchQuery={searchQuery} />
+                <StyledEngineProvider injectFirst>
+                    <ThemeProvider theme={darkTheme}>
+                            <PMNavBar searchQuery={searchQuery} />
 
-                        <Switch>
-                            <Route exact path={routes.video}>
-                                <Container>
-                                    <VideosList searchQuery={searchQuery} page={page}/>
-                                </Container>
-                            </Route>
+                            <Switch>
+                                <Route exact path={routes.video}>
+                                    <Container>
+                                        <VideosList searchQuery={searchQuery} page={page}/>
+                                    </Container>
+                                </Route>
 
-                            <Route path={`${routes.video}/:id`}>
-                                <Container>
-                                    <ShowVideo/>
-                                </Container>
-                            </Route>
-                        </Switch>
-                </MuiThemeProvider>
+                                <Route path={`${routes.video}/:id`}>
+                                    <Container>
+                                        <ShowVideo/>
+                                    </Container>
+                                </Route>
+                            </Switch>
+                    </ThemeProvider>
+                </StyledEngineProvider>
             </header>
         </div>
     );

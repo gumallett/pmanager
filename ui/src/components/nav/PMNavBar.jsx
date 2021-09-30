@@ -1,8 +1,9 @@
-import { AppBar, Button, fade, IconButton, InputBase, Link, makeStyles, Toolbar } from "@material-ui/core";
-import MenuIcon from "@material-ui/icons/Menu";
+import { AppBar, Button, alpha, IconButton, InputBase, Link, Toolbar } from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
+import MenuIcon from "@mui/icons-material/Menu";
 import { Link as RouterLink, useHistory, useLocation } from "react-router-dom";
 import routes from "../../routes/routes";
-import SearchIcon from "@material-ui/icons/Search";
+import SearchIcon from "@mui/icons-material/Search";
 
 const useStyles = makeStyles((theme) => ({
     grow: {
@@ -20,9 +21,9 @@ const useStyles = makeStyles((theme) => ({
     search: {
         position: 'relative',
         borderRadius: theme.shape.borderRadius,
-        backgroundColor: fade(theme.palette.common.white, 0.15),
+        backgroundColor: alpha(theme.palette.common.white, 0.15),
         '&:hover': {
-            backgroundColor: fade(theme.palette.common.white, 0.25),
+            backgroundColor: alpha(theme.palette.common.white, 0.25),
         },
         marginRight: theme.spacing(2),
         marginLeft: theme.spacing(2),
@@ -47,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     inputInput: {
         padding: theme.spacing(1, 1, 1, 0),
         // vertical padding + font size from searchIcon
-        paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
         transition: theme.transitions.create('width'),
         width: '100%',
         [theme.breakpoints.up('md')]: {
@@ -66,8 +67,12 @@ function PMNavBar(props) {
         <div className={classes.grow}>
             <AppBar position="static">
                 <Toolbar>
-                    <IconButton edge="start" className={classes.menuButton} color="inherit"
-                                aria-label="menu">
+                    <IconButton
+                        edge="start"
+                        className={classes.menuButton}
+                        color="inherit"
+                        aria-label="menu"
+                        size="large">
                         <MenuIcon/>
                     </IconButton>
                     <Link variant="h6" color="secondary" component={RouterLink} to={routes.video}>Home</Link>

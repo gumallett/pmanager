@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "video.js/dist/video-js.css"
 import VideoApi from "../api/api";
-import { Button, Grid, makeStyles, Paper, Typography } from "@material-ui/core";
+import { Button, Grid, Paper, Typography } from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
 import VideoPlayer from "./VideoPlayer";
 import VideoTextAttribute from "./VideoTextAttribute";
-import SaveIcon from '@material-ui/icons/Save';
-import { toDuration } from "../utils";
-import { format, formatDistanceToNow } from "date-fns";
+import SaveIcon from '@mui/icons-material/Save';
+import { displayDateDistance, toDuration } from "../utils";
+import { format } from "date-fns";
+import VideoInfoBar from "./video/VideoInfoBar";
 
 const useStyles = makeStyles(theme => ({
     attributes: {
@@ -15,6 +17,16 @@ const useStyles = makeStyles(theme => ({
         padding: theme.spacing(2),
         margin: "auto",
         marginTop: 20,
+        textAlign: "left"
+    },
+    player: {
+        marginTop: 20
+    },
+    titleRow: {
+        maxWidth: 750,
+        padding: theme.spacing(2),
+        margin: "auto",
+        marginTop: 0,
         textAlign: "left"
     },
     button: {
@@ -36,8 +48,13 @@ function ShowVideo() {
 
     return (
         <div>
-            <Typography variant="h3">{videoDetail.title}</Typography>
-            <VideoPlayer videoDetail={videoDetail} />
+            <div className={classes.player}><VideoPlayer videoDetail={videoDetail} /></div>
+            <div className={classes.titleRow}>
+                <Grid container direction="row" justifyContent="flex-start" alignItems="flex-start">
+                    <Grid item xs={12}><Typography>{videoDetail.title}</Typography></Grid>
+                    <VideoInfoBar videoDetail={videoDetail} />
+                </Grid>
+            </div>
 
             <Paper className={classes.attributes}>
                 <Grid container spacing={2}>
@@ -62,7 +79,7 @@ function ShowVideo() {
                             <Typography>Length:</Typography>
                             <Typography>{toDuration(videoDetail.videoFileInfo.length)}</Typography>
                             <Typography>Last Accessed:</Typography>
-                            <Typography>{videoDetail.lastAccessed ? formatDistanceToNow(Date.parse(videoDetail.lastAccessed)) : videoDetail.lastAccessed}</Typography>
+                            <Typography>{displayDateDistance(videoDetail.lastAccessed)}</Typography>
                             <Typography>Last Modified:</Typography>
                             <Typography>{videoDetail.lastModified ? format(Date.parse(videoDetail.lastModified), 'MM/dd/yyyy HH:mm:ss') : videoDetail.lastModified}</Typography>
                             <Typography>Created:</Typography>

@@ -1,9 +1,10 @@
-import { Card, CardContent, CardMedia, Grid, Link, makeStyles, Typography } from "@material-ui/core";
+import { Card, CardContent, CardMedia, Grid, Link, Typography } from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
 import { Link as RouterLink } from "react-router-dom";
 import VideoApi from "../../api/api";
 import routes from "../../routes/routes";
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import GradeIcon from '@material-ui/icons/Grade';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import GradeIcon from '@mui/icons-material/Grade';
 import { toDuration } from "../../utils";
 
 const useStyles = makeStyles((theme) => ({

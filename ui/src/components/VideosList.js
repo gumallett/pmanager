@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import VideoApi from "../api/api";
-import { Grid, makeStyles } from "@material-ui/core";
-import { Pagination } from "@material-ui/lab";
+import { Grid } from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
+import { Pagination } from '@mui/material';
 import VideoCard from "./video/VideoCard";
 import { useHistory, useLocation } from "react-router-dom";
 import routes from "../routes/routes";

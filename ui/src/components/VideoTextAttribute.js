@@ -1,7 +1,8 @@
 import {Fragment} from "react";
-import {Grid, makeStyles, TextField, Typography} from "@material-ui/core";
-import ToggleButton from '@material-ui/lab/ToggleButton';
-import EditIcon from '@material-ui/icons/Edit';
+import { Grid, TextField, Typography } from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
+import ToggleButton from '@mui/material/ToggleButton';
+import EditIcon from '@mui/icons-material/Edit';
 import {useState} from "react";
 
 const useStyles = makeStyles(theme => ({

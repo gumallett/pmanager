@@ -1,3 +1,5 @@
+import { formatDistanceToNow } from "date-fns";
+
 function toDuration(num) {
     if (!num) {
         return '';
@@ -18,4 +20,12 @@ function toDuration(num) {
     return `${min}:${sec}`;
 }
 
-export { toDuration };
+function displayRating(rating) {
+    return rating ? rating : "Unrated";
+}
+
+function displayDateDistance(dateStr) {
+    return dateStr ? formatDistanceToNow(Date.parse(dateStr), { addSuffix: true }) : dateStr;
+}
+
+export { toDuration, displayRating, displayDateDistance };
