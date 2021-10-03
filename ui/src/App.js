@@ -1,7 +1,7 @@
 import './App.css';
-import VideosList from "./components/VideosList";
+import VideosList from "./components/directory/VideosList";
 import { Route, Switch, useLocation } from "react-router-dom";
-import ShowVideo from "./components/ShowVideo";
+import ShowVideo from "./components/video/ShowVideo";
 import {
     Container,
     createTheme,
@@ -22,6 +22,7 @@ const darkTheme = createTheme(adaptV4Theme({
 function App() {
     const [searchQuery, setSearchQuery] = useState("");
     const [page, setPage] = useState(1);
+    const [sort, setSort] = useState();
     const location = useLocation();
 
     useEffect(() => {
@@ -31,6 +32,7 @@ function App() {
             page = isNaN(page) ? 1 : page;
             setPage(page);
             setSearchQuery(searchParams.get('search') || '');
+            setSort(searchParams.get('sort') || '');
         }
     }, [location]);
 
@@ -44,7 +46,7 @@ function App() {
                             <Switch>
                                 <Route exact path={routes.video}>
                                     <Container>
-                                        <VideosList searchQuery={searchQuery} page={page}/>
+                                        <VideosList searchQuery={searchQuery} page={page} sort={sort}/>
                                     </Container>
                                 </Route>
 

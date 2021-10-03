@@ -1,4 +1,5 @@
 import { formatDistanceToNow } from "date-fns";
+import VideoApi from "./api/api";
 
 function toDuration(num) {
     if (!num) {
@@ -28,4 +29,11 @@ function displayDateDistance(dateStr) {
     return dateStr ? formatDistanceToNow(Date.parse(dateStr), { addSuffix: true }) : dateStr;
 }
 
-export { toDuration, displayRating, displayDateDistance };
+function thumbnailUri(thumbUri) {
+    if (!thumbUri) {
+        return null;
+    }
+    return `${VideoApi.baseUrl}/static?path=${encodeURIComponent(thumbUri)}`;
+}
+
+export { toDuration, displayRating, displayDateDistance, thumbnailUri };

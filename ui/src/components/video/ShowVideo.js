@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "video.js/dist/video-js.css"
-import VideoApi from "../api/api";
+import VideoApi from "../../api/api";
 import { Button, Grid, Paper, Typography } from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import VideoPlayer from "./VideoPlayer";
 import VideoTextAttribute from "./VideoTextAttribute";
 import SaveIcon from '@mui/icons-material/Save';
-import { displayDateDistance, toDuration } from "../utils";
+import { displayDateDistance, toDuration } from "../../utils";
 import { format } from "date-fns";
-import VideoInfoBar from "./video/VideoInfoBar";
+import VideoInfoBar from "./VideoInfoBar";
 import { styled } from "@mui/styles";
-import VideoDetails from "./video/VideoDetails";
+import VideoDetails from "./VideoDetails";
 
 const useStyles = makeStyles(theme => ({
     attributes: {
@@ -44,9 +44,6 @@ const useStyles = makeStyles(theme => ({
     button: {
         margin: "0 0 0 -15",
     },
-    uri: {
-        overflowWrap: "anywhere"
-    }
 }));
 
 const CopyButton = styled(Button)({

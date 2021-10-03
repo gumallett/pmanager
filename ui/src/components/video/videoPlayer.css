@@ -1,0 +1,8 @@
+
+.video-js .vjs-current-time {
+    display: block;
+}
+
+:not(.vjs-has-started) .vjs-control-bar {
+    display: flex;
+}

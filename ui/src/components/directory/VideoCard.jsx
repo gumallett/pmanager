@@ -1,11 +1,10 @@
 import { Card, CardContent, CardMedia, Grid, Link, Typography } from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import { Link as RouterLink } from "react-router-dom";
-import VideoApi from "../../api/api";
 import routes from "../../routes/routes";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import GradeIcon from '@mui/icons-material/Grade';
-import { displayRating, toDuration } from "../../utils";
+import { displayRating, thumbnailUri, toDuration } from "../../utils";
 
 const useStyles = makeStyles((theme) => ({
     card: {
@@ -34,14 +33,16 @@ function VideoCard({ video }) {
             <CardMedia>
                 <Link component={RouterLink} to={`${routes.video}/${video.id}`}>
                     <img
-                        src={`${VideoApi.baseUrl}/static?path=${encodeURIComponent(video.thumbUri)}`}
+                        src={thumbnailUri(video.thumbUri)}
+                        width={320}
+                        height={180}
                         alt="Preview img"/>
                 </Link>
             </CardMedia>
             <CardContent className={`${classes.cardContent}`}>
                 <Link variant="body2" color="secondary" component={RouterLink}
                       to={`${routes.video}/${video.id}`}>{video.title}</Link><br/>
-                {`${video.source}`}
+                <Typography variant="caption">{`${video.source}`}</Typography>
                 <Grid className={classes.bottomRow} container direction="row" spacing={2} justifyContent="flex-start" alignItems="center">
                     <Grid container direction="row" spacing={1} item xs={3} justifyContent="flex-start" alignItems="stretch">
                         <Grid item xs={6}><VisibilityIcon className={classes.viewsIcon} fontSize="small" /></Grid>
