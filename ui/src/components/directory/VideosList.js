@@ -57,7 +57,7 @@ function VideosList(props = {searchQuery: "", page: 1, sort: ""}) {
 
     function loadVideos(q, page, sort) {
         return VideoApi
-            .loadVideos(q, page ? page - 1 : 0, 10, sort ? sort : undefined);
+            .loadVideos(q, page ? page - 1 : 0, 12, sort ? sort : undefined);
     }
 
     function initList(data) {

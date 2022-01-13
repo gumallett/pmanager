@@ -29,6 +29,8 @@ public class SearchRepositoryImpl implements SearchRepository {
                             .field("title")
                             .field("description")
                             .field("notes")
+                            .field("tags.name")
+                            .field("categories.name")
                             .matching(query);
                     return p.bool().must(StringUtils.hasLength(query) ? qs : p.matchAll());
                 })
