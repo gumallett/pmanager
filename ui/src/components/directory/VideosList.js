@@ -30,6 +30,7 @@ function VideosList(props = {searchQuery: "", page: 1, sort: ""}) {
     const history = useHistory();
 
     useEffect(() => {
+        document.title = "Videos List"
         loadVideos(props.searchQuery, props.page, props.sort)
             .then(data => initList(data));
     }, [props.searchQuery, props.page, props.sort]);

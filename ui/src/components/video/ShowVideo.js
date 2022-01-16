@@ -126,7 +126,10 @@ function ShowVideo() {
     const [detailsVisible, showDetails] = useState(false);
 
     useEffect(() => {
-        VideoApi.loadVideo(id).then(video => setVideoDetail(video))
+        VideoApi.loadVideo(id).then(video => {
+            setVideoDetail(video);
+            document.title = `${video.source} - ${video.title}`;
+        })
     }, [id]);
 
     function updateRating(newVal) {
