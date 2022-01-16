@@ -41,21 +41,21 @@ function App() {
             <header className="App-header">
                 <StyledEngineProvider injectFirst>
                     <ThemeProvider theme={darkTheme}>
-                            <PMNavBar searchQuery={searchQuery} />
+                        <PMNavBar searchQuery={searchQuery} />
 
-                            <Switch>
-                                <Route exact path={routes.video}>
-                                    <Container>
-                                        <VideosList searchQuery={searchQuery} page={page} sort={sort}/>
-                                    </Container>
-                                </Route>
+                        <Switch>
+                            <Route exact path={routes.video}>
+                                <Container>
+                                    <VideosList searchQuery={searchQuery} page={page} sort={sort}/>
+                                </Container>
+                            </Route>
 
-                                <Route path={`${routes.video}/:id`}>
-                                    <Container>
-                                        <ShowVideo/>
-                                    </Container>
-                                </Route>
-                            </Switch>
+                            <Route path={`${routes.video}/:id`}>
+                                <Container>
+                                    <ShowVideo/>
+                                </Container>
+                            </Route>
+                        </Switch>
                     </ThemeProvider>
                 </StyledEngineProvider>
             </header>
