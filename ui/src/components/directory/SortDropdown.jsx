@@ -22,6 +22,7 @@ function SortDropdown({ sortValue = '', defaultSort = 'videoFileInfo.createDate'
                 label="Sort"
                 onChange={handleChange}
             >
+                <MenuItem value={'_score'}>Relevance</MenuItem>
                 <MenuItem value={'videoFileInfo.createDate'} >Create Date</MenuItem>
                 <MenuItem value={'lastAccessed'}>Access Date</MenuItem>
                 <MenuItem value={'rating'}>Rating</MenuItem>

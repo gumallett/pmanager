@@ -35,8 +35,7 @@ class VideoControllerImpl(
     }
 
     override fun searchVideos(q: String?, page: Int, size: Int, sort: String?, order: String?): ResponseEntity<VideosApiResponse> {
-        val sortDomain = Sort.by(Sort.Direction.fromString(order ?: "desc"), sort ?: "videoFileInfo.createDate")
-        val pages = videoService.pagedSearch(q ?: "", PageRequest.of(page, size, sortDomain))
+        val pages = videoService.pagedSearch(q ?: "", getSort(page, size, sort, order))
         return ResponseEntity.ok(
             VideosApiResponse(
             data = VideoPagedResponse(
@@ -77,5 +76,13 @@ class VideoControllerImpl(
             headers.set("Content-Disposition", "attachment; filename=\"${resource.filename}\"")
         }
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(resource)
+    }
+
+    private fun getSort(page: Int, size: Int, sort: String?, order: String?): Pageable {
+        if (sort == "_score") {
+            return PageRequest.of(page, size, Sort.unsorted())
+        }
+        val sortDomain = Sort.by(Sort.Direction.fromString(order ?: "desc"), sort ?: "videoFileInfo.createDate")
+        return PageRequest.of(page, size, sortDomain)
     }
 }

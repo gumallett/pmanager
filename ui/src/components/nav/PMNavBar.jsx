@@ -4,6 +4,8 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { Link as RouterLink, useHistory, useLocation } from "react-router-dom";
 import routes from "../../routes/routes";
 import SearchIcon from "@mui/icons-material/Search";
+import { useEffect, useMemo, useState } from "react";
+import debounce from 'lodash.debounce';
 
 const useStyles = makeStyles((theme) => ({
     grow: {
@@ -63,6 +65,17 @@ function PMNavBar(props) {
     const query = new URLSearchParams(location.search);
     const history = useHistory();
 
+    const [tmpSearchQuery, setTmpSearchQuery] = useState(query.get("search"));
+
+    const debouncedSearch = useMemo(() => {
+        return debounce(updateQueryParams, 250);
+    }, [tmpSearchQuery]);
+
+    useEffect(() => {
+        debouncedSearch();
+        return () => debouncedSearch.cancel();
+    }, [tmpSearchQuery]);
+
     return (
         <div className={classes.grow}>
             <AppBar position="static">
@@ -85,7 +98,7 @@ function PMNavBar(props) {
                                     root: classes.inputRoot,
                                     input: classes.inputInput,
                                 }}
-                                value={props.searchQuery}
+                                value={tmpSearchQuery}
                                 onChange={(event) => searchChanged(event.target.value)}
                                 inputProps={{'aria-label': 'search'}}
                             />
@@ -106,12 +119,25 @@ function PMNavBar(props) {
     );
 
     function searchChanged(q) {
-        query.set('page', '1');
-        query.set('search', q || '');
-        history.push({
-            pathname: routes.video,
-            search: `?${query.toString()}`
-        });
+        setTmpSearchQuery(q || '');
+    }
+
+    function updateQueryParams() {
+        if (tmpSearchQuery && tmpSearchQuery.length > 2) {
+            query.set('page', '1');
+            query.set('search', tmpSearchQuery || '');
+            history.push({
+                pathname: routes.video,
+                search: `?${query.toString()}`
+            });
+        } else if (!tmpSearchQuery || tmpSearchQuery.length === 0) {
+            query.set('page', '1');
+            query.set('search', '');
+            history.push({
+                pathname: routes.video,
+                search: `?${query.toString()}`
+            });
+        }
     }
 }
 
