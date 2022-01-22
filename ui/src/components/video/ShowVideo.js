@@ -2,7 +2,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import "video.js/dist/video-js.css"
 import VideoApi from "../../api/api";
-import { Button, Grid, IconButton, Paper, TextField, Typography } from "@mui/material";
+import { Button, Container, Grid, IconButton, Paper, TextField, Typography } from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import VideoPlayer from "./VideoPlayer";
 import VideoTextAttribute from "./VideoTextAttribute";
@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
         textAlign: "left"
     },
     player: {
-        maxWidth: 750,
+        maxWidth: 1000,
         margin: "auto",
         marginTop: 20
     },
@@ -176,7 +176,7 @@ function ShowVideo() {
 
     return (
         <div>
-            <div className={classes.player}><VideoPlayer videoDetail={videoDetail} /></div>
+            <Container><VideoPlayer videoDetail={videoDetail} /></Container>
             <div className={classes.titleRow}>
                 <Grid container direction="row" justifyContent="flex-start" alignItems="flex-start">
                     <Grid item xs={12}><Typography>{videoDetail.title}</Typography></Grid>

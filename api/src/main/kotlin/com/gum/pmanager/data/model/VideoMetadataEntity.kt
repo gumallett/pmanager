@@ -48,7 +48,8 @@ class VideoMetadataEntity(
     @IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
     var tags: MutableList<TagEntity> = ArrayList(),
 
-    @KeywordField(sortable = Sortable.YES, projectable = Projectable.YES)
+    @FullTextField
+    @KeywordField(name="source_sort", sortable = Sortable.YES, projectable = Projectable.YES)
     var source: String,
 
     @GenericField(sortable = Sortable.YES, projectable = Projectable.YES)
@@ -120,7 +121,8 @@ class TagEntity(
     @GeneratedValue
     var id: Long? = null,
 
-    @KeywordField
+    @FullTextField
+    @KeywordField(name = "name_sort", sortable = Sortable.YES, projectable = Projectable.YES)
     var name: String
 )
 

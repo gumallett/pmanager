@@ -65,14 +65,14 @@ function PMNavBar(props) {
     const query = new URLSearchParams(location.search);
     const history = useHistory();
 
-    const [tmpSearchQuery, setTmpSearchQuery] = useState(query.get("search"));
+    const [tmpSearchQuery, setTmpSearchQuery] = useState(props.searchQuery);
 
     const debouncedSearch = useMemo(() => {
         return debounce(updateQueryParams, 250);
     }, [tmpSearchQuery]);
 
     useEffect(() => {
-        debouncedSearch();
+        debouncedSearch(tmpSearchQuery);
         return () => debouncedSearch.cancel();
     }, [tmpSearchQuery]);
 
@@ -107,7 +107,7 @@ function PMNavBar(props) {
                             variant="contained"
                             color="primary"
                             size="small"
-                            onClick={() => searchChanged("")}
+                            onClick={clear}
                         >
                             Clear
                         </Button>
@@ -122,17 +122,14 @@ function PMNavBar(props) {
         setTmpSearchQuery(q || '');
     }
 
-    function updateQueryParams() {
-        if (tmpSearchQuery && tmpSearchQuery.length > 2) {
+    function clear() {
+        setTmpSearchQuery('');
+    }
+
+    function updateQueryParams(q) {
+        if (q && q.length > 2) {
             query.set('page', '1');
-            query.set('search', tmpSearchQuery || '');
-            history.push({
-                pathname: routes.video,
-                search: `?${query.toString()}`
-            });
-        } else if (!tmpSearchQuery || tmpSearchQuery.length === 0) {
-            query.set('page', '1');
-            query.set('search', '');
+            query.set('search', q || '');
             history.push({
                 pathname: routes.video,
                 search: `?${query.toString()}`

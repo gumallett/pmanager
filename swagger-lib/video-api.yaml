@@ -232,6 +232,17 @@ paths:
                 format: binary
         '400':
           description: bad input parameter
+  /videos/reindex:
+    get:
+      tags:
+        - videos
+      summary: Rebuilds the index
+      operationId: reindex
+      description: |
+        Rebuilds the index
+      responses:
+        '200':
+          description: success
 components:
   schemas:
     ApiResponse:

@@ -1,10 +1,13 @@
-import { Card, CardContent, CardMedia, Grid, Link, Typography } from "@mui/material";
+import { Box, Card, CardContent, CardMedia, Grid, Link, Typography } from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import { Link as RouterLink } from "react-router-dom";
 import routes from "../../routes/routes";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import GradeIcon from '@mui/icons-material/Grade';
 import { displayRating, thumbnailUri, toDuration } from "../../utils";
+import { useRef, useState } from "react";
+import VideoPlayer from "../video/VideoPlayer";
+
 
 const useStyles = makeStyles((theme) => ({
     card: {
@@ -22,21 +25,61 @@ const useStyles = makeStyles((theme) => ({
     },
     bottomRow: {
 
-    }
+    },
 }));
 
 function VideoCard({ video }) {
     const classes = useStyles();
+    const [hover, setHover] = useState(false);
+    const ref = useRef();
+
+    function showPreview(event) {
+        // console.log("show");
+        // console.log(event);
+        // console.log(event.target && event.target.className ? event.target.className : "");
+        // console.log(event.target && event.target.tagName ? event.target.tagName : "");
+        function isOver() {
+            return !hover && event.target && event.target.tagName
+                && (event.target.tagName.toLowerCase().indexOf("img") !== -1
+                    || event.target.className.toLowerCase().indexOf("muicard"));
+        }
+        if (isOver()) {
+            setHover(true);
+            event.preventDefault();
+            return false;
+        }
+    }
+
+    function hidePreview(event) {
+        // console.log("hide");
+        // console.log(event);
+        // console.log(event.target && event.target.className ? event.target.className : "");
+        // console.log(event.target && event.target.tagName ? event.target.tagName : "");
+
+        function isOver() {
+            return hover && event.target && event.target.tagName
+                && (event.target.tagName.toLowerCase().indexOf("video") !== -1
+                    || event.target.className.toLowerCase().indexOf("vjs"));
+        }
+        if (isOver()) {
+            setHover(false);
+            event.preventDefault();
+            return false;
+        }
+    }
 
     return (
         <Card className={classes.card}>
-            <CardMedia>
+            <CardMedia ref={ref} sx={{ width: 320, height: 180, overflow: "hidden" }} onMouseOver={showPreview} onMouseOut={hidePreview}>
                 <Link component={RouterLink} to={`${routes.video}/${video.id}`}>
-                    <img
+                    {!hover ? <img
                         src={thumbnailUri(video.thumbUri)}
                         width={320}
                         height={180}
-                        alt="Preview img"/>
+                        alt="Preview img"/> : ""}
+                    <Box sx={{width: "100%", opacity: hover ? 1 : 0}}>
+                        <VideoPlayer videoDetail={video} preview play={hover} />
+                    </Box>
                 </Link>
             </CardMedia>
             <CardContent className={`${classes.cardContent}`}>

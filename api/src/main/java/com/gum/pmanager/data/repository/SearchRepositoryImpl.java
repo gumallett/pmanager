@@ -7,11 +7,11 @@ import org.hibernate.search.mapper.orm.Search;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.concurrent.CompletionStage;
 
 public class SearchRepositoryImpl implements SearchRepository {
     private final EntityManager entityManager;
@@ -29,6 +29,7 @@ public class SearchRepositoryImpl implements SearchRepository {
                             .field("title")
                             .field("description")
                             .field("notes")
+                            .field("source")
                             .field("tags.name")
                             .field("categories.name")
                             .matching(query);
@@ -52,5 +53,17 @@ public class SearchRepositoryImpl implements SearchRepository {
     @Override
     public List<VideoMetadataEntity> search(String query, Pageable pageable) {
         return pagedSearch(query, pageable).toList();
+    }
+
+    @Override
+    public CompletionStage<?> reIndex() {
+        var searchSession = Search.session(entityManager);
+
+        return searchSession.massIndexer()
+                .idFetchSize( 150 )
+                .batchSizeToLoadObjects( 25 )
+                .threadsToLoadObjects( 12 )
+                .dropAndCreateSchemaOnStart(true)
+                .start();
     }
 }

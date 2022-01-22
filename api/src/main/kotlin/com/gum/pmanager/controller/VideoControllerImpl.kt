@@ -2,6 +2,7 @@ package com.gum.pmanager.controller
 
 import com.gum.pmanager.api.VideosApi
 import com.gum.pmanager.model.*
+import com.gum.pmanager.service.MassIndexerService
 import com.gum.pmanager.service.ResourceService
 import com.gum.pmanager.service.VideoMetadataService
 import org.springframework.core.io.FileSystemResource
@@ -20,7 +21,8 @@ import java.time.OffsetDateTime
 @RestController
 class VideoControllerImpl(
     private val videoService: VideoMetadataService,
-    private val resourceService: ResourceService
+    private val resourceService: ResourceService,
+    private val massIndexerService: MassIndexerService
 ): VideosApi {
 
     override fun getVideo(id: Long): ResponseEntity<VideoApiResponse> {
@@ -76,6 +78,10 @@ class VideoControllerImpl(
             headers.set("Content-Disposition", "attachment; filename=\"${resource.filename}\"")
         }
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(resource)
+    }
+
+    override fun reindex(): ResponseEntity<Unit> {
+        return massIndexerService.reIndex()
     }
 
     private fun getSort(page: Int, size: Int, sort: String?, order: String?): Pageable {

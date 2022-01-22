@@ -7,7 +7,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-function SortDropdown({ sortValue = '', defaultSort = 'videoFileInfo.createDate', onSortChange = () => '' }) {
+function SortDropdown({ sortValue = '', defaultSort = '_score', onSortChange = () => '' }) {
     const handleChange = (event) => {
         onSortChange(event.target.value);
     };

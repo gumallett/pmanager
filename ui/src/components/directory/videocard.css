@@ -1,0 +1,7 @@
+.imghover:hover .vidhover {
+    opacity: 1.0;
+}
+
+.vidhover {
+    opacity: 0;
+}
