@@ -58,8 +58,8 @@ function VideoCard({ video }) {
 
         function isOver() {
             return hover && event.target && event.target.tagName
-                && (event.target.tagName.toLowerCase().indexOf("video") !== -1
-                    || event.target.className.toLowerCase().indexOf("vjs"));
+                && (event.target.tagName.toLowerCase().indexOf("img") !== -1
+                    || event.target.className.toLowerCase().indexOf("muicard"));
         }
         if (isOver()) {
             setHover(false);

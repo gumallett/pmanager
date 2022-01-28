@@ -1,6 +1,6 @@
 const baseUrl = "/gum/videos/1.0.0/videos";
 
-const loadVideos = (query, page = 0, size = 10, sort = 'videoFileInfo.createDate') => {
+const loadVideos = (query, page = 0, size = 10, sort = '_score') => {
     return fetch(`${baseUrl}?q=${query}&page=${page}&size=${size}&sort=${sort}`)
         .then(res => res.json())
         .then(json => json.data);
