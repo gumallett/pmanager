@@ -33,17 +33,14 @@ function VideoCard({ video }) {
     const [hover, setHover] = useState(false);
     const ref = useRef();
 
+    function isOver(event) {
+        return event.target && event.target.tagName
+            && (event.target.tagName.toLowerCase().indexOf("img") !== -1
+                || event.target.className.toLowerCase().indexOf("muicard"));
+    }
+
     function showPreview(event) {
-        // console.log("show");
-        // console.log(event);
-        // console.log(event.target && event.target.className ? event.target.className : "");
-        // console.log(event.target && event.target.tagName ? event.target.tagName : "");
-        function isOver() {
-            return !hover && event.target && event.target.tagName
-                && (event.target.tagName.toLowerCase().indexOf("img") !== -1
-                    || event.target.className.toLowerCase().indexOf("muicard"));
-        }
-        if (isOver()) {
+        if (!hover && isOver(event)) {
             setHover(true);
             event.preventDefault();
             return false;
@@ -51,17 +48,7 @@ function VideoCard({ video }) {
     }
 
     function hidePreview(event) {
-        // console.log("hide");
-        // console.log(event);
-        // console.log(event.target && event.target.className ? event.target.className : "");
-        // console.log(event.target && event.target.tagName ? event.target.tagName : "");
-
-        function isOver() {
-            return hover && event.target && event.target.tagName
-                && (event.target.tagName.toLowerCase().indexOf("img") !== -1
-                    || event.target.className.toLowerCase().indexOf("muicard"));
-        }
-        if (isOver()) {
+        if (hover && isOver(event)) {
             setHover(false);
             event.preventDefault();
             return false;
