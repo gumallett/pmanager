@@ -23,10 +23,11 @@ function SortDropdown({ sortValue = '', defaultSort = '_score', onSortChange = (
                 onChange={handleChange}
             >
                 <MenuItem value={'_score'}>Relevance</MenuItem>
-                <MenuItem value={'videoFileInfo.createDate'} >Create Date</MenuItem>
+                <MenuItem value={'videoFileInfo.createDate'}>Create Date</MenuItem>
                 <MenuItem value={'lastAccessed'}>Access Date</MenuItem>
                 <MenuItem value={'rating'}>Rating</MenuItem>
                 <MenuItem value={'views'}>Views</MenuItem>
+                <MenuItem value={'videoFileInfo.length'}>Length</MenuItem>
             </Select>
         </FormControl>
     );

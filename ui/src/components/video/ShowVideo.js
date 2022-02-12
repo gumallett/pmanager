@@ -13,6 +13,7 @@ import VideoInfoBar from "./VideoInfoBar";
 import { styled } from "@mui/styles";
 import VideoDetails from "./VideoDetails";
 import { AddCircleOutline } from "@mui/icons-material";
+import { VideosListGrid } from "../directory/VideosListGrid";
 
 const useStyles = makeStyles(theme => ({
     attributes: {
@@ -124,6 +125,7 @@ function ShowVideo() {
     let { id } = useParams();
     const [videoDetail, setVideoDetail] = useState({ videoFileInfo: {} });
     const [detailsVisible, showDetails] = useState(false);
+    const [videos, setVideos] = useState([]);
 
     useEffect(() => {
         VideoApi.loadVideo(id).then(video => {
@@ -131,6 +133,13 @@ function ShowVideo() {
             document.title = `${video.source} - ${video.title}`;
         })
     }, [id]);
+
+    useEffect(() => {
+        const searchQuery = videoDetail.title;
+        VideoApi
+            .loadVideos(searchQuery, 0, 13)
+            .then(data => data.records ? setVideos(data.records.filter(rec => `${rec.id}` !== id)) : []);
+    }, [videoDetail]);
 
     function updateRating(newVal) {
         VideoApi.updateVideo(id, {rating: newVal});
@@ -213,6 +222,10 @@ function ShowVideo() {
             <Button variant="text" onClick={() => showDetails(!detailsVisible)}>{detailsVisible ? "Hide" : "Show"} Details</Button>
 
             {detailsVisible ? <VideoDetails videoDetail={videoDetail} onSave={updateVideoMetadata}/> : ""}
+
+            <Typography variant={"h5"} sx={{textAlign: "left", p: 2}}>Related Videos:</Typography>
+            <VideosListGrid videos={videos} />
+
             <div><br/></div>
         </div>
     );
