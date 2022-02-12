@@ -4,7 +4,7 @@ import VideoTextAttribute from "./VideoTextAttribute";
 import { displayDateDistance } from "../../utils";
 import { format } from "date-fns";
 import SaveIcon from "@mui/icons-material/Save";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles(theme => ({
     attributes: {
@@ -28,6 +28,15 @@ function VideoDetails({ videoDetail, onSave }) {
         notes: videoDetail.notes,
         source: videoDetail.source
     });
+
+    useEffect(() => {
+        setForm({
+            title: videoDetail.title,
+            description: videoDetail.description,
+            notes: videoDetail.notes,
+            source: videoDetail.source
+        })
+    }, [videoDetail]);
 
     function handleFormTextChange(prop) {
         return event => setForm({ ...form, [`${prop}`]: event.target.value });
