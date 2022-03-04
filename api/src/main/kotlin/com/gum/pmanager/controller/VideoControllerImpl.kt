@@ -88,7 +88,8 @@ class VideoControllerImpl(
         if (sort == "_score") {
             return PageRequest.of(page, size, Sort.unsorted())
         }
-        val sortDomain = Sort.by(Sort.Direction.fromString(order ?: "desc"), sort ?: "videoFileInfo.createDate")
+        val sortProps = sort?.split("\\s*,\\s*".toRegex()) ?: listOf("videoFileInfo.createDate")
+        val sortDomain = Sort.by(Sort.Direction.fromString(order ?: "desc"), *sortProps.toTypedArray())
         return PageRequest.of(page, size, sortDomain)
     }
 }

@@ -135,9 +135,13 @@ function ShowVideo() {
     }, [id]);
 
     useEffect(() => {
-        const searchQuery = videoDetail.title;
+        if (!videoDetail.id) {
+            return
+        }
+
+        const searchQuery = `${videoDetail.title} ${videoDetail.description} ${videoDetail.tags.map(t => t.name).join(' ')}`;
         VideoApi
-            .loadVideos(searchQuery, 0, 13)
+            .loadVideos(searchQuery, 0, 13, "_score,rating")
             .then(data => data.records ? setVideos(data.records.filter(rec => `${rec.id}` !== id)) : []);
     }, [videoDetail]);
 

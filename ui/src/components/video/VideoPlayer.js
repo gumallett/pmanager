@@ -47,7 +47,7 @@ function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
             player.src(newOpts.sources);
             player.poster(newOpts.poster);
         }
-    }, [videoDetail, videoRef]);
+    }, [videoDetail.id, videoRef]);
 
     useEffect(() => {
         const player = playerRef.current;

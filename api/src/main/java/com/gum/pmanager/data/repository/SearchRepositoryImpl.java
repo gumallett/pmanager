@@ -41,9 +41,15 @@ public class SearchRepositoryImpl implements SearchRepository {
                     }
 
                     return s.composite(c -> pageable.getSort().stream()
-                            .forEach(sort ->
-                                    c.add(s.field(sort.getProperty())
-                                            .order(sort.isAscending() ? SortOrder.ASC : SortOrder.DESC))));
+                            .forEach(sort -> {
+                                if ("_score".equalsIgnoreCase(sort.getProperty())) {
+                                    c.add(s.score().desc());
+                                    return;
+                                }
+
+                                c.add(s.field(sort.getProperty())
+                                        .order(sort.isAscending() ? SortOrder.ASC : SortOrder.DESC));
+                            }));
                 })
                 .fetch(pageable.getPageSize() * pageable.getPageNumber(), pageable.getPageSize());
 
