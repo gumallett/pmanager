@@ -1,4 +1,4 @@
-import { AppBar, Button, alpha, IconButton, InputBase, Link, Toolbar } from "@mui/material";
+import { AppBar, Button, alpha, IconButton, InputBase, Link, Toolbar, Menu, MenuItem } from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link as RouterLink, useHistory, useLocation } from "react-router-dom";
@@ -64,12 +64,31 @@ function PMNavBar(props) {
     const location = useLocation();
     const query = new URLSearchParams(location.search);
     const history = useHistory();
+    const [anchorEl, setAnchorEl] = useState(null);
 
     const [tmpSearchQuery, setTmpSearchQuery] = useState(props.searchQuery);
 
     const debouncedSearch = useMemo(() => {
         return debounce(updateQueryParams, 250);
     }, [tmpSearchQuery]);
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleMenu = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const back = () => {
+        history.goBack();
+        handleClose();
+    }
+
+    const forward = () => {
+        history.goForward();
+        handleClose();
+    }
 
     useEffect(() => {
         debouncedSearch(tmpSearchQuery);
@@ -85,9 +104,26 @@ function PMNavBar(props) {
                         className={classes.menuButton}
                         color="inherit"
                         aria-label="menu"
-                        size="large">
+                        size="large"
+                        onClick={handleMenu}>
                         <MenuIcon/>
                     </IconButton>
+                    <Menu
+                        anchorEl={anchorEl}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        keepMounted
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        open={Boolean(anchorEl)}
+                        onClose={handleClose}>
+                        <MenuItem onClick={back}>Back</MenuItem>
+                        <MenuItem onClick={forward}>Forward</MenuItem>
+                    </Menu>
                     <Link variant="h6" color="primary" component={RouterLink} to={routes.video}>Home</Link>
                     <Toolbar>
                         <div className={classes.search}>

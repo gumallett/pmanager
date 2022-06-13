@@ -1,4 +1,4 @@
-const baseUrl = "/gum/videos/1.0.0/videos";
+const baseUrl = "http://localhost:8080/gum/videos/1.0.0/videos";
 
 const loadVideos = (query, page = 0, size = 10, sort = '_score') => {
     return fetch(`${baseUrl}?q=${query}&page=${page}&size=${size}&sort=${sort}`)

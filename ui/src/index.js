@@ -4,14 +4,22 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {
-    BrowserRouter as Router,
+    BrowserRouter, HashRouter,
 } from "react-router-dom";
+import { isElectron } from "./utils";
+import { createBrowserHistory, createHashHistory } from "history";
+
+export const history = isElectron()
+    ? createHashHistory()
+    : createBrowserHistory();
 
 ReactDOM.render(
   <React.StrictMode>
-      <Router>
-        <App />
-      </Router>
+      {isElectron() ? <HashRouter history={history}>
+          <App />
+      </HashRouter> : <BrowserRouter history={history}>
+          <App />
+      </BrowserRouter>}
   </React.StrictMode>,
   document.getElementById('root')
 );

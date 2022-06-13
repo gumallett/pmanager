@@ -33,7 +33,12 @@ function thumbnailUri(thumbUri) {
     if (!thumbUri) {
         return null;
     }
-    return `${VideoApi.baseUrl}/static?path=${encodeURIComponent(thumbUri)}`;
+    return process.env.NODE_ENV === 'production' ? thumbUri : `${VideoApi.baseUrl}/static?path=${encodeURIComponent(thumbUri)}`;
 }
 
-export { toDuration, displayRating, displayDateDistance, thumbnailUri };
+const isElectron = () => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    return userAgent.indexOf('electron') !== -1;
+};
+
+export { toDuration, displayRating, displayDateDistance, thumbnailUri, isElectron };

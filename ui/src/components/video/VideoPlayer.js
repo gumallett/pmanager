@@ -15,7 +15,7 @@ function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
         const apiStaticPath = `${VideoApi.baseUrl}/static?path=${encodeURIComponent(videoUri)}&videoId=${encodeURIComponent(videoDetail.id)}`;
 
         return {
-            sources: [{src: apiStaticPath, type: videoDetail.videoFileInfo.contentType}],
+            sources: [{src: process.env.NODE_ENV === 'production' ? videoUri : apiStaticPath, type: videoDetail.videoFileInfo.contentType}],
             controls: !preview,
             preload: preview ? 'none' : 'auto',
             inactivityTimeout: 5000,
