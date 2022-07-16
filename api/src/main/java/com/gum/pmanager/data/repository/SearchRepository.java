@@ -9,6 +9,7 @@ import java.util.concurrent.CompletionStage;
 
 public interface SearchRepository {
     Page<VideoMetadataEntity> pagedSearch(String query, Pageable pageable);
+    Page<VideoMetadataEntity> pagedSearch(String query, List<String> tags, List<String> excludeTags, Pageable pageable);
     List<VideoMetadataEntity> search(String query, Pageable pageable);
     CompletionStage<?> reIndex();
 }

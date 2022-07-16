@@ -38,6 +38,26 @@ paths:
           schema:
             type: string
         - in: query
+          name: tags
+          description: optional filter for tags inclusion. Comma-delimited
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: exclude_tags
+          description: optional filter for tags exclusion. Comma-delimited
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
           name: page
           description: number of records to skip for pagination
           schema:

@@ -25,7 +25,6 @@ function VideosList(props = {searchQuery: "", page: 1, sort: ""}) {
     const search = useLocation().search;
     const query = new URLSearchParams(search);
     const history = useHistory();
-    console.log(history);
 
     useEffect(() => {
         document.title = "Videos List"

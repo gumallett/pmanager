@@ -38,8 +38,8 @@ class VideoControllerImpl(
         return ResponseEntity.status(HttpStatus.CREATED).body(videoService.create(videoResponse!!))
     }
 
-    override fun searchVideos(q: String?, page: Int, size: Int, sort: String?, order: String?): ResponseEntity<VideosApiResponse> {
-        val pages = videoService.pagedSearch(q ?: "", getSort(page, size, sort, order))
+    override fun searchVideos(q: String?, tags: List<String>?, excludeTags: List<String>?, page: Int, size: Int, sort: String?, order: String?): ResponseEntity<VideosApiResponse> {
+        val pages = videoService.pagedSearch(q ?: "", tags ?: listOf(), excludeTags ?: listOf(), getSort(page, size, sort, order))
         return ResponseEntity.ok(
             VideosApiResponse(
             data = VideoPagedResponse(
