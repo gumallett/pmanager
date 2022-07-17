@@ -1,5 +1,5 @@
 const routes = {
-    video: '/videos'
+    video: 'videos'
 }
 
 export default routes;

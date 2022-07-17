@@ -1,7 +1,7 @@
-import { AppBar, Button, alpha, IconButton, InputBase, Link, Toolbar, Menu, MenuItem } from "@mui/material";
+import { AppBar, Button, alpha, IconButton, InputBase, Link, Toolbar, Menu, MenuItem, Box } from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import MenuIcon from "@mui/icons-material/Menu";
-import { Link as RouterLink, useHistory, useLocation } from "react-router-dom";
+import { Link as RouterLink, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import routes from "../../routes/routes";
 import SearchIcon from "@mui/icons-material/Search";
 import { useEffect, useMemo, useState } from "react";
@@ -59,18 +59,18 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-function PMNavBar(props) {
+function PMNavBar() {
     const classes = useStyles();
+    const [search, setSearch] = useSearchParams();
+    const history = useNavigate();
     const location = useLocation();
-    const query = new URLSearchParams(location.search);
-    const history = useHistory();
     const [anchorEl, setAnchorEl] = useState(null);
 
-    const [tmpSearchQuery, setTmpSearchQuery] = useState(props.searchQuery);
+    const [tmpSearchQuery, setTmpSearchQuery] = useState(search.get('search') || '');
 
     const debouncedSearch = useMemo(() => {
         return debounce(updateQueryParams, 250);
-    }, [tmpSearchQuery]);
+    }, [search]);
 
     const handleClose = () => {
         setAnchorEl(null);
@@ -81,17 +81,19 @@ function PMNavBar(props) {
     };
 
     const back = () => {
-        history.goBack();
+        history(-1);
         handleClose();
     }
 
     const forward = () => {
-        history.goForward();
+        history(1);
         handleClose();
     }
 
     useEffect(() => {
-        debouncedSearch(tmpSearchQuery);
+        if (tmpSearchQuery && tmpSearchQuery.length > 2) {
+            debouncedSearch(tmpSearchQuery);
+        }
         return () => debouncedSearch.cancel();
     }, [tmpSearchQuery]);
 
@@ -126,7 +128,7 @@ function PMNavBar(props) {
                     </Menu>
                     <Link variant="h6" color="primary" component={RouterLink} to={routes.video}>Home</Link>
                     <Toolbar>
-                        <div className={classes.search}>
+                        <Box className={classes.search} component="form" noValidate autoComplete="off" onSubmit={(event) => searchSubmit(event)}>
                             <div className={classes.searchIcon}><SearchIcon/></div>
                             <InputBase
                                 placeholder="Search…"
@@ -138,7 +140,8 @@ function PMNavBar(props) {
                                 onChange={(event) => searchChanged(event.target.value)}
                                 inputProps={{'aria-label': 'search'}}
                             />
-                        </div>
+                        </Box>
+
                         <Button
                             variant="contained"
                             color="primary"
@@ -158,19 +161,24 @@ function PMNavBar(props) {
         setTmpSearchQuery(q || '');
     }
 
+    function searchSubmit(event) {
+        event.preventDefault();
+        updateQueryParams(tmpSearchQuery);
+        return false;
+    }
+
     function clear() {
         setTmpSearchQuery('');
+        if (location.pathname.endsWith('/videos')) {
+            updateQueryParams('');
+        }
     }
 
     function updateQueryParams(q) {
-        if (q && q.length > 2) {
-            query.set('page', '1');
-            query.set('search', q || '');
-            history.push({
-                pathname: routes.video,
-                search: `?${query.toString()}`
-            });
-        }
+        setTmpSearchQuery(q);
+        search.set('page', '1');
+        search.set('search', q || '');
+        history(`/${routes.video}?${search.toString()}`);
     }
 }
 

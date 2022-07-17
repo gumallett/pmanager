@@ -143,7 +143,7 @@ function ShowVideo() {
         VideoApi
             .loadVideos(searchQuery, 0, 13, "_score,rating")
             .then(data => data.records ? setVideos(data.records.filter(rec => `${rec.id}` !== id)) : []);
-    }, [videoDetail]);
+    }, [videoDetail, id]);
 
     function updateRating(newVal) {
         VideoApi.updateVideo(id, {rating: newVal});
@@ -188,8 +188,8 @@ function ShowVideo() {
     }
 
     return (
-        <div>
-            <Container><VideoPlayer videoDetail={videoDetail} /></Container>
+        <Container>
+            <VideoPlayer videoDetail={videoDetail} />
             <div className={classes.titleRow}>
                 <Grid container direction="row" justifyContent="flex-start" alignItems="flex-start">
                     <Grid item xs={12}><Typography>{videoDetail.title}</Typography></Grid>
@@ -231,7 +231,7 @@ function ShowVideo() {
             <VideosListGrid videos={videos} />
 
             <div><br/></div>
-        </div>
+        </Container>
     );
 }
 

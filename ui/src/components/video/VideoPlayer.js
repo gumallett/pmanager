@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import VideoApi from "../../api/api";
 import videojs from "video.js";
 import { thumbnailUri } from "../../utils";
@@ -6,31 +6,32 @@ import { thumbnailUri } from "../../utils";
 import './videoPlayer.css';
 import { Box } from "@mui/material";
 
+
 function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
     let videoRef = useRef(null);
     let playerRef = useRef(null);
 
-    function createPlayerOptions() {
+    const createPlayerOptions = useCallback(() => {
         const videoUri = preview ? videoDetail.previewUri : videoDetail.uri;
         const apiStaticPath = `${VideoApi.baseUrl}/static?path=${encodeURIComponent(videoUri)}&videoId=${encodeURIComponent(videoDetail.id)}`;
 
         return {
             sources: [{src: process.env.NODE_ENV === 'production' ? videoUri : apiStaticPath, type: videoDetail.videoFileInfo.contentType}],
             controls: !preview,
-            preload: preview ? 'none' : 'auto',
+            preload: preview ? 'auto' : 'auto',
             inactivityTimeout: 5000,
             fluid: true,
-            aspectRatio: preview ? "16:9" : undefined,
+            aspectRatio: preview ? "16:9" : "16:9",
             loop: preview,
             muted: preview,
             autoplay: false,
             poster: thumbnailUri(videoDetail.thumbUri),
         };
-    }
+    }, [videoDetail.id, preview])
 
-    function setupPlayer() {
+    const setupPlayer = useCallback(() => {
         return videojs(videoRef.current, createPlayerOptions());
-    }
+    }, [videoRef, createPlayerOptions]);
 
     useEffect(() => {
         if (!playerRef.current) {
@@ -44,10 +45,10 @@ function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
         } else {
             const player = playerRef.current;
             const newOpts = player.options(createPlayerOptions());
-            player.src(newOpts.sources);
             player.poster(newOpts.poster);
+            player.src(newOpts.sources);
         }
-    }, [videoDetail.id, videoRef]);
+    }, [videoDetail.id, videoRef, playerRef, createPlayerOptions, setupPlayer]);
 
     useEffect(() => {
         const player = playerRef.current;
@@ -60,20 +61,20 @@ function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
     }, [preview, playerRef, videoRef, play]);
 
     // Dispose the Video.js player when the functional component unmounts
-    useEffect(() => {
-        return () => {
-            if (playerRef.current) {
-                playerRef.current.dispose();
-                playerRef.current = null;
-            }
-        };
-    }, [playerRef]);
+    // not working in react 18
+    // useEffect(() => {
+    //     return () => {
+    //         if (playerRef.current) {
+    //             playerRef.current.dispose();
+    //             playerRef.current = null;
+    //         }
+    //     };
+    // }, [playerRef]);
 
 
     return (
-        <Box sx={{ display: "flex", width: "100%", mt: preview ? 0 : 2 }}>
-            <video id="player" className="video-js" poster={thumbnailUri(videoDetail.thumbUri)}
-                   ref={videoRef}>
+        <Box sx={{ display: "flex", width: "100%", height: preview ? "100%" : "", mt: preview ? 0 : 2 }}>
+            <video className="video-js" ref={videoRef}>
                 Sorry, your browser doesn't support embedded videos.
             </video>
         </Box>

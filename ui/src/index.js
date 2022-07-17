@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -13,15 +13,15 @@ export const history = isElectron()
     ? createHashHistory()
     : createBrowserHistory();
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
   <React.StrictMode>
-      {isElectron() ? <HashRouter history={history}>
-          <App />
-      </HashRouter> : <BrowserRouter history={history}>
-          <App />
-      </BrowserRouter>}
-  </React.StrictMode>,
-  document.getElementById('root')
+    {isElectron() ? <HashRouter history={history}>
+        <App />
+    </HashRouter> : <BrowserRouter history={history}>
+        <App />
+    </BrowserRouter>}
+  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

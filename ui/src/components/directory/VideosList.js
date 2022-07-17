@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import VideoApi from "../../api/api";
-import { Grid } from "@mui/material";
+import { Container, Grid, Pagination } from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
-import { Pagination } from '@mui/material';
-import { useHistory, useLocation } from "react-router-dom";
-import routes from "../../routes/routes";
+import { useSearchParams } from "react-router-dom";
 import SortDropdown from "./SortDropdown";
 import { VideosListGrid } from "./VideosListGrid";
 
@@ -18,33 +16,37 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-function VideosList(props = {searchQuery: "", page: 1, sort: ""}) {
+function VideosList() {
     const classes = useStyles();
     const [videos, setVideos] = useState([]);
     const [totalPages, setTotalPages] = useState();
-    const search = useLocation().search;
-    const query = new URLSearchParams(search);
-    const history = useHistory();
+    const [search, setSearch] = useSearchParams();
+
+    const getPage = useCallback(() => {
+        return search.get('page') ? parseInt(search.get('page')) : 1;
+    }, [search]);
 
     useEffect(() => {
         document.title = "Videos List"
-        loadVideos(props.searchQuery, props.page, props.sort)
+        loadVideos(search.get('search') || "", getPage(), search.get('sort') || "")
             .then(data => initList(data));
-    }, [props.searchQuery, props.page, props.sort]);
+    }, [search]);
 
     return (
-        <div className="App">
-            <Grid container spacing={0} direction="row" alignItems="flex-start">
-                <Grid item xs={4}>
-                    <Pagination className={classes.topPager} page={props.page} count={totalPages} shape="rounded" onChange={changePage}/>
+        <Container>
+            <div className="App">
+                <Grid container spacing={0} direction="row" alignItems="flex-start">
+                    <Grid item xs={4}>
+                        <Pagination className={classes.topPager} page={getPage()} count={totalPages} shape="rounded" onChange={changePage}/>
+                    </Grid>
+                    <Grid item xs={2}>
+                        <SortDropdown sortValue={search.get('sort')} onSortChange={changeSort} />
+                    </Grid>
                 </Grid>
-                <Grid item xs={2}>
-                    <SortDropdown sortValue={props.sort} onSortChange={changeSort} />
-                </Grid>
-            </Grid>
-            <VideosListGrid videos={videos} />
-            <Pagination className={classes.bottomPager} page={props.page} count={totalPages} shape="rounded" onChange={changePage}/>
-        </div>
+                <VideosListGrid videos={videos} />
+                <Pagination className={classes.bottomPager} page={getPage()} count={totalPages} shape="rounded" onChange={changePage}/>
+            </div>
+        </Container>
     );
 
     function loadVideos(q, page, sort) {
@@ -58,19 +60,13 @@ function VideosList(props = {searchQuery: "", page: 1, sort: ""}) {
     }
 
     function changePage(e, val) {
-        query.set('page', val);
-        history.push({
-            pathname: routes.video,
-            search: `?${query.toString()}`
-        });
+        search.set('page', val);
+        setSearch(search);
     }
 
     function changeSort(value) {
-        query.set('sort', value);
-        history.push({
-            pathname: routes.video,
-            search: `?${query.toString()}`
-        });
+        search.set('sort', value);
+        setSearch(search);
     }
 }
 
