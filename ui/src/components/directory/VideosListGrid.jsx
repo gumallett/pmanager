@@ -16,7 +16,7 @@ export function VideosListGrid({videos = []}) {
         <Grid container spacing={0} direction="row" alignItems="flex-start">
             {videos.length > 0 ? videos.map(video => (
                 <Grid item xs={3} key={video.id}>
-                    <VideoCard video={video} />
+                    <VideoCard key={video.id} video={video} />
                 </Grid>
             )) : <Grid item xs={12}><p className={classes.noResults}>No results found.</p></Grid> }
         </Grid>

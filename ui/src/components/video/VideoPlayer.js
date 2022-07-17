@@ -11,6 +11,52 @@ function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
     const playerRef = useRef(null);
     const videoBoxRef = useRef(null);
 
+    const keybinds = useCallback(() => {
+        let ctrl = false;
+        let shift = false;
+        let dot = false;
+        return (e) => {
+            const player = playerRef.current;
+            if (!player || preview) {
+                return;
+            }
+            const curTime = player.currentTime();
+            if (e.which === 16) {
+                shift = true;
+                ctrl = false;
+                dot = false;
+            }
+            if (e.which === 17) {
+                ctrl = true;
+                shift = false;
+                dot = false;
+            }
+            if (e.which === 190) {
+                ctrl = false;
+                shift = false;
+                dot = true;
+            }
+
+            if (e.which === 37 && dot) {
+                player.currentTime(curTime - 10);
+            } else if (e.which === 39 && dot) {
+                player.currentTime(curTime + 10);
+            } else if (e.which === 37 && shift) {
+                player.currentTime(curTime - 5);
+            } else if (e.which === 39 && shift) {
+                player.currentTime(curTime + 5);
+            } else if (e.which === 37 && ctrl) {
+                player.currentTime(curTime - 1);
+            } else if (e.which === 39 && ctrl) {
+                player.currentTime(curTime + 1);
+            } else if (e.which !== 16 && e.which !== 17 && e.which !== 190) {
+                shift = false;
+                ctrl = false;
+                dot = false;
+            }
+        }
+    }, [playerRef, preview])
+
     const createPlayerOptions = useCallback(() => {
         const videoUri = preview ? videoDetail.previewUri : videoDetail.uri;
         const apiStaticPath = `${VideoApi.baseUrl}/static?path=${encodeURIComponent(videoUri)}&videoId=${encodeURIComponent(videoDetail.id)}`;
@@ -61,6 +107,31 @@ function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
             }
         }
     }, [preview, playerRef, videoBoxRef, play]);
+
+    const focusHandler = useCallback((e) => {
+        if (!playerRef.current) {
+            return;
+        }
+
+        if (e.which === 119) {
+            playerRef.current.focus();
+        }
+    }, [playerRef]);
+
+    useEffect(() => {
+        const handler = keybinds();
+        if (!preview) {
+            document.addEventListener("keydown", handler, false);
+            document.addEventListener("keydown", focusHandler, false);
+        }
+
+        return () => {
+            if (!preview) {
+                document.removeEventListener("keydown", handler);
+                document.removeEventListener("keydown", focusHandler);
+            }
+        }
+    }, [playerRef, preview]);
 
     // Dispose the Video.js player when the functional component unmounts
     useEffect(() => {

@@ -195,14 +195,14 @@ function ShowVideo() {
             <div className={classes.catsAndTags}>
                 <Grid container item xs={12} spacing={2} direction="row" justifyContent="flex-start" alignItems="flex-start">
                     <Grid item xs={12}>
-                        <Typography>Categories:</Typography>
+                        <Typography variant="subtitle2">Categories:</Typography>
                         <Grid container>
                             {videoDetail.categories ? videoDetail.categories.map(cat => <Grid key={cat.name} item><EditableTagControl editTag={(value) => updateExistingCat(value, cat.name)} tagValue={cat.name} /></Grid>) : ''}
                             <Grid item><AddTagControl addTag={addCat} /></Grid>
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                        <Typography>Tags:</Typography>
+                        <Typography variant="subtitle2">Tags:</Typography>
                         <Grid container>
                             {videoDetail.tags ? videoDetail.tags.map((tag, idx) => <Grid key={tag.name} item><EditableTagControl editTag={(value) => updateExistingTag(value, tag.name)} tagValue={tag.name} /></Grid>) : ''}
                             <Grid item><AddTagControl addTag={addTag} /></Grid>
