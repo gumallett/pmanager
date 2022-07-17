@@ -8,8 +8,8 @@ import { Box } from "@mui/material";
 
 
 function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
-    let videoRef = useRef(null);
-    let playerRef = useRef(null);
+    const playerRef = useRef(null);
+    const videoBoxRef = useRef(null);
 
     const createPlayerOptions = useCallback(() => {
         const videoUri = preview ? videoDetail.previewUri : videoDetail.uri;
@@ -21,6 +21,7 @@ function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
             preload: preview ? 'auto' : 'auto',
             inactivityTimeout: 5000,
             fluid: true,
+            restoreEl: true,
             aspectRatio: preview ? "16:9" : "16:9",
             loop: preview,
             muted: preview,
@@ -30,12 +31,13 @@ function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
     }, [videoDetail.id, preview])
 
     const setupPlayer = useCallback(() => {
-        return videojs(videoRef.current, createPlayerOptions());
-    }, [videoRef, createPlayerOptions]);
+        const elem = videoBoxRef.current.children[0];
+        return videojs(elem, createPlayerOptions());
+    }, [videoBoxRef, createPlayerOptions]);
 
     useEffect(() => {
         if (!playerRef.current) {
-            if (!videoRef.current) {
+            if (!videoBoxRef.current) {
                 return;
             }
 
@@ -48,33 +50,34 @@ function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
             player.poster(newOpts.poster);
             player.src(newOpts.sources);
         }
-    }, [videoDetail.id, videoRef, playerRef, createPlayerOptions, setupPlayer]);
+    }, [videoDetail.id, videoBoxRef, playerRef, createPlayerOptions, setupPlayer]);
 
     useEffect(() => {
         const player = playerRef.current;
 
-        if (videoRef.current && player) {
+        if (videoBoxRef.current && player) {
             if (preview && play) {
                 player.play();
             }
         }
-    }, [preview, playerRef, videoRef, play]);
+    }, [preview, playerRef, videoBoxRef, play]);
 
     // Dispose the Video.js player when the functional component unmounts
-    // not working in react 18
-    // useEffect(() => {
-    //     return () => {
-    //         if (playerRef.current) {
-    //             playerRef.current.dispose();
-    //             playerRef.current = null;
-    //         }
-    //     };
-    // }, [playerRef]);
+    useEffect(() => {
+        return () => {
+            if (playerRef.current) {
+                playerRef.current.dispose();
+                playerRef.current = null;
+            }
+        };
+    }, [playerRef]);
 
 
     return (
-        <Box sx={{ display: "flex", width: "100%", height: preview ? "100%" : "", mt: preview ? 0 : 2 }}>
-            <video className="video-js" ref={videoRef}>
+        <Box ref={videoBoxRef} sx={{ display: "flex", width: "100%", height: preview ? "100%" : "", mt: preview ? 0 : 2 }}>
+            {// Warning: will be managed and replaced in the dom by videojs
+            }
+            <video className="video-js">
                 Sorry, your browser doesn't support embedded videos.
             </video>
         </Box>

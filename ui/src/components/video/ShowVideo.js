@@ -60,10 +60,6 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const CopyButton = styled(Button)({
-    marginTop: "7px"
-});
-
 function AddTagControl({addTag}) {
     let [editing, setEditing] = useState(false);
     let [theTag, setTheTag] = useState("");
@@ -194,31 +190,23 @@ function ShowVideo() {
                 <Grid container direction="row" justifyContent="flex-start" alignItems="flex-start">
                     <Grid item xs={12}><Typography>{videoDetail.title}</Typography></Grid>
                     <VideoInfoBar videoDetail={videoDetail} onRatingUpdate={updateRating} />
-                    <Grid item xs={12}>
-                        <CopyButton
-                            variant="contained"
-                            color="primary"
-                            size="small"
-                            className={classes.button}
-                            startIcon={<SaveIcon />}
-                            onClick={() => navigator.clipboard.writeText(videoDetail.uri)}
-                        >
-                            Copy uri
-                        </CopyButton>
-                    </Grid>
                 </Grid>
             </div>
             <div className={classes.catsAndTags}>
                 <Grid container item xs={12} spacing={2} direction="row" justifyContent="flex-start" alignItems="flex-start">
                     <Grid item xs={12}>
                         <Typography>Categories:</Typography>
-                        <Grid container>{videoDetail.categories ? videoDetail.categories.map(cat => <Grid key={cat.name} item><EditableTagControl editTag={(value) => updateExistingCat(value, cat.name)} tagValue={cat.name} /></Grid>) : ''}</Grid>
-                        <AddTagControl addTag={addCat} />
+                        <Grid container>
+                            {videoDetail.categories ? videoDetail.categories.map(cat => <Grid key={cat.name} item><EditableTagControl editTag={(value) => updateExistingCat(value, cat.name)} tagValue={cat.name} /></Grid>) : ''}
+                            <Grid item><AddTagControl addTag={addCat} /></Grid>
+                        </Grid>
                     </Grid>
                     <Grid item xs={12}>
                         <Typography>Tags:</Typography>
-                        <Grid container>{videoDetail.tags ? videoDetail.tags.map((tag, idx) => <Grid key={tag.name} item><EditableTagControl editTag={(value) => updateExistingTag(value, tag.name)} tagValue={tag.name} /></Grid>) : ''}</Grid>
-                        <AddTagControl addTag={addTag} />
+                        <Grid container>
+                            {videoDetail.tags ? videoDetail.tags.map((tag, idx) => <Grid key={tag.name} item><EditableTagControl editTag={(value) => updateExistingTag(value, tag.name)} tagValue={tag.name} /></Grid>) : ''}
+                            <Grid item><AddTagControl addTag={addTag} /></Grid>
+                        </Grid>
                     </Grid>
                 </Grid>
             </div>

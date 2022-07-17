@@ -169,9 +169,6 @@ function PMNavBar() {
 
     function clear() {
         setTmpSearchQuery('');
-        if (location.pathname.endsWith('/videos')) {
-            updateQueryParams('');
-        }
     }
 
     function updateQueryParams(q) {
