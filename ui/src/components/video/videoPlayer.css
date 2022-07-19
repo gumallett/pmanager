@@ -1,6 +1,6 @@
 
-.video-js .vjs-current-time {
-    display: block;
+.video-js .vjs-current-time, .vjs-no-flex .vjs-current-time {
+    display: block !important;
 }
 
 :not(.vjs-has-started) .vjs-control-bar {

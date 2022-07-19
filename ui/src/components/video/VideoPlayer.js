@@ -66,13 +66,15 @@ function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
             controls: !preview,
             preload: preview ? 'auto' : 'auto',
             inactivityTimeout: 5000,
-            fluid: true,
-            restoreEl: true,
-            aspectRatio: preview ? "16:9" : "16:9",
+            fluid: !preview,
+            fill: preview,
+            //restoreEl: true,
+            aspectRatio: preview ? undefined : "16:9",
             loop: preview,
             muted: preview,
             autoplay: false,
             poster: thumbnailUri(videoDetail.thumbUri),
+            controlBar: { currentTimeDisplay: true },
         };
     }, [videoDetail.id, preview])
 

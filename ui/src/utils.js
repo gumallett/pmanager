@@ -38,7 +38,7 @@ function thumbnailUri(thumbUri) {
 
 const isElectron = () => {
     const userAgent = navigator.userAgent.toLowerCase();
-    return userAgent.indexOf('electron') !== -1;
+    return userAgent.indexOf('electron') !== -1 || process.env.NODE_ENV === 'production';
 };
 
 export { toDuration, displayRating, displayDateDistance, thumbnailUri, isElectron };

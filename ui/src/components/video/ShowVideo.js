@@ -1,16 +1,11 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "video.js/dist/video-js.css"
 import VideoApi from "../../api/api";
-import { Button, Container, Grid, IconButton, Paper, TextField, Typography } from "@mui/material";
+import { Button, Container, Grid, IconButton, TextField, Typography } from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import VideoPlayer from "./VideoPlayer";
-import VideoTextAttribute from "./VideoTextAttribute";
-import SaveIcon from '@mui/icons-material/Save';
-import { displayDateDistance, toDuration } from "../../utils";
-import { format } from "date-fns";
 import VideoInfoBar from "./VideoInfoBar";
-import { styled } from "@mui/styles";
 import VideoDetails from "./VideoDetails";
 import { AddCircleOutline } from "@mui/icons-material";
 import { VideosListGrid } from "../directory/VideosListGrid";
