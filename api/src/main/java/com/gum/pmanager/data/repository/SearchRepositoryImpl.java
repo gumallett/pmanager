@@ -1,7 +1,10 @@
 package com.gum.pmanager.data.repository;
 
 import com.gum.pmanager.data.model.VideoMetadataEntity;
+import org.hibernate.search.engine.search.aggregation.AggregationKey;
 import org.hibernate.search.engine.search.predicate.SearchPredicate;
+import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateClausesStep;
+import org.hibernate.search.engine.search.predicate.dsl.PredicateFinalStep;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.engine.search.query.SearchResult;
 import org.hibernate.search.engine.search.sort.dsl.SortOrder;
@@ -13,6 +16,8 @@ import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 public class SearchRepositoryImpl implements SearchRepository {
@@ -31,17 +36,8 @@ public class SearchRepositoryImpl implements SearchRepository {
         SearchResult<VideoMetadataEntity> result = session
                 .search(VideoMetadataEntity.class)
                 .where(p -> {
-                    var qs = p.simpleQueryString()
-                            .field("title").boost(3.0f)
-                            .field("description")
-                            .field("notes")
-                            .field("source")
-                            .field("tags.name").boost(2.0f)
-                            .field("categories.name")
-                            .matching(query);
-
-                    var bool = p.bool().must(StringUtils.hasLength(query) ? qs : p.matchAll());
-                    var tagsFilter = tagsFilter(tags, excludeTags, p, false);
+                    var bool = queryString(query, p);
+                    var tagsFilter = fieldFilter("tags.name", tags, excludeTags, p, false);
                     if (tagsFilter != null) {
                         bool.filter(tagsFilter);
                     }
@@ -85,15 +81,54 @@ public class SearchRepositoryImpl implements SearchRepository {
                 .start();
     }
 
-    private SearchPredicate tagsFilter(List<String> tags, List<String> excludeTags, SearchPredicateFactory p, boolean should) {
-        if (tags.isEmpty() && excludeTags.isEmpty()) {
+    @Override
+    public Map<String, Long> allCategories(String query) {
+        var searchSession = Search.session(entityManager);
+        AggregationKey<Map<String, Long>> aggKey = AggregationKey.of("allcats");
+
+        return searchSession
+                .search(VideoMetadataEntity.class)
+                .where(p -> queryString(query, p))
+                .aggregation(aggKey, f -> f.terms().field("categories.name", String.class))
+                .fetch(0)
+                .aggregation(aggKey);
+    }
+
+    @Override
+    public Map<String, Long> allTags(String query) {
+        var searchSession = Search.session(entityManager);
+        AggregationKey<Map<String, Long>> aggKey = AggregationKey.of("alltags");
+
+        return searchSession
+                .search(VideoMetadataEntity.class)
+                .where(p -> queryString(query, p))
+                .aggregation(aggKey, f -> f.terms().field("tags.name_sort", String.class))
+                .fetch(0)
+                .aggregation(aggKey);
+    }
+
+    private BooleanPredicateClausesStep<?> queryString(String query, SearchPredicateFactory p) {
+        var qs = p.simpleQueryString()
+                .field("title").boost(3.0f)
+                .field("description")
+                .field("notes")
+                .field("source")
+                .field("tags.name").boost(2.0f)
+                .field("categories.name")
+                .matching(query);
+
+        return p.bool().must(StringUtils.hasLength(query) ? qs : p.matchAll());
+    }
+
+    private SearchPredicate fieldFilter(String field, List<String> match, List<String> exclude, SearchPredicateFactory p, boolean should) {
+        if (match.isEmpty() && exclude.isEmpty()) {
             return null;
         }
 
         var filterQuery = p.bool();
-        if (!tags.isEmpty()) {
+        if (!match.isEmpty()) {
             var tagsBoolQuery = p.bool();
-            tags.forEach(it -> tagsBoolQuery.should(p.match().field("tags.name").matching(it)));
+            match.forEach(it -> tagsBoolQuery.should(p.match().field(field).matching(it)));
             if (should) {
                 filterQuery.should(tagsBoolQuery);
             } else {
@@ -101,9 +136,9 @@ public class SearchRepositoryImpl implements SearchRepository {
             }
         }
 
-        if (!excludeTags.isEmpty()) {
+        if (!exclude.isEmpty()) {
             var tagsExcludeBoolQuery = p.bool();
-            excludeTags.forEach(it -> tagsExcludeBoolQuery.should(p.match().field("tags.name").matching(it)));
+            exclude.forEach(it -> tagsExcludeBoolQuery.should(p.match().field(field).matching(it)));
             filterQuery.mustNot(tagsExcludeBoolQuery);
         }
 

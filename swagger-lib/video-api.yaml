@@ -7,11 +7,11 @@ servers:
   - description: local server
     url: https://localhost/gum/videos/1.0.0
 info:
-  description: This is an api for managing a p collection.
+  description: This is an api for managing a video collection.
   version: "1.0.0"
-  title: P collection api
+  title: Video collection api
   contact:
-    email: sbc_blitzer@yahoo.com
+    email: example@yahoo.com
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
@@ -263,6 +263,46 @@ paths:
       responses:
         '200':
           description: success
+  /videos/tags:
+    get:
+      tags:
+        - videos
+      summary: Gets all video tags
+      operationId: allTags
+      parameters:
+        - in: query
+          name: q
+          description: pass an optional search string for tag query context
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllTagsApiResponse'
+  /videos/categories:
+    get:
+      tags:
+        - videos
+      summary: Gets all video categories
+      operationId: allCategories
+      parameters:
+        - in: query
+          name: q
+          description: pass an optional search string for category query context
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllTagsApiResponse'
 components:
   schemas:
     ApiResponse:
@@ -330,6 +370,32 @@ components:
           properties:
             data:
               $ref: '#/components/schemas/VideoResponse'
+    AllTagsApiResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/AllTagsPagedResponse'
+    AllTagsPagedResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PagedApiResponse'
+        - type: object
+          properties:
+            records:
+              type: array
+              items:
+                $ref: '#/components/schemas/AllTagsResponse'
+    AllTagsResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        count:
+          type: integer
+          format: int64
     VideoResponse:
       type: object
       properties:

@@ -5,8 +5,6 @@ import com.gum.pmanager.model.*
 import com.gum.pmanager.service.MassIndexerService
 import com.gum.pmanager.service.ResourceService
 import com.gum.pmanager.service.VideoMetadataService
-import org.springframework.core.io.FileSystemResource
-import org.springframework.core.io.FileSystemResourceLoader
 import org.springframework.core.io.Resource
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -15,9 +13,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
-import java.time.OffsetDateTime
 
 @RestController
 @CrossOrigin
@@ -84,6 +80,26 @@ class VideoControllerImpl(
 
     override fun reindex(): ResponseEntity<Unit> {
         return massIndexerService.reIndex()
+    }
+
+    override fun allCategories(q: String?): ResponseEntity<AllTagsApiResponse> {
+        val categories = videoService.allCategories(q ?: "")
+        return ResponseEntity.ok(AllTagsApiResponse(
+            data = AllTagsPagedResponse(
+                page = 1,
+                totalPages = 1, size = categories.size, totalRecords = categories.size.toLong(),
+                records = categories.entries.map { entry -> AllTagsResponse(name = entry.key, count = entry.value) }))
+        )
+    }
+
+    override fun allTags(q: String?): ResponseEntity<AllTagsApiResponse> {
+        val tags = videoService.allTags(q ?: "")
+        return ResponseEntity.ok(AllTagsApiResponse(
+            data = AllTagsPagedResponse(
+                page = 1,
+                totalPages = 1, size = tags.size, totalRecords = tags.size.toLong(),
+                records = tags.entries.map { entry -> AllTagsResponse(name = entry.key, count = entry.value) }))
+        )
     }
 
     private fun getSort(page: Int, size: Int, sort: String?, order: String?): Pageable {

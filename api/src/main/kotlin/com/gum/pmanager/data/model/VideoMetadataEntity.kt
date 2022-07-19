@@ -4,6 +4,7 @@ import com.gum.pmanager.model.CategoryResponse
 import com.gum.pmanager.model.TagResponse
 import com.gum.pmanager.model.VideoFileInfoResponse
 import com.gum.pmanager.model.VideoResponse
+import org.hibernate.search.engine.backend.types.Aggregable
 import org.hibernate.search.engine.backend.types.Projectable
 import org.hibernate.search.engine.backend.types.Sortable
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate
@@ -110,7 +111,7 @@ class CategoryEntity(
     @GeneratedValue
     var id: Long? = null,
 
-    @KeywordField(sortable = Sortable.YES, projectable = Projectable.YES)
+    @KeywordField(sortable = Sortable.YES, projectable = Projectable.YES, aggregable = Aggregable.YES)
     var name: String
 )
 
@@ -122,7 +123,7 @@ class TagEntity(
     var id: Long? = null,
 
     @FullTextField
-    @KeywordField(name = "name_sort", sortable = Sortable.YES, projectable = Projectable.YES)
+    @KeywordField(name = "name_sort", sortable = Sortable.YES, projectable = Projectable.YES, aggregable = Aggregable.YES)
     var name: String
 )
 
