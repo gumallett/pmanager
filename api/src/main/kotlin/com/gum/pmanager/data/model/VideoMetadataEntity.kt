@@ -143,7 +143,7 @@ fun TagEntity.toTagResponse() = TagResponse(
     name = name
 )
 
-fun VideoFileInfoResponse.toVideoFileInfoEntity() = VideoFileInfo(
+fun VideoFileInfoResponse.copyToVideoFileInfoEntity() = VideoFileInfo(
     filename = filename ?: "",
     contentType = contentType ?: "",
     size = size ?: 0L,
@@ -152,6 +152,28 @@ fun VideoFileInfoResponse.toVideoFileInfoEntity() = VideoFileInfo(
     height = height,
     createDate = createDate?.toInstant() ?: Instant.now()
 )
+
+fun VideoFileInfoResponse.copyToVideoFileInfoEntity(update: VideoFileInfo) {
+    if (filename != null) {
+        update.filename = filename
+    }
+
+    if (contentType != null) {
+        update.contentType = contentType
+    }
+
+    if (size != null) {
+        update.size = size
+    }
+
+    if (createDate != null) {
+        update.createDate = createDate.toInstant()
+    }
+
+    if (length != null) {
+        update.length = Duration.ofMillis(length)
+    }
+}
 
 fun VideoFileInfo.toVideoFileInfoResponse() = VideoFileInfoResponse(
     filename = filename,
@@ -163,7 +185,7 @@ fun VideoFileInfo.toVideoFileInfoResponse() = VideoFileInfoResponse(
     createDate = createDate.atOffset(ZoneOffset.UTC)
 )
 
-fun VideoResponse.toVideoMetadataEntity() = VideoMetadataEntity(
+fun VideoResponse.copyToVideoMetadataEntity() = VideoMetadataEntity(
     id = id,
     title = title ?: "",
     description = description ?: "",
@@ -176,10 +198,58 @@ fun VideoResponse.toVideoMetadataEntity() = VideoMetadataEntity(
     rating = rating?.toShort(),
     views = views ?: 0L,
     notes = notes ?: "",
-    videoFileInfo = videoFileInfo?.toVideoFileInfoEntity() ?: VideoFileInfo(),
+    videoFileInfo = videoFileInfo?.copyToVideoFileInfoEntity() ?: VideoFileInfo(),
     lastAccessed = lastAccessed?.toInstant(),
     lastModified = lastModified?.toInstant() ?: Instant.now()
 )
+
+fun VideoResponse.copyToVideoMetadataEntity(update: VideoMetadataEntity) {
+    if (description != null) {
+        update.description = description
+    }
+
+    if (title != null) {
+        update.title = title
+    }
+
+    if (uri != null) {
+        update.uri = uri
+    }
+
+    if (notes != null) {
+        update.notes = notes
+    }
+
+    if (source != null) {
+        update.source = source
+    }
+
+    if (views != null) {
+        update.views = views
+    }
+
+    if (rating != null) {
+        update.rating = rating.toShort()
+    }
+
+    if (lastAccessed != null) {
+        update.lastAccessed = lastAccessed.toInstant()
+    }
+
+    if (lastModified != null) {
+        update.lastModified = lastModified.toInstant()
+    }
+
+    if (categories != null) {
+        update.categories = categories.map { it.toCategoryEntity() }.toMutableList()
+    }
+
+    if (tags != null) {
+        update.tags = tags.map { it.toTagEntity() }.toMutableList()
+    }
+
+    videoFileInfo?.copyToVideoFileInfoEntity(update.videoFileInfo)
+}
 
 fun VideoMetadataEntity.toVideoMetadataResponse() = VideoResponse(
     id = id,

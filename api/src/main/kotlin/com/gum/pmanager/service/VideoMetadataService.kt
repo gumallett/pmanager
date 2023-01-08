@@ -1,7 +1,9 @@
 package com.gum.pmanager.service
 
 import com.gum.pmanager.controller.VideoNotFoundException
-import com.gum.pmanager.data.model.*
+import com.gum.pmanager.data.model.VideoMetadataEntity
+import com.gum.pmanager.data.model.copyToVideoMetadataEntity
+import com.gum.pmanager.data.model.toVideoMetadataResponse
 import com.gum.pmanager.data.repository.VideoMetadataRepository
 import com.gum.pmanager.model.CreateVideoResponse
 import com.gum.pmanager.model.VideoResponse
@@ -14,9 +16,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.net.URI
-import java.time.Duration
 import java.time.Instant
-import java.time.OffsetDateTime
 
 interface VideoMetadataService {
     fun create(request: VideoResponse): CreateVideoResponse
@@ -40,7 +40,7 @@ class VideoMetadataServiceImpl(
         val existing = videoMetadataRepository.findByUri(request.uri ?: "")
 
         if (existing == null) {
-            val entity = videoMetadataRepository.save(request.toVideoMetadataEntity())
+            val entity = videoMetadataRepository.save(request.copyToVideoMetadataEntity())
             return CreateVideoResponse(entity.id)
         }
 
@@ -104,70 +104,7 @@ class VideoMetadataServiceImpl(
     }
 
     private fun updateEntity(update: VideoMetadataEntity, request: VideoResponse): VideoMetadataEntity {
-        if (request.description != null) {
-            update.description = request.description
-        }
-
-        if (request.title != null) {
-            update.title = request.title
-        }
-
-        if (request.uri != null) {
-            update.uri = request.uri
-        }
-
-        if (request.notes != null) {
-            update.notes = request.notes
-        }
-
-        if (request.source != null) {
-            update.source = request.source
-        }
-
-        if (request.views != null) {
-            update.views = request.views
-        }
-
-        if (request.rating != null) {
-            update.rating = request.rating.toShort()
-        }
-
-        if (request.lastAccessed != null) {
-            update.lastAccessed = request.lastAccessed.toInstant()
-        }
-
-        if (request.lastModified != null) {
-            update.lastModified = request.lastModified.toInstant()
-        }
-
-        if (request.categories != null) {
-            update.categories = request.categories.map { it.toCategoryEntity() }.toMutableList()
-        }
-
-        if (request.tags != null) {
-            update.tags = request.tags.map { it.toTagEntity() }.toMutableList()
-        }
-
-        if (request.videoFileInfo?.filename != null) {
-            update.videoFileInfo.filename = request.videoFileInfo.filename
-        }
-
-        if (request.videoFileInfo?.contentType != null) {
-            update.videoFileInfo.contentType = request.videoFileInfo.contentType
-        }
-
-        if (request.videoFileInfo?.size != null) {
-            update.videoFileInfo.size = request.videoFileInfo.size
-        }
-
-        if (request.videoFileInfo?.createDate != null) {
-            update.videoFileInfo.createDate = request.videoFileInfo.createDate.toInstant()
-        }
-
-        if (request.videoFileInfo?.length != null) {
-            update.videoFileInfo.length = Duration.ofMillis(request.videoFileInfo.length)
-        }
-
+        request.copyToVideoMetadataEntity(update)
         return videoMetadataRepository.save(update)
     }
 }
