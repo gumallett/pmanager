@@ -1,0 +1,1 @@
+docker run --rm --volumes-from postgres -v $(pwd):/backup ubuntu tar czvf /backup/backup.tar.gz /var/lib/postgresql/data
