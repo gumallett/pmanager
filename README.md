@@ -1,3 +1,4 @@
+[![Build Status](https://app.travis-ci.com/gumallett/pmanager.svg?branch=master)](https://app.travis-ci.com/gumallett/pmanager)  
 Overview
 ====
 
@@ -18,5 +19,4 @@ Uses gradle,
 gradle openApiGenerate
 gradle build
 ```
-
 
