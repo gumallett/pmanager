@@ -79,7 +79,8 @@ function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
     }, [videoDetail.id, preview])
 
     const setupPlayer = useCallback(() => {
-        const elem = videoBoxRef.current.children[0];
+        const elem = document.createElement("video-js");
+        videoBoxRef.current.appendChild(elem);
         return videojs(elem, createPlayerOptions());
     }, [videoBoxRef, createPlayerOptions]);
 
@@ -138,7 +139,7 @@ function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
     // Dispose the Video.js player when the functional component unmounts
     useEffect(() => {
         return () => {
-            if (playerRef.current) {
+            if (playerRef.current && !playerRef.current.isDisposed()) {
                 playerRef.current.dispose();
                 playerRef.current = null;
             }
@@ -148,11 +149,7 @@ function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
 
     return (
         <Box ref={videoBoxRef} sx={{ display: "flex", width: "100%", height: preview ? "100%" : "", mt: preview ? 0 : 2 }}>
-            {// Warning: will be managed and replaced in the dom by videojs
-            }
-            <video className="video-js">
-                Sorry, your browser doesn't support embedded videos.
-            </video>
+
         </Box>
     );
 }

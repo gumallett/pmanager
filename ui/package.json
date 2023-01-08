@@ -19,7 +19,7 @@
     "react-router-dom": "^6.0.0",
     "react-scripts": "5.0.1",
     "redux-persist": "^6.0.0",
-    "video.js": "^7.20.0",
+    "video.js": "^8",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
