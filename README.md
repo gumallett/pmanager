@@ -7,8 +7,9 @@ A project to manage and search a video inventory.
 Prerequisites
 ====
 
-JDK 11
-Docker
+ * JDK 11  
+ * Docker
+ * Yarn
 
 Building
 ====
@@ -20,3 +21,11 @@ gradle openApiGenerate
 gradle build
 ```
 
+UI
+====
+
+```bash
+cd ui
+yarn install
+yarn start
+```
