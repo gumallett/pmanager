@@ -17,7 +17,10 @@ import java.time.ZoneOffset
 
 @SpringBootTest
 @TestPropertySource(properties = ["spring.flyway.cleanOnValidationError=true",
-    "spring.jpa.properties.hibernate.search.automatic_indexing.synchronization.strategy=sync"])
+    "spring.jpa.properties.hibernate.search.automatic_indexing.synchronization.strategy=sync",
+    "spring.jpa.properties.hibernate.search.backend.directory.root=",
+    "spring.jpa.properties.hibernate.search.backend.indexes.VideoMetadataEntity.directory.root="
+])
 class VideoMetadataServiceSearchTests {
 
     @Autowired
@@ -26,12 +29,16 @@ class VideoMetadataServiceSearchTests {
     @Autowired
     lateinit var videoMetadataRepository: VideoMetadataRepository
 
+    var entityId: Long? = null
+
     @AfterEach
     fun cleanup() {
-        ensureTx()
-        videoMetadataRepository.deleteAll()
-        TestTransaction.flagForCommit()
-        TestTransaction.end()
+        if (entityId != null) {
+            ensureTx()
+            videoMetadataRepository.deleteById(entityId!!)
+            TestTransaction.flagForCommit()
+            TestTransaction.end()
+        }
     }
 
     @Test
@@ -65,6 +72,7 @@ class VideoMetadataServiceSearchTests {
     private fun createAndSaveTestEntity(): VideoMetadataEntity {
         ensureTx()
         val entity = videoMetadataRepository.saveAndFlush(createTestEntity())
+        entityId = entity.id
         TestTransaction.flagForCommit()
         TestTransaction.end()
         return entity
