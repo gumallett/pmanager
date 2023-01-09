@@ -1,5 +1,5 @@
 import './App.css';
-import VideosList from "./components/directory/VideosList";
+import VideosHome from "./components/directory/VideosHome";
 import { Route, Routes } from "react-router-dom";
 import ShowVideo from "./components/video/ShowVideo";
 import { adaptV4Theme, createTheme, StyledEngineProvider, ThemeProvider, } from "@mui/material";
@@ -21,7 +21,7 @@ function App() {
                         <PMNavBar />
 
                         <Routes>
-                            <Route path={routes.video} element={<VideosList />} />
+                            <Route path={routes.video} element={<VideosHome />} />
                             <Route path={`${routes.video}/:id`} element={<ShowVideo />} />
                         </Routes>
                     </ThemeProvider>

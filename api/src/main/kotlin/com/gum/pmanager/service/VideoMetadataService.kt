@@ -25,7 +25,7 @@ interface VideoMetadataService {
     fun get(id: Long): VideoResponse
     fun view(id: Long): VideoResponse
     fun search(query: String, pageable: Pageable): List<VideoResponse>
-    fun pagedSearch(query: String, tags: List<String> = listOf(), excludeTags: List<String> = listOf(), pageable: Pageable): Page<VideoResponse>
+    fun pagedSearch(query: String, tags: List<String> = listOf(), excludeTags: List<String> = listOf(), categories: List<String> = listOf(), pageable: Pageable): Page<VideoResponse>
     fun allCategories(query: String): Map<String, Long>
     fun allTags(query: String): Map<String, Long>
     fun download(id: Long): Resource
@@ -82,8 +82,8 @@ class VideoMetadataServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun pagedSearch(query: String, tags: List<String>, excludeTags: List<String>, pageable: Pageable): Page<VideoResponse> {
-        return videoMetadataRepository.pagedSearch(query, tags, excludeTags, pageable).map { it.toVideoMetadataResponse() }
+    override fun pagedSearch(query: String, tags: List<String>, excludeTags: List<String>, categories: List<String>, pageable: Pageable): Page<VideoResponse> {
+        return videoMetadataRepository.pagedSearch(query, tags, excludeTags, categories, pageable).map { it.toVideoMetadataResponse() }
     }
 
     @Transactional(readOnly = true)
