@@ -63,7 +63,6 @@ function PMNavBar() {
     const classes = useStyles();
     const [search, setSearch] = useSearchParams();
     const history = useNavigate();
-    const location = useLocation();
     const [anchorEl, setAnchorEl] = useState(null);
 
     const [tmpSearchQuery, setTmpSearchQuery] = useState(search.get('search') || '');

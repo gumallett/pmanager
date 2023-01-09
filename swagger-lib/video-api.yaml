@@ -58,6 +58,16 @@ paths:
             items:
               type: string
         - in: query
+          name: categories
+          description: optional filter for categories. Comma-delimited
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
           name: page
           description: number of records to skip for pagination
           schema:

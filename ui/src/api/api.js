@@ -1,7 +1,7 @@
 const baseUrl = "http://localhost:8080/gum/videos/1.0.0/videos";
 
-const loadVideos = (query, page = 0, size = 10, sort = '_score') => {
-    return fetch(`${baseUrl}?q=${query}&page=${page}&size=${size}&sort=${sort}`)
+const loadVideos = (query, page = 0, size = 10, sort = '_score', tags = '', excludeTags = '', categories = '') => {
+    return fetch(`${baseUrl}?q=${query}&page=${page}&size=${size}&sort=${sort}&tags=${tags}&exclude_tags=${excludeTags}&categories=${categories}`)
         .then(res => res.json())
         .then(json => json.data);
 };
@@ -20,11 +20,25 @@ const updateVideo = (id, data) => {
     });
 }
 
+const fetchTags = (query) => {
+    return fetch(`${baseUrl}/tags?q=${query}`)
+        .then(res => res.json())
+        .then(json => json.data);
+}
+
+const fetchCategories = (query) => {
+    return fetch(`${baseUrl}/categories?q=${query}`)
+        .then(res => res.json())
+        .then(json => json.data);
+}
+
 const VideoApi = {
     baseUrl,
     loadVideos,
     loadVideo,
-    updateVideo
+    updateVideo,
+    fetchTags,
+    fetchCategories
 }
 
 export default VideoApi

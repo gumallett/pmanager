@@ -28,18 +28,22 @@ public class SearchRepositoryImpl implements SearchRepository {
     }
 
     public Page<VideoMetadataEntity> pagedSearch(String query, Pageable pageable) {
-        return pagedSearch(query, List.of(), List.of(), pageable);
+        return pagedSearch(query, List.of(), List.of(), List.of(), pageable);
     }
 
-    public Page<VideoMetadataEntity> pagedSearch(String query, List<String> tags, List<String> excludeTags, Pageable pageable) {
+    public Page<VideoMetadataEntity> pagedSearch(String query, List<String> tags, List<String> excludeTags, List<String> categories, Pageable pageable) {
         var session = Search.session(entityManager);
         SearchResult<VideoMetadataEntity> result = session
                 .search(VideoMetadataEntity.class)
                 .where(p -> {
                     var bool = queryString(query, p);
-                    var tagsFilter = fieldFilter("tags.name", tags, excludeTags, p, false);
+                    var tagsFilter = fieldFilter("tags.name_sort", tags, excludeTags, p, false);
                     if (tagsFilter != null) {
                         bool.filter(tagsFilter);
+                    }
+                    var categoriesFilter = fieldFilter("categories.name", categories, List.of(), p, false);
+                    if (categoriesFilter != null) {
+                        bool.filter(categoriesFilter);
                     }
                     return bool;
                 })
