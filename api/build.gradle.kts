@@ -1,14 +1,16 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
-    id("org.springframework.boot") version "2.4.5"
-    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    alias(libs.plugins.springboot)
     kotlin("jvm")
-    kotlin("plugin.spring") version "1.5.10"
-    kotlin("plugin.allopen") version "1.5.10"
-    kotlin("plugin.jpa") version "1.5.10"
-    id("org.openapi.generator") version "5.1.1"
+    kotlin("plugin.spring") version libs.versions.kotlin
+    kotlin("plugin.allopen") version libs.versions.kotlin
+    kotlin("plugin.jpa") version libs.versions.kotlin
+    alias(libs.plugins.openapi)
 }
+
+apply(plugin = "io.spring.dependency-management")
 
 group = "com.gum"
 version = "0.0.1-SNAPSHOT"
@@ -22,12 +24,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.hibernate.search:hibernate-search-mapper-orm:6.0.3.Final")
-    implementation("org.hibernate.search:hibernate-search-backend-lucene:6.0.3.Final")
+    implementation(libs.bundles.hibernateSearch)
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.flywaydb:flyway-core")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
@@ -74,7 +75,8 @@ openApiGenerate {
     ))
     configOptions.set(mapOf(
         "dateLibrary" to "java8",
-        "interfaceOnly" to "true"
+        "interfaceOnly" to "true",
+        "documentationProvider" to "none"
     ))
 }
 

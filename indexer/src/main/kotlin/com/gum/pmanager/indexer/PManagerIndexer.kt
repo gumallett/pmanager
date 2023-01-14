@@ -17,7 +17,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributeView
 import java.time.ZoneOffset
-import kotlin.io.path.nameWithoutExtension
 
 @Service
 class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataService, val indexingProperties: IndexingProperties) {
@@ -72,7 +71,7 @@ class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataServ
             return
         }
 
-        if (path.nameWithoutExtension.endsWith("-thumb")) {
+        if (file.nameWithoutExtension.endsWith("-thumb")) {
             LOG.info("Skipping thumbnail {}", path)
             return
         }
@@ -83,13 +82,13 @@ class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataServ
             title = file.nameWithoutExtension.replace(titleCorrectionRegex, "-"),
             description = file.nameWithoutExtension.replace(titleCorrectionRegex, "-"),
             uri = path.toUri().toString(),
-            previewUri = getPreviewUri(path),
-            thumbUri = getThumbnailUri(path),
+            previewUri = getPreviewUri(file),
+            thumbUri = getThumbnailUri(file),
             source = "",
             videoFileInfo = VideoFileInfoResponse(
                 filename = file.name,
                 contentType = contentType,
-                size = file.length(),
+                propertySize = file.length(),
                 length = getDurationInMillis(duration, timescale),
                 width = width,
                 height = height,
@@ -114,14 +113,14 @@ class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataServ
     }
 }
 
-fun getThumbnailUri(path: Path): String {
+fun getThumbnailUri(path: File): String {
     val thumbnail = "${path.nameWithoutExtension}-thumb.png"
-    return File(path.parent.toFile(), thumbnail).toURI().toString()
+    return File(path.parent, thumbnail).toURI().toString()
 }
 
-fun getPreviewUri(path: Path): String {
+fun getPreviewUri(path: File): String {
     val thumbnail = "${path.nameWithoutExtension}-thumb.mp4"
-    return File(path.parent.toFile(), thumbnail).toURI().toString()
+    return File(path.parent, thumbnail).toURI().toString()
 }
 
 fun getDurationInMillis(duration: Long?, timescale: Long?): Long {

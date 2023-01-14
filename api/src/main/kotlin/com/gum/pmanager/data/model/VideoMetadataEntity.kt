@@ -146,7 +146,7 @@ fun TagEntity.toTagResponse() = TagResponse(
 fun VideoFileInfoResponse.copyToVideoFileInfoEntity() = VideoFileInfo(
     filename = filename ?: "",
     contentType = contentType ?: "",
-    size = size ?: 0L,
+    size = propertySize ?: 0L,
     length = Duration.ofMillis(length ?: 0),
     width = width,
     height = height,
@@ -162,8 +162,8 @@ fun VideoFileInfoResponse.copyToVideoFileInfoEntity(update: VideoFileInfo) {
         update.contentType = contentType
     }
 
-    if (size != null) {
-        update.size = size
+    if (propertySize != null) {
+        update.size = propertySize
     }
 
     if (createDate != null) {
@@ -178,7 +178,7 @@ fun VideoFileInfoResponse.copyToVideoFileInfoEntity(update: VideoFileInfo) {
 fun VideoFileInfo.toVideoFileInfoResponse() = VideoFileInfoResponse(
     filename = filename,
     contentType = contentType,
-    size = size,
+    propertySize = size,
     length = length.toMillis(),
     width = width,
     height = height,
