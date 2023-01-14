@@ -40,7 +40,7 @@ class VideoControllerImpl(
             VideosApiResponse(
             data = VideoPagedResponse(
                 page = page,
-                size = size,
+                propertySize = size,
                 totalPages = pages.totalPages,
                 totalRecords = pages.totalElements,
                 records = pages.toList()
@@ -87,7 +87,7 @@ class VideoControllerImpl(
         return ResponseEntity.ok(AllTagsApiResponse(
             data = AllTagsPagedResponse(
                 page = 1,
-                totalPages = 1, size = categories.size, totalRecords = categories.size.toLong(),
+                totalPages = 1, propertySize = categories.size, totalRecords = categories.size.toLong(),
                 records = categories.entries.map { entry -> AllTagsResponse(name = entry.key, count = entry.value) }))
         )
     }
@@ -97,7 +97,7 @@ class VideoControllerImpl(
         return ResponseEntity.ok(AllTagsApiResponse(
             data = AllTagsPagedResponse(
                 page = 1,
-                totalPages = 1, size = tags.size, totalRecords = tags.size.toLong(),
+                totalPages = 1, propertySize = tags.size, totalRecords = tags.size.toLong(),
                 records = tags.entries.map { entry -> AllTagsResponse(name = entry.key, count = entry.value) }))
         )
     }
