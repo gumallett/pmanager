@@ -1,7 +1,7 @@
 const baseUrl = "http://localhost:8080/gum/videos/1.0.0/videos";
 
-const loadVideos = (query, page = 0, size = 10, sort = '_score', tags = '', excludeTags = '', categories = '') => {
-    return fetch(`${baseUrl}?q=${query}&page=${page}&size=${size}&sort=${sort}&tags=${tags}&exclude_tags=${excludeTags}&categories=${categories}`)
+const loadVideos = (query, page = 0, size = 10, sort = '_score', tags = '', excludeTags = '', categories = '', api) => {
+    return fetch(`${baseUrl}?q=${query}&page=${page}&size=${size}&sort=${sort}&tags=${tags}&exclude_tags=${excludeTags}&categories=${categories}`, {signal: api.signal})
         .then(res => res.json())
         .then(json => json.data);
 };
@@ -20,14 +20,14 @@ const updateVideo = (id, data) => {
     });
 }
 
-const fetchTags = (query) => {
-    return fetch(`${baseUrl}/tags?q=${query}`)
+const fetchTags = (query, api) => {
+    return fetch(`${baseUrl}/tags?q=${query}`, {signal: api.signal})
         .then(res => res.json())
         .then(json => json.data);
 }
 
-const fetchCategories = (query) => {
-    return fetch(`${baseUrl}/categories?q=${query}`)
+const fetchCategories = (query, api) => {
+    return fetch(`${baseUrl}/categories?q=${query}`, {signal: api.signal})
         .then(res => res.json())
         .then(json => json.data);
 }

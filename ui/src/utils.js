@@ -41,4 +41,16 @@ const isElectron = () => {
     return userAgent.indexOf('electron') !== -1 || process.env.NODE_ENV === 'production';
 };
 
-export { toDuration, displayRating, displayDateDistance, thumbnailUri, isElectron };
+const deserializeQueryString = (search) => ({
+    searchText: search.get('search') || '',
+    page: search.get('page') ? parseInt(search.get('page')) : 1,
+    sort: search.get('sort') || '',
+    tags: search.get('tags') ? search.get('tags').split(',').map(it => ({name: it})) : [],
+    tagsAsString: search.get('tags') ? search.get('tags') : "",
+    excludeTags: search.get('excludeTags') ? search.get('excludeTags').split(',').map(it => ({name: it})) : [],
+    excludeTagsAsString: search.get('excludeTags') ? search.get('excludeTags') : "",
+    categories: search.get('categories') ? search.get('categories').split(',').map(it => ({name: it})) : [],
+    categoriesAsString: search.get('categories') ? search.get('categories') : "",
+});
+
+export { toDuration, displayRating, displayDateDistance, thumbnailUri, isElectron, deserializeQueryString };

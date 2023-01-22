@@ -1,25 +1,34 @@
-import { useCallback, useEffect, useState } from "react";
-import VideoApi from "../../api/api";
+import { memo, useEffect, useMemo } from "react";
 import { Box, Container, Grid, Pagination } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
 import SortDropdown from "./SortDropdown";
 import { VideosListGrid } from "./VideosListGrid";
 import FilterPanel from "./FilterPanel";
+import {
+    fetchCategories,
+    fetchTags,
+    fetchVideos,
+    selectCategories,
+    selectTags,
+    selectTotalPages,
+    selectVideos
+} from "../video/videosSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { pageChanged, sortChanged } from "../nav/searchSlice";
+import { deserializeQueryString } from "../../utils";
 
-function PaginationAndSort({showSort = false, totalPages, mt, pb: pb}) {
+function PaginationAndSort({showSort = false, totalPages, currentPage, mt, pb: pb}) {
     const [search, setSearch] = useSearchParams();
-
-    const getPage = useCallback(() => {
-        return search.get('page') ? parseInt(search.get('page')) : 1;
-    }, [search]);
+    const dispatch = useDispatch();
+    const deserializedParams = useMemo(() => deserializeQueryString(search), [search]);
 
     return (
         <Grid container spacing={0} direction="row" alignItems="flex-start">
             <Grid item xs={4}>
-                <Pagination sx={{mt: mt, pb: pb}} page={getPage()} count={totalPages} shape="rounded" onChange={changePage}/>
+                <Pagination sx={{mt: mt, pb: pb}} page={currentPage} count={totalPages} shape="rounded" onChange={changePage}/>
             </Grid>
             {showSort ? <Grid item xs={2}>
-                <SortDropdown sortValue={search.get('sort')} onSortChange={changeSort}/>
+                <SortDropdown sortValue={deserializedParams.sort} onSortChange={changeSort}/>
             </Grid> : ""}
         </Grid>
     )
@@ -27,53 +36,59 @@ function PaginationAndSort({showSort = false, totalPages, mt, pb: pb}) {
     function changeSort(value) {
         search.set('sort', value);
         setSearch(search);
+        dispatch(sortChanged(value));
     }
 
     function changePage(e, val) {
         search.set('page', val);
         setSearch(search);
+        dispatch(pageChanged(val));
     }
 }
 
-function VideosList({videos = [], totalPages}) {
+function VideosListComp({videos = [], totalPages, currentPage}) {
     return (
         <Box>
-            <PaginationAndSort showSort={true} mt={"15px"} totalPages={totalPages} />
+            <PaginationAndSort showSort={true} mt={"15px"} currentPage={currentPage} totalPages={totalPages} />
             <VideosListGrid videos={videos} />
-            <PaginationAndSort mt={"15px"} pb={"20px"} totalPages={totalPages} />
+            <PaginationAndSort mt={"15px"} pb={"20px"} currentPage={currentPage} totalPages={totalPages} />
         </Box>
     );
 }
 
-function VideosHome() {
-    const [videos, setVideos] = useState([]);
-    const [tags, setTags] = useState([]);
-    const [cats, setCats] = useState([]);
-    const [totalPages, setTotalPages] = useState();
-    const [search, setSearch] = useSearchParams();
+const VideosList = memo(VideosListComp);
 
-    const getPage = useCallback(() => {
-        return search.get('page') ? parseInt(search.get('page')) : 1;
-    }, [search]);
+function VideosHome() {
+    const dispatch = useDispatch();
+    const totalPages = useSelector(selectTotalPages);
+    const videos = useSelector(selectVideos);
+    const cats = useSelector(selectCategories);
+    const tags = useSelector(selectTags);
+    const [searchParams,] = useSearchParams();
+
+    const deserializedParams = useMemo(() => deserializeQueryString(searchParams), [searchParams]);
 
     useEffect(() => {
-        document.title = "Videos List"
-        loadVideos(search.get('search') || "",
-            getPage(),
-            search.get('sort') || "",
-            search.get('tags') || "",
-            search.get('excludeTags') || "",
-            search.get('categories') || "").then(data => initList(data));
-        VideoApi.fetchTags(search.get('search') || "").then(data => setTags(data.records));
-        VideoApi.fetchCategories(search.get('search') || "").then(data => setCats(data.records));
-    }, [search]);
+        document.title = `Videos List - ${searchParams.get("search") || ''}`;
+    }, [searchParams]);
+
+    useEffect(() => {
+        const params = deserializedParams;
+        const promises = loadVideos(params.searchText,
+            params.page,
+            params.sort,
+            params.tagsAsString,
+            params.excludeTagsAsString,
+            params.categoriesAsString);
+        return () => promises.forEach(it => it.abort())
+    }, [deserializedParams]);
 
     return (
         <Container maxWidth="xl">
             <div className="App">
                 <Grid container spacing={2} direction="row" alignItems="flex-start">
                     <Grid item xs={9}>
-                        <VideosList videos={videos} totalPages={totalPages} />
+                        <VideosList videos={videos} currentPage={deserializedParams.page} totalPages={totalPages} />
                     </Grid>
                     <Grid item xs={3}>
                         <FilterPanel tags={tags} categories={cats} />
@@ -84,13 +99,15 @@ function VideosHome() {
     );
 
     function loadVideos(q, page, sort, tags, excludeTags, categories) {
-        return VideoApi
-            .loadVideos(q, page ? page - 1 : 0, 12, sort ? sort : undefined, tags, excludeTags, categories);
-    }
+        if (q.length !== 1 && q.length !== 2) {
+            return [
+                dispatch(fetchVideos([q, page ? page - 1 : 0, 12, sort ? sort : undefined, tags, excludeTags, categories])),
+                dispatch(fetchTags(q)),
+                dispatch(fetchCategories(q)),
+            ];
+        }
 
-    function initList(data) {
-        setVideos(data.records);
-        setTotalPages(data.totalPages);
+        return [];
     }
 }
 
