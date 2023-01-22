@@ -4,7 +4,7 @@ import { Link as RouterLink } from "react-router-dom";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import GradeIcon from '@mui/icons-material/Grade';
 import { displayRating, thumbnailUri, toDuration } from "../../utils";
-import { useCallback, useRef, useState } from "react";
+import { memo, useCallback, useRef, useState } from "react";
 import VideoPlayer from "../video/VideoPlayer";
 import routes from "../../routes/routes";
 
@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-function VideoCard({ video }) {
+function VideoCardComp({ video }) {
     const classes = useStyles();
     const [hover, setHover] = useState(false);
     const ref = useRef();
@@ -88,5 +88,7 @@ function VideoCard({ video }) {
         </Card>
     );
 }
+
+const VideoCard = memo(VideoCardComp);
 
 export default VideoCard;

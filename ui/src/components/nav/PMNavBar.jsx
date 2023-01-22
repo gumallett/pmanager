@@ -1,11 +1,14 @@
-import { AppBar, Button, alpha, IconButton, InputBase, Link, Toolbar, Menu, MenuItem, Box } from "@mui/material";
+import { alpha, AppBar, Box, Button, IconButton, InputBase, Link, Menu, MenuItem, Toolbar } from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import MenuIcon from "@mui/icons-material/Menu";
-import { Link as RouterLink, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
 import routes from "../../routes/routes";
 import SearchIcon from "@mui/icons-material/Search";
 import { useEffect, useMemo, useState } from "react";
 import debounce from 'lodash.debounce';
+import { useDispatch, useSelector } from "react-redux";
+import { searchTextChanged, selectSearch } from "./searchSlice";
+import { deserializeQueryString } from "../../utils";
 
 const useStyles = makeStyles((theme) => ({
     grow: {
@@ -64,8 +67,10 @@ function PMNavBar() {
     const [search, setSearch] = useSearchParams();
     const history = useNavigate();
     const [anchorEl, setAnchorEl] = useState(null);
+    const dispatch = useDispatch();
 
-    const [tmpSearchQuery, setTmpSearchQuery] = useState(search.get('search') || '');
+    const deserializedSearchParams = useMemo(() => deserializeQueryString(search), [search]);
+    const [tmpSearchQuery, setTmpSearchQuery] = useState(deserializedSearchParams.searchText);
 
     const debouncedSearch = useMemo(() => {
         return debounce(updateQueryParams, 250);
@@ -90,7 +95,7 @@ function PMNavBar() {
     }
 
     useEffect(() => {
-        if (tmpSearchQuery && tmpSearchQuery.length > 2) {
+        if (tmpSearchQuery) {
             debouncedSearch(tmpSearchQuery);
         }
         return () => debouncedSearch.cancel();
@@ -167,14 +172,15 @@ function PMNavBar() {
     }
 
     function clear() {
-        setTmpSearchQuery('');
+        searchChanged('');
     }
 
     function updateQueryParams(q) {
-        setTmpSearchQuery(q);
         search.set('page', '1');
         search.set('search', q || '');
         history(`/${routes.video}?${search.toString()}`);
+        // setSearch(search);
+        dispatch(searchTextChanged(q || ''));
     }
 }
 

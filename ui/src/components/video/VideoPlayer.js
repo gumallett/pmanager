@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import VideoApi from "../../api/api";
 import videojs from "video.js";
 import { thumbnailUri } from "../../utils";
@@ -7,7 +7,7 @@ import './videoPlayer.css';
 import { Box } from "@mui/material";
 
 
-function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
+function VideoPlayerComp({ videoDetail = {}, preview = false, play = false }) {
     const playerRef = useRef(null);
     const videoBoxRef = useRef(null);
 
@@ -154,4 +154,5 @@ function VideoPlayer({ videoDetail = {}, preview = false, play = false }) {
     );
 }
 
+const VideoPlayer = memo(VideoPlayerComp);
 export default VideoPlayer;

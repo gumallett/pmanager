@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import "video.js/dist/video-js.css"
 import VideoApi from "../../api/api";
@@ -9,6 +9,8 @@ import VideoInfoBar from "./VideoInfoBar";
 import VideoDetails from "./VideoDetails";
 import { AddCircleOutline } from "@mui/icons-material";
 import { VideosListGrid } from "../directory/VideosListGrid";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchVideos, selectVideos } from "./videosSlice";
 
 const useStyles = makeStyles(theme => ({
     attributes: {
@@ -116,7 +118,11 @@ function ShowVideo() {
     let { id } = useParams();
     const [videoDetail, setVideoDetail] = useState({ videoFileInfo: {} });
     const [detailsVisible, showDetails] = useState(false);
-    const [videos, setVideos] = useState([]);
+    // const [videos, setVideos] = useState([]);
+    const videos = useSelector(selectVideos);
+    const dispatch = useDispatch();
+
+    const recommendedVideos = useMemo(() => videos && videos.length ? videos.filter(rec => `${rec.id}` !== id) : [], [videos]);
 
     useEffect(() => {
         VideoApi.loadVideo(id).then(video => {
@@ -131,9 +137,9 @@ function ShowVideo() {
         }
 
         const searchQuery = `${videoDetail.title} ${videoDetail.description} ${videoDetail.tags.map(t => t.name).join(' ')}`;
-        VideoApi
-            .loadVideos(searchQuery, 0, 13, "_score,rating")
-            .then(data => data.records ? setVideos(data.records.filter(rec => `${rec.id}` !== id)) : []);
+
+        const promise = dispatch(fetchVideos([searchQuery, 0, 13, "_score,rating", [], [], []]));
+        return () => promise.abort();
     }, [videoDetail, id]);
 
     function updateRating(newVal) {
@@ -211,7 +217,7 @@ function ShowVideo() {
             {detailsVisible ? <VideoDetails videoDetail={videoDetail} onSave={updateVideoMetadata}/> : ""}
 
             <Typography variant={"h5"} sx={{textAlign: "left", p: 2}}>Related Videos:</Typography>
-            <VideosListGrid videos={videos} />
+            <VideosListGrid videos={recommendedVideos} />
 
             <div><br/></div>
         </Container>
