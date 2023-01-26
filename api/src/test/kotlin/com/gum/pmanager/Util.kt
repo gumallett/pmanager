@@ -44,7 +44,7 @@ fun createTestVideoResponse() = VideoResponse(
     videoFileInfo = VideoFileInfoResponse(
         filename = "test.mp4",
         contentType = "video/mp4",
-        size = 1L,
+        propertySize = 1L,
         length = Duration.ofMinutes(10).toMillis(),
         createDate = OffsetDateTime.now()
     )
