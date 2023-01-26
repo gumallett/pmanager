@@ -1,7 +1,7 @@
 version: '2.2'
 services:
   pg01:
-    image: postgres
+    image: postgres:13
     container_name: pg01
     restart: always
     environment:
