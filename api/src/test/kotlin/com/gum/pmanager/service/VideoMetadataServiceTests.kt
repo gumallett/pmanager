@@ -61,7 +61,7 @@ class VideoMetadataServiceTests {
         assertThat(res.videoFileInfo?.createDate).isEqualTo(entity.videoFileInfo.createDate.atOffset(ZoneOffset.UTC))
         assertThat(res.videoFileInfo?.filename).isEqualTo(entity.videoFileInfo.filename)
         assertThat(res.videoFileInfo?.length).isEqualTo(entity.videoFileInfo.length.toMillis())
-        assertThat(res.videoFileInfo?.size).isEqualTo(entity.videoFileInfo.size)
+        assertThat(res.videoFileInfo?.propertySize).isEqualTo(entity.videoFileInfo.size)
     }
 
     @Test

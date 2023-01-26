@@ -66,7 +66,7 @@ class VideoMetadataServiceSearchTests {
             .isEqualTo(entity.videoFileInfo.createDate.atOffset(ZoneOffset.UTC))
         Assertions.assertThat(res.videoFileInfo?.filename).isEqualTo(entity.videoFileInfo.filename)
         Assertions.assertThat(res.videoFileInfo?.length).isEqualTo(entity.videoFileInfo.length.toMillis())
-        Assertions.assertThat(res.videoFileInfo?.size).isEqualTo(entity.videoFileInfo.size)
+        Assertions.assertThat(res.videoFileInfo?.propertySize).isEqualTo(entity.videoFileInfo.size)
     }
 
     private fun createAndSaveTestEntity(): VideoMetadataEntity {
