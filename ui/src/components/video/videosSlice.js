@@ -11,7 +11,7 @@ import VideoApi from "../../api/api";
 
 const videosAdapter = createEntityAdapter({
     selectId: (video) => video.id,
-    sortComparer: (a, b) => a - b
+    sortComparer: false
 });
 
 
