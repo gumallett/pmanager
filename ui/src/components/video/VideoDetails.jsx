@@ -6,6 +6,8 @@ import { format } from "date-fns";
 import SaveIcon from "@mui/icons-material/Save";
 import { useEffect, useState } from "react";
 import { styled } from "@mui/styles";
+import {useDispatch} from "react-redux";
+import {updateMetadata} from "./videoSlice";
 
 const useStyles = makeStyles(theme => ({
     attributes: {
@@ -24,8 +26,9 @@ const CopyButton = styled(Button)({
     marginTop: "0"
 });
 
-function VideoDetails({ videoDetail, onSave }) {
+function VideoDetails({ videoDetail }) {
     const classes = useStyles();
+    const dispatch = useDispatch();
 
     const [form, setForm] = useState({
         title: videoDetail.title,
@@ -85,7 +88,7 @@ function VideoDetails({ videoDetail, onSave }) {
                     <Typography className={classes.uri} variant={"body2"}>{videoDetail.uri}</Typography>
                 </Grid>
                 <Grid item>
-                    <Button variant="contained" startIcon={<SaveIcon />} onClick={() => onSave(form)}>Save Changes</Button>
+                    <Button variant="contained" startIcon={<SaveIcon />} onClick={() => dispatch(updateMetadata([videoDetail.id, form]))}>Save Changes</Button>
                 </Grid>
                 <Grid item>
                     <CopyButton

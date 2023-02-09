@@ -11,6 +11,7 @@ import { AddCircleOutline } from "@mui/icons-material";
 import { VideosListGrid } from "../directory/VideosListGrid";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchVideos, selectVideos } from "./videosSlice";
+import {fetchVideo, selectVideoDetails, updateCategories, updateTags} from "./videoSlice";
 
 const useStyles = makeStyles(theme => ({
     attributes: {
@@ -115,82 +116,68 @@ function EditableTagControl({editTag, tagValue}) {
 
 function ShowVideo() {
     const classes = useStyles();
-    let { id } = useParams();
-    const [videoDetail, setVideoDetail] = useState({ videoFileInfo: {} });
+    const { id } = useParams();
     const [detailsVisible, showDetails] = useState(false);
-    // const [videos, setVideos] = useState([]);
     const videos = useSelector(selectVideos);
+    const videoDetails = useSelector(selectVideoDetails);
     const dispatch = useDispatch();
 
     const recommendedVideos = useMemo(() => videos && videos.length ? videos.filter(rec => `${rec.id}` !== id) : [], [videos]);
 
     useEffect(() => {
-        VideoApi.loadVideo(id).then(video => {
-            setVideoDetail(video);
-            document.title = `${video.source} - ${video.title}`;
-        })
+        document.title = `${videoDetails.source} - ${videoDetails.title}`;
+    }, [videoDetails]);
+
+    useEffect(() => {
+        const promise = dispatch(fetchVideo(id));
+        return () => promise.abort();
     }, [id]);
 
     useEffect(() => {
-        if (!videoDetail.id) {
+        if (!videoDetails.id) {
             return
         }
 
-        const searchQuery = `${videoDetail.title} ${videoDetail.description} ${videoDetail.tags.map(t => t.name).join(' ')}`;
+        const searchQuery = `${videoDetails.title} ${videoDetails.description} ${videoDetails.tags.map(t => t.name).join(' ')}`;
 
         const promise = dispatch(fetchVideos([searchQuery, 0, 13, "_score,rating", [], [], []]));
         return () => promise.abort();
-    }, [videoDetail, id]);
-
-    function updateRating(newVal) {
-        VideoApi.updateVideo(id, {rating: newVal});
-        setVideoDetail({ ...videoDetail, rating: newVal })
-    }
-
-    function updateVideoMetadata(data) {
-        VideoApi.updateVideo(id, data);
-        setVideoDetail({ ...videoDetail, ...data });
-    }
+    }, [videoDetails, id]);
 
     function addTag(newTag) {
-        const currentTags = videoDetail.tags || [];
+        const currentTags = videoDetails.tags || [];
         if (newTag && currentTags.map(tag => tag.name).indexOf(newTag) === -1) {
-            const newTags = [...currentTags, {name: newTag}];
-            VideoApi.updateVideo(id, {tags: newTags});
-            setVideoDetail({ ...videoDetail, tags: newTags })
+            dispatch(updateTags([id, [...currentTags, {name: newTag}]]))
         }
     }
 
     function updateExistingTag(newTag, oldTag) {
-        const currentTags = videoDetail.tags.filter(tag => tag.name !== oldTag) || [];
+        const currentTags = videoDetails.tags.filter(tag => tag.name !== oldTag) || [];
         const newTags = newTag ? [...currentTags, {name: newTag}] : currentTags;
-        VideoApi.updateVideo(id, {tags: newTags});
-        setVideoDetail({ ...videoDetail, tags: newTags });
+        dispatch(updateTags([id, newTags]))
     }
 
     function addCat(newCat) {
-        const currentCats = videoDetail.categories || [];
+        const currentCats = videoDetails.categories || [];
         if (newCat && currentCats.map(cat => cat.name).indexOf(newCat) === -1) {
-            const newTags = [...currentCats, {name: newCat}];
-            VideoApi.updateVideo(id, {categories: newTags});
-            setVideoDetail({ ...videoDetail, categories: newTags })
+            const newCats = [...currentCats, {name: newCat}];
+            dispatch(updateCategories([id, newCats]));
         }
     }
 
     function updateExistingCat(newCat, oldCat) {
-        const currentCats = videoDetail.categories.filter(cat => cat.name !== oldCat) || [];
+        const currentCats = videoDetails.categories.filter(cat => cat.name !== oldCat) || [];
         const newCats = newCat ? [...currentCats, {name: newCat}] : currentCats;
-        VideoApi.updateVideo(id, {categories: newCats});
-        setVideoDetail({ ...videoDetail, categories: newCats });
+        dispatch(updateCategories([id, newCats]));
     }
 
     return (
         <Container>
-            <VideoPlayer videoDetail={videoDetail} />
+            <VideoPlayer videoDetail={videoDetails} />
             <div className={classes.titleRow}>
                 <Grid container direction="row" justifyContent="flex-start" alignItems="flex-start">
-                    <Grid item xs={12}><Typography>{videoDetail.title}</Typography></Grid>
-                    <VideoInfoBar videoDetail={videoDetail} onRatingUpdate={updateRating} />
+                    <Grid item xs={12}><Typography>{videoDetails.title}</Typography></Grid>
+                    <VideoInfoBar videoDetail={videoDetails} />
                 </Grid>
             </div>
             <div className={classes.catsAndTags}>
@@ -198,14 +185,14 @@ function ShowVideo() {
                     <Grid item xs={12}>
                         <Typography variant="subtitle2">Categories:</Typography>
                         <Grid container>
-                            {videoDetail.categories ? videoDetail.categories.map(cat => <Grid key={cat.name} item><EditableTagControl editTag={(value) => updateExistingCat(value, cat.name)} tagValue={cat.name} /></Grid>) : ''}
+                            {videoDetails.categories ? videoDetails.categories.map(cat => <Grid key={cat.name} item><EditableTagControl editTag={(value) => updateExistingCat(value, cat.name)} tagValue={cat.name} /></Grid>) : ''}
                             <Grid item><AddTagControl addTag={addCat} /></Grid>
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
                         <Typography variant="subtitle2">Tags:</Typography>
                         <Grid container>
-                            {videoDetail.tags ? videoDetail.tags.map((tag, idx) => <Grid key={tag.name} item><EditableTagControl editTag={(value) => updateExistingTag(value, tag.name)} tagValue={tag.name} /></Grid>) : ''}
+                            {videoDetails.tags ? videoDetails.tags.map((tag, idx) => <Grid key={tag.name} item><EditableTagControl editTag={(value) => updateExistingTag(value, tag.name)} tagValue={tag.name} /></Grid>) : ''}
                             <Grid item><AddTagControl addTag={addTag} /></Grid>
                         </Grid>
                     </Grid>
@@ -214,7 +201,7 @@ function ShowVideo() {
 
             <Button variant="text" onClick={() => showDetails(!detailsVisible)}>{detailsVisible ? "Hide" : "Show"} Details</Button>
 
-            {detailsVisible ? <VideoDetails videoDetail={videoDetail} onSave={updateVideoMetadata}/> : ""}
+            {detailsVisible ? <VideoDetails videoDetail={videoDetails} /> : ""}
 
             <Typography variant={"h5"} sx={{textAlign: "left", p: 2}}>Related Videos:</Typography>
             <VideosListGrid videos={recommendedVideos} />
