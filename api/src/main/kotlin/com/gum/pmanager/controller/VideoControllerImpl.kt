@@ -1,6 +1,7 @@
 package com.gum.pmanager.controller
 
 import com.gum.pmanager.api.VideosApi
+import com.gum.pmanager.data.model.SearchFilters
 import com.gum.pmanager.model.*
 import com.gum.pmanager.service.MassIndexerService
 import com.gum.pmanager.service.ResourceService
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.RestController
+import java.time.Duration
 
 @RestController
 @CrossOrigin
@@ -34,8 +36,8 @@ class VideoControllerImpl(
         return ResponseEntity.status(HttpStatus.CREATED).body(videoService.create(videoResponse!!))
     }
 
-    override fun searchVideos(q: String?, tags: List<String>?, excludeTags: List<String>?, categories: List<String>?, page: Int, size: Int, sort: String?, order: String?): ResponseEntity<VideosApiResponse> {
-        val pages = videoService.pagedSearch(q ?: "", tags ?: listOf(), excludeTags ?: listOf(), categories ?: listOf(), getSort(page, size, sort, order))
+    override fun searchVideos(q: String?, tags: List<String>?, excludeTags: List<String>?, categories: List<String>?, lengthFrom: Int, lengthTo: Int, page: Int, size: Int, sort: String?, order: String?): ResponseEntity<VideosApiResponse> {
+        val pages = videoService.pagedSearch(q ?: "", tags ?: listOf(), excludeTags ?: listOf(), categories ?: listOf(), getSort(page, size, sort, order), SearchFilters(lengthFrom = Duration.ofMillis(lengthFrom.toLong()), lengthTo = Duration.ofMillis(lengthTo.toLong())))
         return ResponseEntity.ok(
             VideosApiResponse(
             data = VideoPagedResponse(

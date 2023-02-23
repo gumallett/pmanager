@@ -68,6 +68,24 @@ paths:
             items:
               type: string
         - in: query
+          name: lengthFrom
+          description: Control the minimum length
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 0
+        - in: query
+          name: lengthTo
+          description: Control the max length
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 2147483647
+        - in: query
           name: page
           description: number of records to skip for pagination
           schema:

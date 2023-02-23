@@ -1,5 +1,6 @@
 package com.gum.pmanager.data.repository;
 
+import com.gum.pmanager.data.model.SearchFilters;
 import com.gum.pmanager.data.model.VideoMetadataEntity;
 import org.hibernate.search.engine.search.aggregation.AggregationKey;
 import org.hibernate.search.engine.search.predicate.SearchPredicate;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,10 +30,10 @@ public class SearchRepositoryImpl implements SearchRepository {
     }
 
     public Page<VideoMetadataEntity> pagedSearch(String query, Pageable pageable) {
-        return pagedSearch(query, List.of(), List.of(), List.of(), pageable);
+        return pagedSearch(query, List.of(), List.of(), List.of(), pageable, new SearchFilters(Duration.ZERO, Duration.ofMillis(Integer.MAX_VALUE)));
     }
 
-    public Page<VideoMetadataEntity> pagedSearch(String query, List<String> tags, List<String> excludeTags, List<String> categories, Pageable pageable) {
+    public Page<VideoMetadataEntity> pagedSearch(String query, List<String> tags, List<String> excludeTags, List<String> categories, Pageable pageable, SearchFilters searchFilters) {
         var session = Search.session(entityManager);
         SearchResult<VideoMetadataEntity> result = session
                 .search(VideoMetadataEntity.class)
@@ -45,6 +47,7 @@ public class SearchRepositoryImpl implements SearchRepository {
                     if (categoriesFilter != null) {
                         bool.filter(categoriesFilter);
                     }
+                    bool.filter(p.range().field("videoFileInfo.length").between(searchFilters.getLengthFrom(), searchFilters.getLengthTo()));
                     return bool;
                 })
                 .sort(s -> {

@@ -140,7 +140,7 @@ function ShowVideo() {
 
         const searchQuery = `${videoDetails.title} ${videoDetails.description} ${videoDetails.tags.map(t => t.name).join(' ')}`;
 
-        const promise = dispatch(fetchVideos([searchQuery, 0, 13, "_score,rating", [], [], []]));
+        const promise = dispatch(fetchVideos([searchQuery, 0, 13, "_score,rating", [], [], [], '', '']));
         return () => promise.abort();
     }, [videoDetails, id]);
 

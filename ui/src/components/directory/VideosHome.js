@@ -24,7 +24,7 @@ function PaginationAndSort({showSort = false, totalPages, currentPage, mt, pb: p
 
     return (
         <Grid container spacing={0} direction="row" alignItems="flex-start">
-            <Grid item xs={4}>
+            <Grid item xs={5}>
                 <Pagination sx={{mt: mt, pb: pb}} page={currentPage} count={totalPages} shape="rounded" onChange={changePage}/>
             </Grid>
             {showSort ? <Grid item xs={2}>
@@ -79,7 +79,10 @@ function VideosHome() {
             params.sort,
             params.tagsAsString,
             params.excludeTagsAsString,
-            params.categoriesAsString);
+            params.categoriesAsString,
+            params.lengthFrom,
+            params.lengthTo
+        );
         return () => promises.forEach(it => it.abort())
     }, [deserializedParams]);
 
@@ -98,10 +101,10 @@ function VideosHome() {
         </Container>
     );
 
-    function loadVideos(q, page, sort, tags, excludeTags, categories) {
+    function loadVideos(q, page, sort, tags, excludeTags, categories, lengthFrom, lengthTo) {
         if (q.length !== 1 && q.length !== 2) {
             return [
-                dispatch(fetchVideos([q, page ? page - 1 : 0, 12, sort ? sort : undefined, tags, excludeTags, categories])),
+                dispatch(fetchVideos([q, page ? page - 1 : 0, 12, sort ? sort : undefined, tags, excludeTags, categories, lengthFrom, lengthTo])),
                 dispatch(fetchTags(q)),
                 dispatch(fetchCategories(q)),
             ];

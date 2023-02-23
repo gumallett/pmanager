@@ -8,6 +8,7 @@ export const sortChanged = createAction('search/sortChanged');
 export const tagsChanged = createAction('search/tagsChanged');
 export const excludeTagsChanged = createAction('search/excludeTagsChanged');
 export const categoriesChanged = createAction('search/categoriesChanged');
+export const lengthChanged = createAction('search/lengthChanged');
 
 const initialState = deserializeQueryString(new URLSearchParams(window.location.search));
 
@@ -122,6 +123,18 @@ const categoriesStrSlice = createSlice({
     }
 });
 
+const lengthSlice = createSlice({
+    name: 'selectedLength',
+    initialState: [initialState.lengthFrom, initialState.lengthTo],
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(lengthChanged, (state, action) => action.payload)
+            .addCase(appInit, (state, action) => [])
+            .addCase(locationChanged, (state, action) => [action.payload.search.lengthFrom, action.payload.search.lengthTo])
+    }
+});
+
 export const searchReducer = combineReducers({
     searchText: searchTextSlice.reducer,
     page: pagesSlice.reducer,
@@ -132,6 +145,7 @@ export const searchReducer = combineReducers({
     selectedTagsStr: tagsStrSlice.reducer,
     selectedExcludeTags: excludeTagsSlice.reducer,
     selectedExcludeTagsStr: exclTagsStrSlice.reducer,
+    selectedLength: lengthSlice.reducer,
 });
 
 export const selectSearch = (state) => state.search.searchText;

@@ -16,9 +16,9 @@ const videosAdapter = createEntityAdapter({
 
 
 export const fetchVideos = createAsyncThunk("videos/fetchVideos", (args = [], api) => {
-    const [q, page, size, sort, tags, excludeTags, categories] = args;
+    const [q, page, size, sort, tags, excludeTags, categories, lengthFrom, lengthTo] = args;
     return VideoApi
-        .loadVideos(q, page, size, sort, tags, excludeTags, categories, api);
+        .loadVideos(q, page, size, sort, tags, excludeTags, categories, lengthFrom, lengthTo, api);
 });
 
 export const fetchCategories = createAsyncThunk("videos/fetchCategories", (q, api) => {

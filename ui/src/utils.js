@@ -51,6 +51,8 @@ const deserializeQueryString = (search) => ({
     excludeTagsAsString: search.get('excludeTags') ? search.get('excludeTags') : "",
     categories: search.get('categories') ? search.get('categories').split(',').map(it => ({name: it})) : [],
     categoriesAsString: search.get('categories') ? search.get('categories') : "",
+    lengthFrom: search.get('lengthFrom') ? parseInt(search.get('lengthFrom')) : "",
+    lengthTo: search.get('lengthTo') ? parseInt(search.get('lengthTo')) : "",
 });
 
 export { toDuration, displayRating, displayDateDistance, thumbnailUri, isElectron, deserializeQueryString };
