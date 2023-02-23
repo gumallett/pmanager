@@ -64,7 +64,7 @@ function FilterPanel({tags, categories}) {
                               value={deserializedParams.categories}
                               options={categories} getOptionLabel={opt => opt.name} isOptionEqualToValue={(opt, val) => opt.name === val.name} sx={{ width: "100%" }} onChange={autoCompleteCatSelected} />
                 <Typography sx={{mb: 1, p: 0}} variant={"h6"}>Duration Range (min)</Typography>
-                <Box sx={{mt: 3, ml: 1, mr: 1}}>
+                <Box sx={{mt: 4, ml: 1, mr: 1}}>
                     <Slider
                         getAriaLabel={() => "Duration Range"}
                         value={tmpLength}
