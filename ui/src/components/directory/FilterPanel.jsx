@@ -13,7 +13,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import {
     categoriesChanged,
-    excludeTagsChanged, lengthChanged,
+    excludeTagsChanged, lengthChanged, sourcesChanged,
     tagsChanged
 } from "../nav/searchSlice";
 import { deserializeQueryString } from "../../utils";
@@ -25,7 +25,7 @@ function PanelHeader({title = ""}) {
     )
 }
 
-function FilterPanel({tags, categories}) {
+function FilterPanel({tags, categories, sources}) {
     const RANGE_MAX = 60;
     const [search, setSearch] = useSearchParams();
     const [showTags, setShowTags] = useState(true);
@@ -63,6 +63,10 @@ function FilterPanel({tags, categories}) {
                 <Autocomplete multiple filterSelectedOptions renderInput={(params) => <TextField {...params} label="Select a category to filter" />}
                               value={deserializedParams.categories}
                               options={categories} getOptionLabel={opt => opt.name} isOptionEqualToValue={(opt, val) => opt.name === val.name} sx={{ width: "100%" }} onChange={autoCompleteCatSelected} />
+                <Typography sx={{mb: 1, p: 0}} variant={"h6"}>Sources</Typography>
+                <Autocomplete multiple filterSelectedOptions renderInput={(params) => <TextField {...params} label="Select a source to filter" />}
+                              value={deserializedParams.sources}
+                              options={sources} getOptionLabel={opt => opt.name} isOptionEqualToValue={(opt, val) => opt.name === val.name} sx={{ width: "100%" }} onChange={autoCompleteSourceSelected} />
                 <Typography sx={{mb: 1, p: 0}} variant={"h6"}>Duration Range (min)</Typography>
                 <Box sx={{mt: 4, ml: 1, mr: 1}}>
                     <Slider
@@ -135,6 +139,20 @@ function FilterPanel({tags, categories}) {
             setSearch(search);
         }
         dispatch(categoriesChanged(arr));
+    }
+
+    function autoCompleteSourceSelected(event, value) {
+        const arr = value || [];
+        if (arr) {
+            search.set('sources', arr.map(it => it.name).join(","));
+            search.set('page', 1);
+            setSearch(search);
+        } else {
+            search.set('sources', "");
+            search.set('page', 1);
+            setSearch(search);
+        }
+        dispatch(sourcesChanged(arr));
     }
 
     function toggleTags() {

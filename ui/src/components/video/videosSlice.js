@@ -16,9 +16,9 @@ const videosAdapter = createEntityAdapter({
 
 
 export const fetchVideos = createAsyncThunk("videos/fetchVideos", (args = [], api) => {
-    const [q, page, size, sort, tags, excludeTags, categories, lengthFrom, lengthTo] = args;
+    const [q, page, size, sort, tags, excludeTags, categories, sources, lengthFrom, lengthTo] = args;
     return VideoApi
-        .loadVideos(q, page, size, sort, tags, excludeTags, categories, lengthFrom, lengthTo, api);
+        .loadVideos(q, page, size, sort, tags, excludeTags, categories, sources, lengthFrom, lengthTo, api);
 });
 
 export const fetchCategories = createAsyncThunk("videos/fetchCategories", (q, api) => {
@@ -27,6 +27,10 @@ export const fetchCategories = createAsyncThunk("videos/fetchCategories", (q, ap
 
 export const fetchTags = createAsyncThunk("videos/fetchTags", (q, api) => {
     return VideoApi.fetchTags(q, api);
+});
+
+export const fetchSources = createAsyncThunk("videos/fetchSources", (q, api) => {
+    return VideoApi.fetchSources(q, api);
 });
 
 export const videosSlice = createSlice({
@@ -62,6 +66,16 @@ export const catsSlice = createSlice({
     }
 });
 
+export const sourcesSlice = createSlice({
+    name: 'sources',
+    initialState: [],
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchSources.fulfilled, (state, action) => action.payload.records)
+    }
+});
+
 export const videosMeta = createSlice({
     name: 'videosMeta',
     initialState: {
@@ -89,6 +103,7 @@ export const videosReducer = combineReducers({
     meta: videosMeta.reducer,
     categories: catsSlice.reducer,
     tags: tagsSlice.reducer,
+    sources: sourcesSlice.reducer,
 })
 
 export const selectVideo = (id) => {
@@ -98,5 +113,7 @@ export const selectVideo = (id) => {
 export const selectVideos = (state) => videosAdapter.getSelectors((state) => state.videos.records).selectAll(state);
 export const selectTags = (state) => state.videos.tags;
 export const selectCategories = (state) => state.videos.categories;
+export const selectSources = (state) => state.videos.sources;
 
 export const selectTotalPages = (state) => state.videos.meta.totalPages;
+export const selectTotalRecords = (state) => state.videos.meta.totalRecords;

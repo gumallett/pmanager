@@ -5,7 +5,6 @@ import com.gum.pmanager.data.model.VideoMetadataEntity;
 import org.hibernate.search.engine.search.aggregation.AggregationKey;
 import org.hibernate.search.engine.search.predicate.SearchPredicate;
 import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateClausesStep;
-import org.hibernate.search.engine.search.predicate.dsl.PredicateFinalStep;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.engine.search.query.SearchResult;
 import org.hibernate.search.engine.search.sort.dsl.SortOrder;
@@ -19,7 +18,6 @@ import javax.persistence.EntityManager;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 public class SearchRepositoryImpl implements SearchRepository {
@@ -30,22 +28,26 @@ public class SearchRepositoryImpl implements SearchRepository {
     }
 
     public Page<VideoMetadataEntity> pagedSearch(String query, Pageable pageable) {
-        return pagedSearch(query, List.of(), List.of(), List.of(), pageable, new SearchFilters(Duration.ZERO, Duration.ofMillis(Integer.MAX_VALUE)));
+        return pagedSearch(query, pageable, new SearchFilters(List.of(), List.of(), List.of(), List.of(), Duration.ZERO, Duration.ofMillis(Integer.MAX_VALUE)));
     }
 
-    public Page<VideoMetadataEntity> pagedSearch(String query, List<String> tags, List<String> excludeTags, List<String> categories, Pageable pageable, SearchFilters searchFilters) {
+    public Page<VideoMetadataEntity> pagedSearch(String query, Pageable pageable, SearchFilters searchFilters) {
         var session = Search.session(entityManager);
         SearchResult<VideoMetadataEntity> result = session
                 .search(VideoMetadataEntity.class)
                 .where(p -> {
                     var bool = queryString(query, p);
-                    var tagsFilter = fieldFilter("tags.name_sort", tags, excludeTags, p, false);
+                    var tagsFilter = fieldFilter("tags.name_sort", searchFilters.getTags(), searchFilters.getExcludeTags(), p, false);
                     if (tagsFilter != null) {
                         bool.filter(tagsFilter);
                     }
-                    var categoriesFilter = fieldFilter("categories.name", categories, List.of(), p, false);
+                    var categoriesFilter = fieldFilter("categories.name", searchFilters.getCategories(), List.of(), p, false);
                     if (categoriesFilter != null) {
                         bool.filter(categoriesFilter);
+                    }
+                    var sourcesFilter = fieldFilter("source_sort", searchFilters.getSources(), List.of(), p, false);
+                    if (sourcesFilter != null) {
+                        bool.filter(sourcesFilter);
                     }
                     bool.filter(p.range().field("videoFileInfo.length").between(searchFilters.getLengthFrom(), searchFilters.getLengthTo()));
                     return bool;
@@ -110,6 +112,19 @@ public class SearchRepositoryImpl implements SearchRepository {
                 .search(VideoMetadataEntity.class)
                 .where(p -> queryString(query, p))
                 .aggregation(aggKey, f -> f.terms().field("tags.name_sort", String.class))
+                .fetch(0)
+                .aggregation(aggKey);
+    }
+
+    @Override
+    public Map<String, Long> allSources(String query) {
+        var searchSession = Search.session(entityManager);
+        AggregationKey<Map<String, Long>> aggKey = AggregationKey.of("allsources");
+
+        return searchSession
+                .search(VideoMetadataEntity.class)
+                .where(p -> queryString(query, p))
+                .aggregation(aggKey, f -> f.terms().field("source_sort", String.class))
                 .fetch(0)
                 .aggregation(aggKey);
     }

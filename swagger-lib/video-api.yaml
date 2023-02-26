@@ -68,6 +68,16 @@ paths:
             items:
               type: string
         - in: query
+          name: sources
+          description: optional filter for sources. Comma-delimited
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
           name: lengthFrom
           description: Control the minimum length
           required: false
@@ -321,6 +331,26 @@ paths:
         - in: query
           name: q
           description: pass an optional search string for category query context
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllTagsApiResponse'
+  /videos/sources:
+    get:
+      tags:
+        - videos
+      summary: Gets all video sources
+      operationId: allSources
+      parameters:
+        - in: query
+          name: q
+          description: pass an optional search string for source query context
           required: false
           schema:
             type: string

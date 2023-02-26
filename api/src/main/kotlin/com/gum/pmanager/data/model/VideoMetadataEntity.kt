@@ -50,7 +50,7 @@ class VideoMetadataEntity(
     var tags: MutableList<TagEntity> = ArrayList(),
 
     @FullTextField
-    @KeywordField(name="source_sort", sortable = Sortable.YES, projectable = Projectable.YES)
+    @KeywordField(name="source_sort", sortable = Sortable.YES, projectable = Projectable.YES, aggregable = Aggregable.YES)
     var source: String,
 
     @GenericField(sortable = Sortable.YES, projectable = Projectable.YES)

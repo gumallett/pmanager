@@ -1,16 +1,16 @@
 import { memo, useEffect, useMemo } from "react";
-import { Box, Container, Grid, Pagination } from "@mui/material";
+import {Box, Container, Grid, Pagination, Typography} from "@mui/material";
 import { useSearchParams } from "react-router-dom";
 import SortDropdown from "./SortDropdown";
 import { VideosListGrid } from "./VideosListGrid";
 import FilterPanel from "./FilterPanel";
 import {
-    fetchCategories,
+    fetchCategories, fetchSources,
     fetchTags,
     fetchVideos,
-    selectCategories,
+    selectCategories, selectSources,
     selectTags,
-    selectTotalPages,
+    selectTotalPages, selectTotalRecords,
     selectVideos
 } from "../video/videosSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -46,9 +46,10 @@ function PaginationAndSort({showSort = false, totalPages, currentPage, mt, pb: p
     }
 }
 
-function VideosListComp({videos = [], totalPages, currentPage}) {
+function VideosListComp({videos = [], totalPages, totalRecords, currentPage}) {
     return (
         <Box>
+            <Typography sx={{textAlign: 'left', p: 0, mt: 1, mb: 0}} variant={"h6"}>{totalRecords} results</Typography>
             <PaginationAndSort showSort={true} mt={"15px"} currentPage={currentPage} totalPages={totalPages} />
             <VideosListGrid videos={videos} />
             <PaginationAndSort mt={"15px"} pb={"20px"} currentPage={currentPage} totalPages={totalPages} />
@@ -61,9 +62,11 @@ const VideosList = memo(VideosListComp);
 function VideosHome() {
     const dispatch = useDispatch();
     const totalPages = useSelector(selectTotalPages);
+    const totalRecords = useSelector(selectTotalRecords);
     const videos = useSelector(selectVideos);
     const cats = useSelector(selectCategories);
     const tags = useSelector(selectTags);
+    const sources = useSelector(selectSources);
     const [searchParams,] = useSearchParams();
 
     const deserializedParams = useMemo(() => deserializeQueryString(searchParams), [searchParams]);
@@ -80,6 +83,7 @@ function VideosHome() {
             params.tagsAsString,
             params.excludeTagsAsString,
             params.categoriesAsString,
+            params.sourcesAsString,
             params.lengthFrom,
             params.lengthTo
         );
@@ -91,22 +95,23 @@ function VideosHome() {
             <div className="App">
                 <Grid container spacing={2} direction="row" alignItems="flex-start">
                     <Grid item xs={9}>
-                        <VideosList videos={videos} currentPage={deserializedParams.page} totalPages={totalPages} />
+                        <VideosList videos={videos} currentPage={deserializedParams.page} totalPages={totalPages} totalRecords={totalRecords} />
                     </Grid>
                     <Grid item xs={3}>
-                        <FilterPanel tags={tags} categories={cats} />
+                        <FilterPanel tags={tags} categories={cats} sources={sources} />
                     </Grid>
                 </Grid>
             </div>
         </Container>
     );
 
-    function loadVideos(q, page, sort, tags, excludeTags, categories, lengthFrom, lengthTo) {
+    function loadVideos(q, page, sort, tags, excludeTags, categories, sources, lengthFrom, lengthTo) {
         if (q.length !== 1 && q.length !== 2) {
             return [
-                dispatch(fetchVideos([q, page ? page - 1 : 0, 12, sort ? sort : undefined, tags, excludeTags, categories, lengthFrom, lengthTo])),
+                dispatch(fetchVideos([q, page ? page - 1 : 0, 12, sort ? sort : undefined, tags, excludeTags, categories, sources, lengthFrom, lengthTo])),
                 dispatch(fetchTags(q)),
                 dispatch(fetchCategories(q)),
+                dispatch(fetchSources(q)),
             ];
         }
 

@@ -8,6 +8,7 @@ export const sortChanged = createAction('search/sortChanged');
 export const tagsChanged = createAction('search/tagsChanged');
 export const excludeTagsChanged = createAction('search/excludeTagsChanged');
 export const categoriesChanged = createAction('search/categoriesChanged');
+export const sourcesChanged = createAction('search/sourcesChanged');
 export const lengthChanged = createAction('search/lengthChanged');
 
 const initialState = deserializeQueryString(new URLSearchParams(window.location.search));
@@ -123,6 +124,30 @@ const categoriesStrSlice = createSlice({
     }
 });
 
+const sourcesSlice = createSlice({
+    name: 'selectedSources',
+    initialState: initialState.categories,
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(sourcesChanged, (state, action) => action.payload)
+            .addCase(appInit, (state, action) => action.payload.sources)
+            .addCase(locationChanged, (state, action) => action.payload.search.sources)
+    }
+});
+
+const sourcesStrSlice = createSlice({
+    name: 'selectedSourcesStr',
+    initialState: initialState.categoriesAsString,
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(sourcesChanged, (state, action) => action.payload.map(it => it.name).join(','))
+            .addCase(appInit, (state, action) => action.payload.sources.map(it => it.name).join(','))
+            .addCase(locationChanged, (state, action) => action.payload.search.sourcesAsString)
+    }
+});
+
 const lengthSlice = createSlice({
     name: 'selectedLength',
     initialState: [initialState.lengthFrom, initialState.lengthTo],
@@ -145,6 +170,8 @@ export const searchReducer = combineReducers({
     selectedTagsStr: tagsStrSlice.reducer,
     selectedExcludeTags: excludeTagsSlice.reducer,
     selectedExcludeTagsStr: exclTagsStrSlice.reducer,
+    selectedSources: sourcesSlice.reducer,
+    selectedSourcesStr: sourcesStrSlice.reducer,
     selectedLength: lengthSlice.reducer,
 });
 

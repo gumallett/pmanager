@@ -51,6 +51,8 @@ const deserializeQueryString = (search) => ({
     excludeTagsAsString: search.get('excludeTags') ? search.get('excludeTags') : "",
     categories: search.get('categories') ? search.get('categories').split(',').map(it => ({name: it})) : [],
     categoriesAsString: search.get('categories') ? search.get('categories') : "",
+    sources: search.get('sources') ? search.get('sources').split(',').map(it => ({name: it})) : [],
+    sourcesAsString: search.get('sources') ? search.get('sources') : "",
     lengthFrom: search.get('lengthFrom') ? parseInt(search.get('lengthFrom')) : "",
     lengthTo: search.get('lengthTo') ? parseInt(search.get('lengthTo')) : "",
 });

@@ -36,8 +36,8 @@ class VideoControllerImpl(
         return ResponseEntity.status(HttpStatus.CREATED).body(videoService.create(videoResponse!!))
     }
 
-    override fun searchVideos(q: String?, tags: List<String>?, excludeTags: List<String>?, categories: List<String>?, lengthFrom: Int, lengthTo: Int, page: Int, size: Int, sort: String?, order: String?): ResponseEntity<VideosApiResponse> {
-        val pages = videoService.pagedSearch(q ?: "", tags ?: listOf(), excludeTags ?: listOf(), categories ?: listOf(), getSort(page, size, sort, order), SearchFilters(lengthFrom = Duration.ofMillis(lengthFrom.toLong()), lengthTo = Duration.ofMillis(lengthTo.toLong())))
+    override fun searchVideos(q: String?, tags: List<String>?, excludeTags: List<String>?, categories: List<String>?, sources: List<String>?, lengthFrom: Int, lengthTo: Int, page: Int, size: Int, sort: String?, order: String?): ResponseEntity<VideosApiResponse> {
+        val pages = videoService.pagedSearch(q ?: "", getSort(page, size, sort, order), SearchFilters(tags ?: listOf(), excludeTags ?: listOf(), categories ?: listOf(), sources ?: listOf(), lengthFrom = Duration.ofMillis(lengthFrom.toLong()), lengthTo = Duration.ofMillis(lengthTo.toLong())))
         return ResponseEntity.ok(
             VideosApiResponse(
             data = VideoPagedResponse(
@@ -101,6 +101,16 @@ class VideoControllerImpl(
                 page = 1,
                 totalPages = 1, propertySize = tags.size, totalRecords = tags.size.toLong(),
                 records = tags.entries.map { entry -> AllTagsResponse(name = entry.key, count = entry.value) }))
+        )
+    }
+
+    override fun allSources(q: String?): ResponseEntity<AllTagsApiResponse> {
+        val sources = videoService.allSources(q ?: "")
+        return ResponseEntity.ok(AllTagsApiResponse(
+            data = AllTagsPagedResponse(
+                page = 1,
+                totalPages = 1, propertySize = sources.size, totalRecords = sources.size.toLong(),
+                records = sources.entries.map { entry -> AllTagsResponse(name = entry.key, count = entry.value) }))
         )
     }
 
