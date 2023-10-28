@@ -1,5 +1,7 @@
 const routes = {
-    video: 'videos'
+    video: 'videos',
+    adminIndex: 'index',
+    adminReIndex: 'reindex',
 }
 
 export default routes;

@@ -1,13 +1,27 @@
 import makeStyles from "@mui/styles/makeStyles";
-import { Button, Grid, Paper, Typography } from "@mui/material";
+import {
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Grid,
+    Paper,
+    Typography
+} from "@mui/material";
 import VideoTextAttribute from "./VideoTextAttribute";
-import { displayDateDistance } from "../../utils";
-import { format } from "date-fns";
+import {displayDateDistance} from "../../utils";
+import {format} from "date-fns";
 import SaveIcon from "@mui/icons-material/Save";
-import { useEffect, useState } from "react";
-import { styled } from "@mui/styles";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever"
+import {useEffect, useState} from "react";
+import {styled} from "@mui/styles";
 import {useDispatch} from "react-redux";
 import {updateMetadata} from "./videoSlice";
+import {deleteVideo} from "./videosSlice";
+import {useNavigate} from "react-router-dom";
 
 const useStyles = makeStyles(theme => ({
     attributes: {
@@ -26,9 +40,16 @@ const CopyButton = styled(Button)({
     marginTop: "0"
 });
 
+const DeleteButton = styled(Button)({
+    marginTop: "0"
+});
+
 function VideoDetails({ videoDetail }) {
     const classes = useStyles();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [deleteFailure, setDeleteFailure] = useState(false);
 
     const [form, setForm] = useState({
         title: videoDetail.title,
@@ -48,6 +69,19 @@ function VideoDetails({ videoDetail }) {
 
     function handleFormTextChange(prop) {
         return event => setForm({ ...form, [`${prop}`]: event.target.value });
+    }
+
+    function handleDelete(perma = false) {
+        setDeleteOpen(false);
+        dispatch(deleteVideo([videoDetail.id, perma])).then((res) => {
+            console.log(res);
+            if (res.meta.requestStatus === 'fulfilled') {
+                navigate("/videos");
+            } else {
+                setDeleteFailure(true);
+            }
+            return null;
+        }).catch(() => setDeleteFailure(true));
     }
 
     return (
@@ -100,6 +134,38 @@ function VideoDetails({ videoDetail }) {
                     >
                         Copy uri
                     </CopyButton>
+                </Grid>
+                <Grid item>
+                    <Box>
+                        <DeleteButton
+                            color="error"
+                            variant={"contained"}
+                            size="large"
+                            onClick={() => setDeleteOpen(true)}
+                        ><DeleteForeverIcon /></DeleteButton>
+                        {deleteFailure ? <Grid item xs={12}><Typography color={"indianred"} variant={"h6"}>Delete Operation failed</Typography></Grid> : ""}
+                        <Dialog
+                            open={deleteOpen}
+                            onClose={() => setDeleteOpen(false)}>
+                            <DialogTitle id="alert-dialog-title">
+                                {"Delete video?"}
+                            </DialogTitle>
+                            <DialogContent>
+                                <DialogContentText id="alert-dialog-description">
+                                    Cancel, delete or permanently delete the video?
+                                </DialogContentText>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={() => setDeleteOpen(false)} autoFocus>Cancel</Button>
+                                <Button onClick={() => handleDelete()}>
+                                    Delete
+                                </Button>
+                                <Button onClick={() => handleDelete(true)}>
+                                    Delete Permanently!
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+                    </Box>
                 </Grid>
             </Grid>
         </Paper>

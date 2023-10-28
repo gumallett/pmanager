@@ -8,22 +8,33 @@ import com.gum.pmanager.data.model.toVideoMetadataResponse
 import com.gum.pmanager.data.repository.VideoMetadataRepository
 import com.gum.pmanager.model.CreateVideoResponse
 import com.gum.pmanager.model.VideoResponse
+import org.flywaydb.core.internal.util.UrlUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.core.env.Environment
 import org.springframework.core.io.PathResource
 import org.springframework.core.io.Resource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.util.StringUtils
+import org.springframework.web.util.UriUtils
+import java.io.BufferedReader
+import java.io.File
+import java.lang.IllegalArgumentException
 import java.net.URI
+import java.nio.charset.Charset
+import java.nio.file.Files
 import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.TimeUnit
 
 interface VideoMetadataService {
     fun create(request: VideoResponse): CreateVideoResponse
     fun update(id: Long?, request: VideoResponse): CreateVideoResponse
-    fun delete(id: Long)
+    fun delete(id: Long, permanent: Boolean = false)
+    fun deleteAll(permanent: Boolean = false, videoIds: List<String> = listOf(), directory: String = "")
     fun get(id: Long): VideoResponse
     fun view(id: Long): VideoResponse
     fun search(query: String, pageable: Pageable): List<VideoResponse>
@@ -32,6 +43,7 @@ interface VideoMetadataService {
     fun allTags(query: String): Map<String, Long>
     fun allSources(query: String): Map<String, Long>
     fun download(id: Long): Resource
+    fun index(directory: String, dryrun: Boolean)
 }
 
 @Service
@@ -60,9 +72,33 @@ class VideoMetadataServiceImpl(
     }
 
     @Transactional
-    override fun delete(id: Long) {
+    override fun delete(id: Long, permanent: Boolean) {
         LOG.info("Deleting video: {}", id)
+        val existing = videoMetadataRepository.findById(id).orElseThrow { VideoNotFoundException("Not found") }
+        val results = mutableListOf<Boolean>()
+        results.add(File(URI.create(existing.thumbUri)).delete())
+        results.add(File(URI.create(existing.previewUri)).delete())
+
+        if (permanent) {
+            results.add(File(URI.create(existing.uri)).delete())
+        }
+
+        if (results.reduce { acc, b -> acc && b }) {
+            LOG.info("Deleted video files: {}, {}, {}", existing.uri, existing.thumbUri, existing.previewUri)
+        } else {
+            LOG.warn("Video file deletion failed: {}, {}, {}", existing.uri, existing.thumbUri, existing.previewUri)
+            LOG.warn("results: {}", results)
+            throw RuntimeException("Video file deletion failed!")
+        }
+
         videoMetadataRepository.deleteById(id)
+    }
+
+    @Transactional
+    override fun deleteAll(permanent: Boolean, videoIds: List<String>, directory: String) {
+        videoIds.forEach {
+            delete(it.toLong(), permanent)
+        }
     }
 
     @Transactional(readOnly = true)
@@ -115,6 +151,66 @@ class VideoMetadataServiceImpl(
         request.copyToVideoMetadataEntity(update)
         return videoMetadataRepository.save(update)
     }
+
+    override fun index(directory: String, dryrun: Boolean) {
+        if (!StringUtils.hasText(directory)) {
+            throw IllegalArgumentException("Directory must not be empty.")
+        }
+
+        val fileUri = URI.create(UriUtils.encodePath(directory, Charset.forName("UTF-8")))
+        if (fileUri.path == "/") {
+            throw IllegalArgumentException("Directory must not be root.")
+        }
+
+        val pb = ProcessBuilder()
+        val indexDir = File(fileUri)
+        val wslDir = convertToWsl(directory)
+
+        if (!dryrun && !indexDir.exists()) {
+            LOG.warn("Directory does not exist.")
+            throw IllegalArgumentException("Directory does not exist.")
+        }
+
+        pb.directory(File(System.getProperty("user.dir")))
+        pb.redirectErrorStream(true)
+        pb.redirectInput(ProcessBuilder.Redirect.PIPE)
+
+        pb.command("bash", "-c", "\"./scripts/prep.sh '${wslDir}'\"")
+
+        LOG.info("Running prep for {}", wslDir)
+        if (!dryrun) {
+            val p = pb.start()
+            do {
+                Thread.sleep(1000)
+            } while (!p.pollForDone())
+            p.destroy()
+        }
+
+        LOG.info("Finished prep for {}", wslDir)
+
+        LOG.info("Running index for {}", indexDir.toURI())
+        if (!dryrun) {
+            pb.command("java", "-jar", "-Dindexing.paths=${indexDir.toURI()}", "indexer/build/libs/indexer-0.0.1-SNAPSHOT.jar")
+            val p2 = pb.start()
+            p2.waitFor()
+            LOG.info(p2.processOutput())
+        }
+        LOG.info("Finished index for {}", indexDir.toURI())
+    }
 }
 
 val LOG: Logger = LoggerFactory.getLogger(VideoMetadataServiceImpl::class.java)
+
+private fun Process.pollForDone(): Boolean {
+    val outputText = inputStream.bufferedReader().use(BufferedReader::readText)
+    return outputText.contains("Finished prep.sh")
+}
+
+private fun Process.processOutput(): String {
+    return inputStream.bufferedReader().use(BufferedReader::readText)
+}
+
+private fun convertToWsl(indexDir: String): String {
+    val regex = """^file:///([A-Za-z]):(.*)""".toRegex()
+    return regex.replace(indexDir, "/mnt/\$1\$2").lowercase()
+}

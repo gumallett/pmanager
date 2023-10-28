@@ -33,6 +33,30 @@ export const fetchSources = createAsyncThunk("videos/fetchSources", (q, api) => 
     return VideoApi.fetchSources(q, api);
 });
 
+export const indexDirectory = createAsyncThunk("videos/indexDirectory", (dir, api) => {
+    return VideoApi.indexDirectory(dir, api);
+});
+
+export const reindex = createAsyncThunk("videos/reindex", (q, api) => {
+    return VideoApi.reindex(api);
+});
+
+export const deleteVideo = createAsyncThunk("videos/reindex", (args = [], api) => {
+    const [id, permanent] = args;
+    return VideoApi.deleteVideo(id, permanent, api);
+});
+
+export const videosAdminSlice = createSlice({
+    name: 'videosAdmin',
+    initialState: {},
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(indexDirectory.fulfilled, (state, action) => ({index: "", error: ""}))
+            .addCase(indexDirectory.rejected, (state, action) => ({index: "", error: "General failure"}))
+    }
+});
+
 export const videosSlice = createSlice({
     name: 'videos',
     initialState: videosAdapter.getInitialState(),

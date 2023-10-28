@@ -14,8 +14,11 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.Duration
+import javax.validation.Valid
 
 @RestController
 @CrossOrigin
@@ -56,8 +59,19 @@ class VideoControllerImpl(
         return ResponseEntity.status(HttpStatus.OK).build()
     }
 
-    override fun deleteVideo(id: Long): ResponseEntity<Unit> {
-        return ResponseEntity.ok(videoService.delete(id))
+    override fun deleteVideo(
+        @PathVariable(value = "id") id: Long,
+        @Valid @RequestParam(
+            defaultValue = "false",
+            required = false,
+            value = "permanent"
+        ) permanent: Boolean
+    ): ResponseEntity<Unit> {
+        return ResponseEntity.ok(videoService.delete(id, permanent))
+    }
+
+    override fun deleteVideos(permanent: Boolean, videoIds: List<String>?, directory: String?): ResponseEntity<Unit> {
+        return ResponseEntity.ok(videoService.deleteAll(permanent, videoIds ?: listOf(), directory ?: ""))
     }
 
     override fun viewVideo(id: Long): ResponseEntity<VideoApiResponse> {
@@ -78,6 +92,11 @@ class VideoControllerImpl(
             headers.set("Content-Disposition", "attachment; filename=\"${resource.filename}\"")
         }
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(resource)
+    }
+
+    override fun index(directory: String, dryrun: Boolean): ResponseEntity<Unit> {
+        videoService.index(directory, dryrun)
+        return ResponseEntity.ok(null)
     }
 
     override fun reindex(): ResponseEntity<Unit> {

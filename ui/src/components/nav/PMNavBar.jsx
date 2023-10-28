@@ -1,14 +1,28 @@
-import { alpha, AppBar, Box, Button, IconButton, InputBase, Link, Menu, MenuItem, Toolbar } from "@mui/material";
+import {
+    alpha,
+    AppBar,
+    Box,
+    Button,
+    IconButton,
+    InputBase,
+    Link,
+    ListItemIcon, ListItemText,
+    Menu,
+    MenuItem,
+    Toolbar
+} from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import MenuIcon from "@mui/icons-material/Menu";
-import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
+import {Link as RouterLink, useNavigate, useSearchParams} from "react-router-dom";
 import routes from "../../routes/routes";
 import SearchIcon from "@mui/icons-material/Search";
-import { useEffect, useMemo, useState } from "react";
+import {useEffect, useMemo, useState} from "react";
 import debounce from 'lodash.debounce';
-import { useDispatch, useSelector } from "react-redux";
-import { searchTextChanged, selectSearch } from "./searchSlice";
-import { deserializeQueryString } from "../../utils";
+import {useDispatch} from "react-redux";
+import {searchTextChanged} from "./searchSlice";
+import {reindex as reindexOp} from "../video/videosSlice";
+import {deserializeQueryString} from "../../utils";
+import {ArrowForwardIos} from "@mui/icons-material";
 
 const useStyles = makeStyles((theme) => ({
     grow: {
@@ -67,6 +81,7 @@ function PMNavBar() {
     const [search, setSearch] = useSearchParams();
     const history = useNavigate();
     const [anchorEl, setAnchorEl] = useState(null);
+    const [adminAnchorEl, setAdminAnchorEl] = useState(null);
     const dispatch = useDispatch();
 
     const deserializedSearchParams = useMemo(() => deserializeQueryString(search), [search]);
@@ -76,22 +91,27 @@ function PMNavBar() {
         return debounce(updateQueryParams, 250);
     }, [search]);
 
-    const handleClose = () => {
-        setAnchorEl(null);
+    const handleClose = (anchorFns) => () => {
+        anchorFns.forEach(fn => fn(null));
     };
 
-    const handleMenu = (event) => {
-        setAnchorEl(event.currentTarget);
+    const handleMenu = (anchorFn) => (event) => {
+        anchorFn(event.currentTarget);
     };
 
     const back = () => {
         history(-1);
-        handleClose();
+        setAnchorEl(null);
     }
 
     const forward = () => {
         history(1);
-        handleClose();
+        setAnchorEl(null);
+    }
+
+    const reindex = () => {
+        dispatch(reindexOp());
+        handleClose([setAnchorEl, setAdminAnchorEl])();
     }
 
     useEffect(() => {
@@ -111,7 +131,7 @@ function PMNavBar() {
                         color="inherit"
                         aria-label="menu"
                         size="large"
-                        onClick={handleMenu}>
+                        onClick={handleMenu(setAnchorEl)}>
                         <MenuIcon/>
                     </IconButton>
                     <Menu
@@ -126,9 +146,24 @@ function PMNavBar() {
                             horizontal: 'right',
                         }}
                         open={Boolean(anchorEl)}
-                        onClose={handleClose}>
+                        onClose={handleClose([setAnchorEl, setAdminAnchorEl])}>
                         <MenuItem onClick={back}>Back</MenuItem>
                         <MenuItem onClick={forward}>Forward</MenuItem>
+                        <MenuItem onClick={handleMenu(setAdminAnchorEl)} sx={{pr: 0}}>
+                            <ListItemText>Admin</ListItemText>
+                            <ListItemIcon sx={{ml: 2, pl: 2}}><ArrowForwardIos fontSize={"small"} /></ListItemIcon>
+                        </MenuItem>
+                    </Menu>
+                    <Menu
+                        anchorEl={adminAnchorEl}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        open={Boolean(adminAnchorEl)}
+                        onClose={handleClose([setAnchorEl, setAdminAnchorEl])}>
+                        <MenuItem><Link onClick={handleClose([setAnchorEl, setAdminAnchorEl])} color={"inherit"} underline={"none"} component={RouterLink} to={routes.adminIndex}>Index Directory</Link></MenuItem>
+                        <MenuItem onClick={reindex}>Reindex</MenuItem>
                     </Menu>
                     <Link variant="h6" color="primary" component={RouterLink} to={routes.video}>Home</Link>
                     <Toolbar>

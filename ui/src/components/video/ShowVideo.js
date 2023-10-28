@@ -1,41 +1,35 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import {Fragment, useEffect, useMemo, useState} from "react";
+import {useParams} from "react-router-dom";
 import "video.js/dist/video-js.css"
-import VideoApi from "../../api/api";
-import { Button, Container, Grid, IconButton, TextField, Typography } from "@mui/material";
+import {Button, Container, Grid, IconButton, TextField, Typography} from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import VideoPlayer from "./VideoPlayer";
 import VideoInfoBar from "./VideoInfoBar";
 import VideoDetails from "./VideoDetails";
-import { AddCircleOutline } from "@mui/icons-material";
-import { VideosListGrid } from "../directory/VideosListGrid";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchVideos, selectVideos } from "./videosSlice";
+import {AddCircleOutline} from "@mui/icons-material";
+import {VideosListGrid} from "../directory/VideosListGrid";
+import {useDispatch, useSelector} from "react-redux";
+import {fetchVideos, selectVideos} from "./videosSlice";
 import {fetchVideo, selectVideoDetails, updateCategories, updateTags} from "./videoSlice";
 
 const useStyles = makeStyles(theme => ({
     attributes: {
-        maxWidth: 750,
+        maxWidth: 1000,
         padding: theme.spacing(2),
         margin: "auto",
         marginTop: 20,
         textAlign: "left"
     },
-    player: {
-        maxWidth: 1000,
-        margin: "auto",
-        marginTop: 20
-    },
     titleRow: {
         borderBottom: "1px solid",
-        maxWidth: 750,
+        maxWidth: 1000,
         padding: theme.spacing(2),
         margin: "auto",
         marginTop: 0,
         textAlign: "left"
     },
     catsAndTags: {
-        maxWidth: 750,
+        maxWidth: 1000,
         padding: theme.spacing(2),
         margin: "auto",
         marginTop: 0,
@@ -172,7 +166,7 @@ function ShowVideo() {
     }
 
     return (
-        <Container>
+        <Container maxWidth={"xl"}>
             <VideoPlayer videoDetail={videoDetails} />
             <div className={classes.titleRow}>
                 <Grid container direction="row" justifyContent="flex-start" alignItems="flex-start">
