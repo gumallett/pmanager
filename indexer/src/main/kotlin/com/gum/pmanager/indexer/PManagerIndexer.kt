@@ -76,6 +76,7 @@ class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataServ
             return
         }
 
+        LOG.info("Reading file attributes for {}", path)
         val fileAttributes = Files.getFileAttributeView(path, BasicFileAttributeView::class.java).readAttributes()
 
         val request = VideoResponse(
@@ -109,7 +110,9 @@ class PManagerIndexer(val api: VideosApi, val metadataService: VideoMetadataServ
 
     @EventListener(ContextRefreshedEvent::class)
     fun onApplicationStart() {
-        index()
+        if (indexingProperties.runOnStart) {
+            index()
+        }
     }
 }
 

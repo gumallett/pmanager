@@ -6,6 +6,7 @@ import com.gum.pmanager.data.model.VideoMetadataEntity
 import com.gum.pmanager.data.model.copyToVideoMetadataEntity
 import com.gum.pmanager.data.model.toVideoMetadataResponse
 import com.gum.pmanager.data.repository.VideoMetadataRepository
+import com.gum.pmanager.indexer.PManagerIndexer
 import com.gum.pmanager.model.CreateVideoResponse
 import com.gum.pmanager.model.VideoResponse
 import org.flywaydb.core.internal.util.UrlUtils
@@ -48,7 +49,8 @@ interface VideoMetadataService {
 
 @Service
 class VideoMetadataServiceImpl(
-    private val videoMetadataRepository: VideoMetadataRepository
+    private val videoMetadataRepository: VideoMetadataRepository,
+    private val indexer: PManagerIndexer
 ) : VideoMetadataService {
     @Transactional
     override fun create(request: VideoResponse): CreateVideoResponse {
@@ -190,10 +192,7 @@ class VideoMetadataServiceImpl(
 
         LOG.info("Running index for {}", indexDir.toURI())
         if (!dryrun) {
-            pb.command("java", "-jar", "-Dindexing.paths=${indexDir.toURI()}", "indexer/build/libs/indexer-0.0.1-SNAPSHOT.jar")
-            val p2 = pb.start()
-            p2.waitFor()
-            LOG.info(p2.processOutput())
+            indexer.index(indexDir.toURI().toString())
         }
         LOG.info("Finished index for {}", indexDir.toURI())
     }
