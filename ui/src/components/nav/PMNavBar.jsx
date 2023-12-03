@@ -18,9 +18,9 @@ import routes from "../../routes/routes";
 import SearchIcon from "@mui/icons-material/Search";
 import {useEffect, useMemo, useState} from "react";
 import debounce from 'lodash.debounce';
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {searchTextChanged} from "./searchSlice";
-import {reindex as reindexOp} from "../video/videosSlice";
+import {reindex as reindexOp, selectTotalRecords} from "../video/videosSlice";
 import {deserializeQueryString} from "../../utils";
 import {ArrowForwardIos} from "@mui/icons-material";
 
@@ -79,6 +79,7 @@ const useStyles = makeStyles((theme) => ({
 function PMNavBar() {
     const classes = useStyles();
     const [search, setSearch] = useSearchParams();
+    const totalRecords = useSelector(selectTotalRecords);
     const history = useNavigate();
     const [anchorEl, setAnchorEl] = useState(null);
     const [adminAnchorEl, setAdminAnchorEl] = useState(null);
@@ -112,6 +113,11 @@ function PMNavBar() {
     const reindex = () => {
         dispatch(reindexOp());
         handleClose([setAnchorEl, setAdminAnchorEl])();
+    }
+
+    const feelingLucky = () => {
+        const random = Math.floor(Math.random() * totalRecords + 1);
+        history(`/${routes.video}/${random}`);
     }
 
     useEffect(() => {
@@ -188,6 +194,15 @@ function PMNavBar() {
                             onClick={clear}
                         >
                             Clear
+                        </Button>
+                        <Button
+                            sx={{ml: 2}}
+                            variant="contained"
+                            color="success"
+                            size="small"
+                            onClick={feelingLucky}
+                        >
+                            Feeling Lucky
                         </Button>
                         <div className={classes.grow}/>
                     </Toolbar>

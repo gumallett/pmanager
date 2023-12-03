@@ -113,7 +113,9 @@ class VideoMetadataServiceImpl(
     override fun view(id: Long): VideoResponse {
         val existing = videoMetadataRepository.findById(id)
             .orElseThrow { VideoNotFoundException("Not found") }
-        videoMetadataRepository.setViewed(id, Instant.now())
+        existing.views += 1;
+        existing.lastAccessed = Instant.now()
+        videoMetadataRepository.save(existing)
         return existing.toVideoMetadataResponse()
     }
 
