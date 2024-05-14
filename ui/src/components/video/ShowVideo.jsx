@@ -1,7 +1,7 @@
 import {Fragment, useEffect, useMemo, useState} from "react";
 import {useParams} from "react-router-dom";
 import "video.js/dist/video-js.css"
-import {Button, Container, Grid, IconButton, TextField, Typography} from "@mui/material";
+import {Autocomplete, Button, Container, Grid, IconButton, TextField, Typography} from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import VideoPlayer from "./VideoPlayer";
 import VideoInfoBar from "./VideoInfoBar";
@@ -9,7 +9,7 @@ import VideoDetails from "./VideoDetails";
 import {AddCircleOutline} from "@mui/icons-material";
 import {VideosListGrid} from "../directory/VideosListGrid";
 import {useDispatch, useSelector} from "react-redux";
-import {fetchVideos, selectVideos} from "./videosSlice";
+import {fetchCategories, fetchTags, fetchVideos, selectCategories, selectTags, selectVideos} from "./videosSlice";
 import {fetchVideo, selectVideoDetails, updateCategories, updateTags} from "./videoSlice";
 
 const useStyles = makeStyles(theme => ({
@@ -52,7 +52,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-function AddTagControl({addTag}) {
+function AddTagControl({addTag, values}) {
     let [editing, setEditing] = useState(false);
     let [theTag, setTheTag] = useState("");
 
@@ -70,7 +70,9 @@ function AddTagControl({addTag}) {
     return (
         <Fragment>
             <form noValidate autoComplete={"off"} onSubmit={onSubmit}>
-                {editing ? <TextField autoFocus={true} variant={"outlined"} size={"small"} value={theTag} onChange={onChange} /> : ""}
+                {editing ? <Autocomplete sx={{minWidth: '240px'}} disablePortal selectOnFocus clearOnBlur freeSolo value={theTag || ""} onChange={onChange}
+                                         renderInput={(params) => <TextField {...params} autoFocus size={"small"} variant={"outlined"} />}
+                                         options={values ? values : []} /> : ""}
                 <IconButton onClick={() => setEditing(!editing)}>
                     <AddCircleOutline />
                 </IconButton>
@@ -79,7 +81,7 @@ function AddTagControl({addTag}) {
     )
 }
 
-function EditableTagControl({editTag, tagValue}) {
+function EditableTagControl({editTag, tagValue, values}) {
     const classes = useStyles();
     let [editing, setEditing] = useState(false);
     let [theTag, setTheTag] = useState(tagValue);
@@ -102,7 +104,10 @@ function EditableTagControl({editTag, tagValue}) {
     return (
         <Fragment>
             <form noValidate autoComplete={"off"} onSubmit={onSubmit}>
-                {editing ? <TextField autoFocus={true} variant={"outlined"} size={"small"} value={theTag} onChange={onChange} /> : <span className={classes.tag} onClick={clicked}>{theTag}</span>}
+                {editing ? <Autocomplete sx={{minWidth: '240px'}} disablePortal selectOnFocus clearOnBlur freeSolo value={theTag || ""} onChange={onChange}
+                                         renderInput={(params) => <TextField {...params} autoFocus size={"small"} variant={"outlined"} />}
+                                         options={values ? [...values, theTag] : []} />
+                    : <span className={classes.tag} onClick={clicked}>{theTag}</span>}
             </form>
         </Fragment>
     )
@@ -115,8 +120,16 @@ function ShowVideo() {
     const videos = useSelector(selectVideos);
     const videoDetails = useSelector(selectVideoDetails);
     const dispatch = useDispatch();
+    const tags = useSelector(selectTags);
+    const cats = useSelector(selectCategories);
 
     const recommendedVideos = useMemo(() => videos && videos.length ? videos.filter(rec => `${rec.id}` !== id) : [], [videos]);
+    const filteredTags = useMemo(() => tags && tags.length
+        ? tags.filter(it => videoDetails.tags.map(it => it.name).indexOf(it.name) === -1).map(it => it.name)
+        : [], [videoDetails, tags]);
+    const filteredCats = useMemo(() => tags && tags.length
+        ? cats.filter(it => videoDetails.categories.map(it => it.name).indexOf(it.name) === -1).map(it => it.name)
+        : [], [videoDetails, cats]);
 
     useEffect(() => {
         document.title = `${videoDetails.source} - ${videoDetails.title}`;
@@ -132,10 +145,17 @@ function ShowVideo() {
             return
         }
 
-        const searchQuery = `${videoDetails.title} ${videoDetails.description} ${videoDetails.tags.map(t => t.name).join(' ')}`;
+        const searchQuery = `${videoDetails.title} ${videoDetails.categories.map(t => t.name).join(' ')} ${videoDetails.tags.map(t => t.name).join(' ')}`;
 
-        const promise = dispatch(fetchVideos([searchQuery, 0, 13, "_score,rating", '', '', '', '', '', '']));
-        return () => promise.abort();
+        const videoPromise = dispatch(fetchVideos([searchQuery, 0, 13, "_score,rating", '', '', '', '', '', '']));
+        const catsPromise = dispatch(fetchCategories(""));
+        const tagsPromise = dispatch(fetchTags(""));
+
+        return () => {
+            videoPromise.abort();
+            catsPromise.abort();
+            tagsPromise.abort();
+        };
     }, [videoDetails, id]);
 
     function addTag(newTag) {
@@ -179,15 +199,15 @@ function ShowVideo() {
                     <Grid item xs={12}>
                         <Typography variant="subtitle2">Categories:</Typography>
                         <Grid container>
-                            {videoDetails.categories ? videoDetails.categories.map(cat => <Grid key={cat.name} item><EditableTagControl editTag={(value) => updateExistingCat(value, cat.name)} tagValue={cat.name} /></Grid>) : ''}
-                            <Grid item><AddTagControl addTag={addCat} /></Grid>
+                            {videoDetails.categories ? videoDetails.categories.map(cat => <Grid key={cat.name} item><EditableTagControl editTag={(value) => updateExistingCat(value, cat.name)} tagValue={cat.name} values={filteredCats} /></Grid>) : ''}
+                            <Grid item><AddTagControl addTag={addCat} values={filteredCats} /></Grid>
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
                         <Typography variant="subtitle2">Tags:</Typography>
                         <Grid container>
-                            {videoDetails.tags ? videoDetails.tags.map((tag, idx) => <Grid key={tag.name} item><EditableTagControl editTag={(value) => updateExistingTag(value, tag.name)} tagValue={tag.name} /></Grid>) : ''}
-                            <Grid item><AddTagControl addTag={addTag} /></Grid>
+                            {videoDetails.tags ? videoDetails.tags.map((tag, idx) => <Grid key={tag.name} item><EditableTagControl editTag={(value) => updateExistingTag(value, tag.name)} tagValue={tag.name} values={filteredTags} /></Grid>) : ''}
+                            <Grid item><AddTagControl addTag={addTag} values={filteredTags} /></Grid>
                         </Grid>
                     </Grid>
                 </Grid>

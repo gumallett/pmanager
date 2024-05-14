@@ -90,7 +90,7 @@ class VideoMetadataServiceImpl(
         } else {
             LOG.warn("Video file deletion failed: {}, {}, {}", existing.uri, existing.thumbUri, existing.previewUri)
             LOG.warn("results: {}", results)
-            throw RuntimeException("Video file deletion failed!")
+            //throw RuntimeException("Video file deletion failed!")
         }
 
         videoMetadataRepository.deleteById(id)

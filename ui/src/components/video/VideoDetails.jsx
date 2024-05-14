@@ -94,7 +94,7 @@ function VideoDetails({ videoDetail }) {
                     <VideoTextAttribute label="description" stringValue={form.description} maxRows={7} onChange={handleFormTextChange("description")} />
                 </Grid>
                 <Grid item xs={12}>
-                    <VideoTextAttribute label="notes" stringValue={form.notes} maxRows={4} onChange={handleFormTextChange("notes")} />
+                    <VideoTextAttribute label="notes" stringValue={form.notes} maxRows={7} onChange={handleFormTextChange("notes")} />
                 </Grid>
                 <Grid item xs={12}>
                     <VideoTextAttribute label="source" stringValue={form.source} onChange={handleFormTextChange("source")} />
