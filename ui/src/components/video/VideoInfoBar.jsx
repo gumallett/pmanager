@@ -1,9 +1,11 @@
-import { Grid, Rating, Typography } from "@mui/material";
+import {Grid, Rating, Tooltip, tooltipClasses, Typography} from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import GradeIcon from "@mui/icons-material/Grade";
-import { displayDateDistance, displayRating, toDuration } from "../../utils";
+import {displayDate, displayDateDistance, displayRating, toDuration} from "../../utils";
 import {useDispatch} from "react-redux";
 import {updateRating} from "./videoSlice";
+import {useMemo} from "react";
+import {styled} from "@mui/material/styles";
 
 const useStyles = makeStyles(theme => ({
     viewsText: {
@@ -12,9 +14,32 @@ const useStyles = makeStyles(theme => ({
     },
     viewsIcon: {
         display: "inline-block",
-        verticalAlign: "middle"
+        verticalAlign: "top"
     },
 }));
+
+function DateInfo({videoDetail}) {
+    const dateStr = useMemo(() => displayDate(videoDetail.videoFileInfo.createDate || ""), [videoDetail.videoFileInfo.createDate]);
+
+    const BootstrapTooltip = styled(({ className, ...props }) => (
+        <Tooltip {...props} classes={{ popper: className }} />
+    ))(({ theme }) => ({
+        [`& .${tooltipClasses.arrow}`]: {
+            color: 'rgba(0, 0, 0, 1)',
+        },
+        [`& .${tooltipClasses.tooltip}`]: {
+            backgroundColor: 'rgba(0, 0, 0, 1)',
+            fontSize: theme.typography.pxToRem(13),
+            fontWeight: theme.typography.fontWeightBold,
+        },
+    }));
+
+    return (
+        <BootstrapTooltip title={dateStr} placement={"top"} arrow>
+            <span>{displayDateDistance(videoDetail.videoFileInfo.createDate)}</span>
+        </BootstrapTooltip>
+    )
+}
 
 function VideoInfoBar({ videoDetail }) {
     const classes = useStyles();
@@ -24,7 +49,7 @@ function VideoInfoBar({ videoDetail }) {
         <Grid container item direction="row" justifyContent="flex-start" alignItems="flex-start">
             <Grid item xs={6}>
                 <Typography variant="caption"><strong>
-                        <span className={classes.viewsText}>{videoDetail.views} Views | {toDuration(videoDetail.videoFileInfo.length)} | {displayDateDistance(videoDetail.videoFileInfo.createDate)} |</span>
+                        <span className={classes.viewsText}>{videoDetail.views} Views | {toDuration(videoDetail.videoFileInfo.length)} | <DateInfo videoDetail={videoDetail} /> |</span>
                         <GradeIcon className={classes.viewsIcon} fontSize="small" />
                         <span className={classes.viewsText}>{displayRating(videoDetail.rating)}</span>
                 </strong></Typography>

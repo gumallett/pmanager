@@ -1,4 +1,4 @@
-import { formatDistanceToNow } from "date-fns";
+import {format, formatDistanceToNow} from "date-fns";
 import VideoApi from "./api/api";
 
 function toDuration(num) {
@@ -29,6 +29,10 @@ function displayDateDistance(dateStr) {
     return dateStr ? formatDistanceToNow(Date.parse(dateStr), { addSuffix: true }) : dateStr;
 }
 
+function displayDate(dateStr, fmt = "MM/dd/yyyy hh:mm:ss a") {
+    return dateStr ? format(Date.parse(dateStr), fmt) : dateStr;
+}
+
 function thumbnailUri(thumbUri) {
     if (!thumbUri) {
         return null;
@@ -57,4 +61,4 @@ const deserializeQueryString = (search) => ({
     lengthTo: search.get('lengthTo') ? parseInt(search.get('lengthTo')) : "",
 });
 
-export { toDuration, displayRating, displayDateDistance, thumbnailUri, isElectron, deserializeQueryString };
+export { toDuration, displayRating, displayDate, displayDateDistance, thumbnailUri, isElectron, deserializeQueryString };
