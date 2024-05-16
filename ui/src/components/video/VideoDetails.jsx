@@ -44,10 +44,11 @@ const DeleteButton = styled(Button)({
     marginTop: "0"
 });
 
-function VideoDetails({ videoDetail }) {
+function VideoDetails({ videoDetail, sources }) {
     const classes = useStyles();
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [deleteFailure, setDeleteFailure] = useState(false);
 
@@ -68,7 +69,7 @@ function VideoDetails({ videoDetail }) {
     }, [videoDetail]);
 
     function handleFormTextChange(prop) {
-        return event => setForm({ ...form, [`${prop}`]: event.target.value });
+        return (value) => setForm({ ...form, [`${prop}`]: value });
     }
 
     function handleDelete(perma = false) {
@@ -97,7 +98,7 @@ function VideoDetails({ videoDetail }) {
                     <VideoTextAttribute label="notes" stringValue={form.notes} maxRows={7} onChange={handleFormTextChange("notes")} />
                 </Grid>
                 <Grid item xs={12}>
-                    <VideoTextAttribute label="source" stringValue={form.source} onChange={handleFormTextChange("source")} />
+                    <VideoTextAttribute label="source" stringValue={form.source} onChange={handleFormTextChange("source")} useAutoComplete={true} autoCompleteValues={sources ? sources : []} />
                 </Grid>
                 <Grid container item xs={12} direction="row" justifyContent="flex-start" alignItems="flex-start">
                     <Grid item xs={8}>

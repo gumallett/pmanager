@@ -9,7 +9,16 @@ import VideoDetails from "./VideoDetails";
 import {AddCircleOutline} from "@mui/icons-material";
 import {VideosListGrid} from "../directory/VideosListGrid";
 import {useDispatch, useSelector} from "react-redux";
-import {fetchCategories, fetchTags, fetchVideos, selectCategories, selectTags, selectVideos} from "./videosSlice";
+import {
+    fetchCategories,
+    fetchSources,
+    fetchTags,
+    fetchVideos,
+    selectCategories,
+    selectSources,
+    selectTags,
+    selectVideos
+} from "./videosSlice";
 import {fetchVideo, selectVideoDetails, updateCategories, updateTags} from "./videoSlice";
 
 const useStyles = makeStyles(theme => ({
@@ -56,8 +65,8 @@ function AddTagControl({addTag, values}) {
     let [editing, setEditing] = useState(false);
     let [theTag, setTheTag] = useState("");
 
-    function onChange(event) {
-        setTheTag(event.target.value);
+    function onChange(event, value) {
+        setTheTag(value);
     }
 
     function onSubmit(event) {
@@ -70,7 +79,7 @@ function AddTagControl({addTag, values}) {
     return (
         <Fragment>
             <form noValidate autoComplete={"off"} onSubmit={onSubmit}>
-                {editing ? <Autocomplete sx={{minWidth: '240px'}} disablePortal selectOnFocus clearOnBlur freeSolo value={theTag || ""} onChange={onChange}
+                {editing ? <Autocomplete sx={{minWidth: '240px'}} disablePortal selectOnFocus clearOnBlur freeSolo value={theTag || ""} onInputChange={onChange}
                                          renderInput={(params) => <TextField {...params} autoFocus size={"small"} variant={"outlined"} />}
                                          options={values ? values : []} /> : ""}
                 <IconButton onClick={() => setEditing(!editing)}>
@@ -86,8 +95,8 @@ function EditableTagControl({editTag, tagValue, values}) {
     let [editing, setEditing] = useState(false);
     let [theTag, setTheTag] = useState(tagValue);
 
-    function onChange(event) {
-        setTheTag(event.target.value);
+    function onChange(event, value) {
+        setTheTag(value);
     }
 
     function onSubmit(event) {
@@ -104,7 +113,7 @@ function EditableTagControl({editTag, tagValue, values}) {
     return (
         <Fragment>
             <form noValidate autoComplete={"off"} onSubmit={onSubmit}>
-                {editing ? <Autocomplete sx={{minWidth: '240px'}} disablePortal selectOnFocus clearOnBlur freeSolo value={theTag || ""} onChange={onChange}
+                {editing ? <Autocomplete sx={{minWidth: '240px'}} disablePortal selectOnFocus clearOnBlur freeSolo value={theTag || ""} onInputChange={onChange}
                                          renderInput={(params) => <TextField {...params} autoFocus size={"small"} variant={"outlined"} />}
                                          options={values ? [...values, theTag] : []} />
                     : <span className={classes.tag} onClick={clicked}>{theTag}</span>}
@@ -122,14 +131,16 @@ function ShowVideo() {
     const dispatch = useDispatch();
     const tags = useSelector(selectTags);
     const cats = useSelector(selectCategories);
+    const sources = useSelector(selectSources);
+    const sourcesValues = useMemo(() => sources && sources ? sources.map(it => it.name) : [], [sources]);
 
-    const recommendedVideos = useMemo(() => videos && videos.length ? videos.filter(rec => `${rec.id}` !== id) : [], [videos]);
+    const recommendedVideos = useMemo(() => videos && videos.length ? videos.filter(rec => `${rec.id}` !== id) : [], [videos, id]);
     const filteredTags = useMemo(() => tags && tags.length
-        ? tags.filter(it => videoDetails.tags.map(it => it.name).indexOf(it.name) === -1).map(it => it.name)
-        : [], [videoDetails, tags]);
-    const filteredCats = useMemo(() => tags && tags.length
-        ? cats.filter(it => videoDetails.categories.map(it => it.name).indexOf(it.name) === -1).map(it => it.name)
-        : [], [videoDetails, cats]);
+        ? tags.filter(it => (videoDetails.tags || []).map(it => it.name).indexOf(it.name) === -1).map(it => it.name)
+        : [], [videoDetails.tags, tags]);
+    const filteredCats = useMemo(() => cats && cats.length
+        ? cats.filter(it => (videoDetails.categories || []).map(it => it.name).indexOf(it.name) === -1).map(it => it.name)
+        : [], [videoDetails.categories, cats]);
 
     useEffect(() => {
         document.title = `${videoDetails.source} - ${videoDetails.title}`;
@@ -138,7 +149,7 @@ function ShowVideo() {
     useEffect(() => {
         const promise = dispatch(fetchVideo(id));
         return () => promise.abort();
-    }, [id]);
+    }, [id, dispatch]);
 
     useEffect(() => {
         if (!videoDetails.id) {
@@ -150,13 +161,15 @@ function ShowVideo() {
         const videoPromise = dispatch(fetchVideos([searchQuery, 0, 13, "_score,rating", '', '', '', '', '', '']));
         const catsPromise = dispatch(fetchCategories(""));
         const tagsPromise = dispatch(fetchTags(""));
+        const sourcesPromise = dispatch(fetchSources(""));
 
         return () => {
             videoPromise.abort();
             catsPromise.abort();
             tagsPromise.abort();
+            sourcesPromise.abort();
         };
-    }, [videoDetails, id]);
+    }, [videoDetails, id, dispatch]);
 
     function addTag(newTag) {
         const currentTags = videoDetails.tags || [];
@@ -215,7 +228,7 @@ function ShowVideo() {
 
             <Button variant="text" onClick={() => showDetails(!detailsVisible)}>{detailsVisible ? "Hide" : "Show"} Details</Button>
 
-            {detailsVisible ? <VideoDetails videoDetail={videoDetails} /> : ""}
+            {detailsVisible ? <VideoDetails videoDetail={videoDetails} sources={sourcesValues} /> : ""}
 
             <Typography variant={"h5"} sx={{textAlign: "left", p: 2}}>Related Videos:</Typography>
             <VideosListGrid videos={recommendedVideos} />
