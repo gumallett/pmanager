@@ -40,7 +40,7 @@ function thumbnailUri(thumbUri) {
     return process.env.NODE_ENV === 'production' ? thumbUri : `${VideoApi.baseUrl}/static?path=${encodeURIComponent(thumbUri)}`;
 }
 
-const isElectron = () => {
+const isProd = () => {
     const userAgent = navigator.userAgent.toLowerCase();
     return userAgent.indexOf('electron') !== -1 || process.env.NODE_ENV === 'production';
 };
@@ -61,4 +61,4 @@ const deserializeQueryString = (search) => ({
     lengthTo: search.get('lengthTo') ? parseInt(search.get('lengthTo')) : "",
 });
 
-export { toDuration, displayRating, displayDate, displayDateDistance, thumbnailUri, isElectron, deserializeQueryString };
+export { toDuration, displayRating, displayDate, displayDateDistance, thumbnailUri, isProd, deserializeQueryString };

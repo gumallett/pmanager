@@ -7,7 +7,7 @@ import routes from "./routes/routes";
 import PMNavBar from "./components/nav/PMNavBar";
 import {useDispatch, useSelector} from "react-redux";
 import React, {useEffect} from "react";
-import {deserializeQueryString, isElectron} from "./utils";
+import {deserializeQueryString, isProd} from "./utils";
 import {createBrowserHistory, createHashHistory} from "history";
 import {locationChanged, selectAppLoaded, selectLocation} from "./appSlice";
 import AdminIndex from "./components/admin/AdminIndex";
@@ -18,7 +18,7 @@ const darkTheme = createTheme(adaptV4Theme({
     },
 }));
 
-export const history = isElectron()
+export const history = isProd()
     ? createHashHistory()
     : createBrowserHistory();
 
@@ -26,8 +26,6 @@ function RootElement() {
     const dispatch = useDispatch();
     const [search, setSearch] = useSearchParams();
     const location = useLocation();
-    const appLoaded = useSelector(selectAppLoaded);
-    const currentLocation = useSelector(selectLocation);
 
     useEffect(() => {
         dispatch(locationChanged({
@@ -57,7 +55,7 @@ function RootElement() {
 
 function App() {
     return (
-        isElectron() ? <HashRouter history={history}>
+        isProd() ? <HashRouter history={history}>
             <RootElement />
         </HashRouter> : <BrowserRouter history={history}>
             <RootElement />
