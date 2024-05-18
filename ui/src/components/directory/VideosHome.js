@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo } from "react";
+import {memo, useCallback, useEffect, useMemo} from "react";
 import {Box, Container, Grid, Pagination, Typography} from "@mui/material";
 import { useSearchParams } from "react-router-dom";
 import SortDropdown from "./SortDropdown";
@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { pageChanged, sortChanged } from "../nav/searchSlice";
 import { deserializeQueryString } from "../../utils";
 
-function PaginationAndSort({showSort = false, totalPages, currentPage, mt, pb: pb}) {
+function PaginationAndSort({showSort = false, totalPages, currentPage, mt, pb}) {
     const [search, setSearch] = useSearchParams();
     const dispatch = useDispatch();
     const deserializedParams = useMemo(() => deserializeQueryString(search), [search]);
@@ -71,6 +71,19 @@ function VideosHome() {
 
     const deserializedParams = useMemo(() => deserializeQueryString(searchParams), [searchParams]);
 
+    const loadVideos = useCallback((q, page, sort, tags, excludeTags, categories, sources, lengthFrom, lengthTo) => {
+        if (q.length !== 1 && q.length !== 2) {
+            return [
+                dispatch(fetchVideos([q, page ? page - 1 : 0, 12, sort ? sort : undefined, tags, excludeTags, categories, sources, lengthFrom, lengthTo])),
+                dispatch(fetchTags(q)),
+                dispatch(fetchCategories(q)),
+                dispatch(fetchSources(q)),
+            ];
+        }
+
+        return [];
+    }, [dispatch]);
+
     useEffect(() => {
         document.title = `Videos List - ${searchParams.get("search") || ''}`;
     }, [searchParams]);
@@ -88,7 +101,7 @@ function VideosHome() {
             params.lengthTo
         );
         return () => promises.forEach(it => it.abort())
-    }, [deserializedParams]);
+    }, [deserializedParams, loadVideos]);
 
     return (
         <Container maxWidth="xl">
@@ -104,19 +117,6 @@ function VideosHome() {
             </div>
         </Container>
     );
-
-    function loadVideos(q, page, sort, tags, excludeTags, categories, sources, lengthFrom, lengthTo) {
-        if (q.length !== 1 && q.length !== 2) {
-            return [
-                dispatch(fetchVideos([q, page ? page - 1 : 0, 12, sort ? sort : undefined, tags, excludeTags, categories, sources, lengthFrom, lengthTo])),
-                dispatch(fetchTags(q)),
-                dispatch(fetchCategories(q)),
-                dispatch(fetchSources(q)),
-            ];
-        }
-
-        return [];
-    }
 }
 
 export default VideosHome;

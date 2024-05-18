@@ -1,7 +1,8 @@
-import { useSearchParams } from "react-router-dom";
-import {useEffect, useMemo, useState} from "react";
+import {useSearchParams} from "react-router-dom";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {
-    Autocomplete, Box,
+    Autocomplete,
+    Box,
     Card,
     CardActionArea,
     CardContent,
@@ -10,13 +11,9 @@ import {
     TextField,
     Typography
 } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import {
-    categoriesChanged,
-    excludeTagsChanged, lengthChanged, sourcesChanged,
-    tagsChanged
-} from "../nav/searchSlice";
-import { deserializeQueryString } from "../../utils";
+import {useDispatch} from "react-redux";
+import {categoriesChanged, excludeTagsChanged, lengthChanged, sourcesChanged, tagsChanged} from "../nav/searchSlice";
+import {deserializeQueryString} from "../../utils";
 import debounce from 'lodash.debounce';
 
 function PanelHeader({title = ""}) {
@@ -36,16 +33,29 @@ function FilterPanel({tags, categories, sources}) {
         deserializedParams.lengthTo ? deserializedParams.lengthTo / 60 / 1000 : RANGE_MAX
     ]);
 
+    const handleRangeChange = useCallback((event, newvalue) => {
+        if (newvalue[1] === RANGE_MAX) {
+            search.set('lengthFrom', newvalue[0] * 60 * 1000);
+            search.set('lengthTo', '');
+        } else {
+            search.set('lengthFrom', newvalue[0] * 60 * 1000);
+            search.set('lengthTo', newvalue[1] * 60 * 1000);
+        }
+
+        setSearch(search);
+        dispatch(lengthChanged(newvalue));
+    }, [search, setSearch, dispatch]);
+
     const debouncedSearch = useMemo(() => {
-        return debounce(handleRangeChange, 250);
-    }, [search]);
+        return debounce(handleRangeChange, 300);
+    }, [handleRangeChange]);
 
     useEffect(() => {
         if (tmpLength) {
             debouncedSearch(null, tmpLength);
         }
         return () => debouncedSearch.cancel();
-    }, [tmpLength]);
+    }, [tmpLength, debouncedSearch]);
 
     return (
         <Card sx={{mt: 2, ml: 2, textAlign: "left", height: "870px", overflow: "auto"}}>
@@ -83,19 +93,6 @@ function FilterPanel({tags, categories, sources}) {
             </CardContent>
         </Card>
     )
-
-    function handleRangeChange(event, newvalue) {
-        if (newvalue[1] === RANGE_MAX) {
-            search.set('lengthFrom', newvalue[0] * 60 * 1000);
-            search.set('lengthTo', '');
-        } else {
-            search.set('lengthFrom', newvalue[0] * 60 * 1000);
-            search.set('lengthTo', newvalue[1] * 60 * 1000);
-        }
-
-        setSearch(search);
-        dispatch(lengthChanged(newvalue));
-    }
 
     function autoCompleteTagSelected(event, value) {
         const arr = value || [];

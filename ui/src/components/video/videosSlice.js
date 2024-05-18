@@ -1,11 +1,4 @@
-import {
-    combineReducers,
-    createAction,
-    createAsyncThunk,
-    createEntityAdapter,
-    createSelector,
-    createSlice
-} from "@reduxjs/toolkit";
+import {combineReducers, createAsyncThunk, createEntityAdapter, createSlice} from "@reduxjs/toolkit";
 import VideoApi from "../../api/api";
 
 

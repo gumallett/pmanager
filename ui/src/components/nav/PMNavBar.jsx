@@ -16,7 +16,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import {Link as RouterLink, useNavigate, useSearchParams} from "react-router-dom";
 import routes from "../../routes/routes";
 import SearchIcon from "@mui/icons-material/Search";
-import {useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import debounce from 'lodash.debounce';
 import {useDispatch, useSelector} from "react-redux";
 import {searchTextChanged} from "./searchSlice";
@@ -78,7 +78,7 @@ const useStyles = makeStyles((theme) => ({
 
 function PMNavBar() {
     const classes = useStyles();
-    const [search, setSearch] = useSearchParams();
+    const [search] = useSearchParams();
     const totalRecords = useSelector(selectTotalRecords);
     const history = useNavigate();
     const [anchorEl, setAnchorEl] = useState(null);
@@ -88,9 +88,31 @@ function PMNavBar() {
     const deserializedSearchParams = useMemo(() => deserializeQueryString(search), [search]);
     const [tmpSearchQuery, setTmpSearchQuery] = useState(deserializedSearchParams.searchText);
 
+    const updateQueryParams = useCallback(q => {
+        search.set('page', '1');
+        search.set('search', q || '');
+        history(`/${routes.video}?${search.toString()}`);
+        // setSearch(search);
+        dispatch(searchTextChanged(q || ''));
+    }, [search, history, dispatch]);
+
     const debouncedSearch = useMemo(() => {
-        return debounce(updateQueryParams, 250);
-    }, [search]);
+        return debounce(updateQueryParams, 300);
+    }, [updateQueryParams]);
+
+    const searchChanged = useCallback((q) => {
+        setTmpSearchQuery(q || '');
+    }, [setTmpSearchQuery]);
+
+    const searchSubmit = useCallback((event) => {
+        event.preventDefault();
+        updateQueryParams(tmpSearchQuery);
+        return false;
+    }, [updateQueryParams, tmpSearchQuery]);
+
+    const clear = useCallback(() => {
+        searchChanged('');
+    }, [searchChanged]);
 
     const handleClose = (anchorFns) => () => {
         anchorFns.forEach(fn => fn(null));
@@ -125,7 +147,7 @@ function PMNavBar() {
             debouncedSearch(tmpSearchQuery);
         }
         return () => debouncedSearch.cancel();
-    }, [tmpSearchQuery]);
+    }, [tmpSearchQuery, debouncedSearch]);
 
     return (
         <div className={classes.grow}>
@@ -210,28 +232,6 @@ function PMNavBar() {
             </AppBar>
         </div>
     );
-
-    function searchChanged(q) {
-        setTmpSearchQuery(q || '');
-    }
-
-    function searchSubmit(event) {
-        event.preventDefault();
-        updateQueryParams(tmpSearchQuery);
-        return false;
-    }
-
-    function clear() {
-        searchChanged('');
-    }
-
-    function updateQueryParams(q) {
-        search.set('page', '1');
-        search.set('search', q || '');
-        history(`/${routes.video}?${search.toString()}`);
-        // setSearch(search);
-        dispatch(searchTextChanged(q || ''));
-    }
 }
 
 export default PMNavBar;

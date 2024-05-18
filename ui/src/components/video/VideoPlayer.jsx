@@ -76,7 +76,7 @@ function VideoPlayerComp({ videoDetail = {}, preview = false, play = false }) {
             poster: thumbnailUri(videoDetail.thumbUri),
             controlBar: { currentTimeDisplay: true },
         };
-    }, [videoDetail.id, preview])
+    }, [videoDetail.id, videoDetail.previewUri, videoDetail.uri, videoDetail.videoFileInfo.contentType, videoDetail.thumbUri, preview])
 
     const setupPlayer = useCallback(() => {
         const elem = document.createElement("video-js");
@@ -134,7 +134,7 @@ function VideoPlayerComp({ videoDetail = {}, preview = false, play = false }) {
                 document.removeEventListener("keydown", focusHandler);
             }
         }
-    }, [playerRef, preview]);
+    }, [playerRef, preview, focusHandler, keybinds]);
 
     // Dispose the Video.js player when the functional component unmounts
     useEffect(() => {
