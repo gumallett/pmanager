@@ -11,15 +11,15 @@ import {VideosListGrid} from "../directory/VideosListGrid";
 import {useDispatch, useSelector} from "react-redux";
 import {
     fetchCategories,
-    fetchSources,
-    fetchTags,
-    fetchVideos,
-    selectCategories,
+    fetchRelatedVideos, fetchSources, fetchTags,
+    fetchVideo,
+    selectCategories, selectRelatedVideos,
     selectSources,
     selectTags,
-    selectVideos
-} from "./videosSlice";
-import {fetchVideo, selectVideoDetails, updateCategories, updateTags} from "./videoSlice";
+    selectVideoDetails,
+    updateCategories,
+    updateTags
+} from "./videoSlice";
 
 const useStyles = makeStyles(theme => ({
     attributes: {
@@ -115,7 +115,7 @@ function EditableTagControl({editTag, tagValue, values}) {
             <form noValidate autoComplete={"off"} onSubmit={onSubmit}>
                 {editing ? <Autocomplete sx={{minWidth: '240px'}} disablePortal selectOnFocus clearOnBlur freeSolo value={theTag || ""} onInputChange={onChange}
                                          renderInput={(params) => <TextField {...params} autoFocus size={"small"} variant={"outlined"} />}
-                                         options={values ? [...values, theTag] : []} />
+                                         options={values ? [...values.filter(it => it !== theTag), theTag] : []} />
                     : <span className={classes.tag} onClick={clicked}>{theTag}</span>}
             </form>
         </Fragment>
@@ -124,11 +124,11 @@ function EditableTagControl({editTag, tagValue, values}) {
 
 function ShowVideo() {
     const classes = useStyles();
+    const dispatch = useDispatch();
     const { id } = useParams();
     const [detailsVisible, showDetails] = useState(false);
-    const videos = useSelector(selectVideos);
+    const videos = useSelector(selectRelatedVideos);
     const videoDetails = useSelector(selectVideoDetails);
-    const dispatch = useDispatch();
     const tags = useSelector(selectTags);
     const cats = useSelector(selectCategories);
     const sources = useSelector(selectSources);
@@ -158,7 +158,7 @@ function ShowVideo() {
 
         const searchQuery = `${videoDetails.title} ${videoDetails.categories.map(t => t.name).join(' ')} ${videoDetails.tags.map(t => t.name).join(' ')}`;
 
-        const videoPromise = dispatch(fetchVideos([searchQuery, 0, 13, "_score,rating", '', '', '', '', '', '']));
+        const videoPromise = dispatch(fetchRelatedVideos([searchQuery, 0, 13, "_score,rating", '', '', '', '', '', '']));
         const catsPromise = dispatch(fetchCategories(""));
         const tagsPromise = dispatch(fetchTags(""));
         const sourcesPromise = dispatch(fetchSources(""));
@@ -169,7 +169,7 @@ function ShowVideo() {
             tagsPromise.abort();
             sourcesPromise.abort();
         };
-    }, [videoDetails, id, dispatch]);
+    }, [videoDetails, dispatch]);
 
     function addTag(newTag) {
         const currentTags = videoDetails.tags || [];

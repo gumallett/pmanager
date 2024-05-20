@@ -6,7 +6,8 @@ import {
     IconButton,
     InputBase,
     Link,
-    ListItemIcon, ListItemText,
+    ListItemIcon,
+    ListItemText,
     Menu,
     MenuItem,
     Toolbar
@@ -16,7 +17,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import {Link as RouterLink, useNavigate, useSearchParams} from "react-router-dom";
 import routes from "../../routes/routes";
 import SearchIcon from "@mui/icons-material/Search";
-import {useCallback, useEffect, useMemo, useState} from "react";
+import {useCallback, useMemo, useState} from "react";
 import debounce from 'lodash.debounce';
 import {useDispatch, useSelector} from "react-redux";
 import {searchTextChanged} from "./searchSlice";
@@ -92,7 +93,6 @@ function PMNavBar() {
         search.set('page', '1');
         search.set('search', q || '');
         history(`/${routes.video}?${search.toString()}`);
-        // setSearch(search);
         dispatch(searchTextChanged(q || ''));
     }, [search, history, dispatch]);
 
@@ -102,7 +102,10 @@ function PMNavBar() {
 
     const searchChanged = useCallback((q) => {
         setTmpSearchQuery(q || '');
-    }, [setTmpSearchQuery]);
+        if (q) {
+            debouncedSearch(q || '');
+        }
+    }, [setTmpSearchQuery, debouncedSearch]);
 
     const searchSubmit = useCallback((event) => {
         event.preventDefault();
@@ -114,40 +117,33 @@ function PMNavBar() {
         searchChanged('');
     }, [searchChanged]);
 
+    const back = useCallback(() => {
+        history(-1);
+        setAnchorEl(null);
+    }, [history, setAnchorEl]);
+
+    const forward = useCallback(() => {
+        history(1);
+        setAnchorEl(null);
+    }, [history, setAnchorEl]);
+
+    const feelingLucky = useCallback(() => {
+        const random = Math.floor(Math.random() * totalRecords + 1);
+        history(`/${routes.video}/${random}`);
+    }, [history, totalRecords]);
+
     const handleClose = (anchorFns) => () => {
         anchorFns.forEach(fn => fn(null));
     };
 
+    const reindex = useCallback(() => {
+        dispatch(reindexOp());
+        handleClose([setAnchorEl, setAdminAnchorEl])();
+    }, [dispatch, setAnchorEl, setAdminAnchorEl]);
+
     const handleMenu = (anchorFn) => (event) => {
         anchorFn(event.currentTarget);
     };
-
-    const back = () => {
-        history(-1);
-        setAnchorEl(null);
-    }
-
-    const forward = () => {
-        history(1);
-        setAnchorEl(null);
-    }
-
-    const reindex = () => {
-        dispatch(reindexOp());
-        handleClose([setAnchorEl, setAdminAnchorEl])();
-    }
-
-    const feelingLucky = () => {
-        const random = Math.floor(Math.random() * totalRecords + 1);
-        history(`/${routes.video}/${random}`);
-    }
-
-    useEffect(() => {
-        if (tmpSearchQuery) {
-            debouncedSearch(tmpSearchQuery);
-        }
-        return () => debouncedSearch.cancel();
-    }, [tmpSearchQuery, debouncedSearch]);
 
     return (
         <div className={classes.grow}>

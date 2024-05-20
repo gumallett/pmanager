@@ -66,7 +66,7 @@ function VideoDetails({ videoDetail, sources }) {
             notes: videoDetail.notes,
             source: videoDetail.source
         })
-    }, [videoDetail]);
+    }, [videoDetail, setForm]);
 
     function handleFormTextChange(prop) {
         return (value) => setForm({ ...form, [`${prop}`]: value });
