@@ -6,6 +6,12 @@ const loadVideos = (query, page = 0, size = 10, sort = '_score', tags = '', excl
         .then(json => json.data);
 };
 
+const loadRelated = (id, api) => {
+    return fetch(`${baseUrl}/${id}/related`, {signal: api.signal})
+        .then(res => res.json())
+        .then(json => json.data);
+};
+
 const loadVideo = (id, api) => {
     return fetch(`${baseUrl}/${id}/view`, {signal: api.signal}).then(res => res.json()).then(json => json.data)
 };
@@ -79,6 +85,7 @@ const VideoApi = {
     fetchSources,
     indexDirectory,
     reindex,
+    loadRelated,
 }
 
 export default VideoApi

@@ -17,4 +17,5 @@ public interface SearchRepository {
     Map<String, Long> allTags(String query);
     Map<String, Long> allSources(String query);
     CompletionStage<?> reIndex();
+    List<VideoMetadataEntity> recommended(VideoMetadataEntity sourceVideo);
 }

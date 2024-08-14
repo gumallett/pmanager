@@ -9,10 +9,8 @@ import com.gum.pmanager.data.repository.VideoMetadataRepository
 import com.gum.pmanager.indexer.PManagerIndexer
 import com.gum.pmanager.model.CreateVideoResponse
 import com.gum.pmanager.model.VideoResponse
-import org.flywaydb.core.internal.util.UrlUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.core.env.Environment
 import org.springframework.core.io.PathResource
 import org.springframework.core.io.Resource
 import org.springframework.data.domain.Page
@@ -26,10 +24,8 @@ import java.io.File
 import java.lang.IllegalArgumentException
 import java.net.URI
 import java.nio.charset.Charset
-import java.nio.file.Files
 import java.time.Duration
 import java.time.Instant
-import java.util.concurrent.TimeUnit
 
 interface VideoMetadataService {
     fun create(request: VideoResponse): CreateVideoResponse
@@ -43,6 +39,7 @@ interface VideoMetadataService {
     fun allCategories(query: String): Map<String, Long>
     fun allTags(query: String): Map<String, Long>
     fun allSources(query: String): Map<String, Long>
+    fun related(id: Long): List<VideoResponse>
     fun download(id: Long): Resource
     fun index(directory: String, dryrun: Boolean)
 }
@@ -142,6 +139,13 @@ class VideoMetadataServiceImpl(
     @Transactional(readOnly = true)
     override fun allCategories(query: String): Map<String, Long> {
         return videoMetadataRepository.allCategories(query)
+    }
+
+    @Transactional(readOnly = true)
+    override fun related(id: Long): List<VideoResponse> {
+        val existing = videoMetadataRepository.findById(id)
+            .orElseThrow { VideoNotFoundException("Not found") }
+        return videoMetadataRepository.recommended(existing).map { it.toVideoMetadataResponse() }
     }
 
     override fun download(id: Long): Resource {

@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
@@ -7,6 +8,7 @@ plugins {
     kotlin("plugin.spring") version libs.versions.kotlin
     kotlin("plugin.allopen") version libs.versions.kotlin
     kotlin("plugin.jpa") version libs.versions.kotlin
+    id("com.palantir.docker") version "0.36.0"
     alias(libs.plugins.openapi)
 }
 
@@ -82,6 +84,13 @@ openApiGenerate {
     ))
 }
 
+tasks.named<BootJar>("bootJar") {
+    layered {
+        isEnabled = true
+        isIncludeLayerTools = true
+    }
+}
+
 tasks.create<Exec>("dockerStartPostgres") {
     commandLine("docker", "run", "-d", "--name", "pm-pgsql", "-p", "5432:5432", "-e", "POSTGRES_PASSWORD=postgres", "postgres")
 }
@@ -115,4 +124,12 @@ tasks.create<Exec>("dockerStartElasticsearch") {
 tasks.create<Exec>("dockerStopElasticsearch") {
     commandLine("docker", "stop", "pm-elastic")
     commandLine("docker", "rm", "pm-elastic")
+}
+
+docker {
+    setName("pmanager")
+    tag("local", "latest")
+    setDockerfile(File("$rootDir/api/Dockerfile"))
+    println(tasks["bootJar"].outputs.files.files)
+    files(tasks.findByName("bootJar") ?: "${tasks["bootJar"].outputs}")
 }

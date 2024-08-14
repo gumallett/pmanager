@@ -11,9 +11,9 @@ export const fetchVideo = createAsyncThunk("video/fetchVideo", (id, api) => {
 });
 
 export const fetchRelatedVideos = createAsyncThunk("video/fetchRelated", (args = [], api) => {
-    const [q, page, size, sort, tags, excludeTags, categories, sources, lengthFrom, lengthTo] = args;
+    const [id] = args;
     return VideoApi
-        .loadVideos(q, page, size, sort, tags, excludeTags, categories, sources, lengthFrom, lengthTo, api);
+        .loadRelated(id, api);
 });
 
 export const fetchCategories = createAsyncThunk("video/fetchCategories", (q, api) => {

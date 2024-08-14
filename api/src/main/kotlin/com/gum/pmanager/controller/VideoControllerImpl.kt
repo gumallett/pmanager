@@ -81,6 +81,21 @@ class VideoControllerImpl(
             ))
     }
 
+    override fun relatedVideos(id: Long): ResponseEntity<VideosApiResponse> {
+        val pages = videoService.related(id)
+        return ResponseEntity.ok(
+            VideosApiResponse(
+                data = VideoPagedResponse(
+                    page = 0,
+                    propertySize = pages.size,
+                    totalPages = 1,
+                    totalRecords = pages.size.toLong(),
+                    records = pages
+                )
+            )
+        )
+    }
+
     override fun downloadStatic(path: String, download: Boolean, videoId: Long?): ResponseEntity<Resource> {
         val headers = HttpHeaders()
         val resource = resourceService.downloadStatic(path)

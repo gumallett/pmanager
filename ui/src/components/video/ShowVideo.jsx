@@ -134,7 +134,7 @@ function ShowVideo() {
     const sources = useSelector(selectSources);
     const sourcesValues = useMemo(() => sources && sources ? sources.map(it => it.name) : [], [sources]);
 
-    const recommendedVideos = useMemo(() => videos && videos.length ? videos.filter(rec => `${rec.id}` !== id) : [], [videos, id]);
+    const recommendedVideos = useMemo(() => videos && videos.length ? videos : [], [videos]);
     const filteredTags = useMemo(() => tags && tags.length
         ? tags.filter(it => (videoDetails.tags || []).map(it => it.name).indexOf(it.name) === -1).map(it => it.name)
         : [], [videoDetails.tags, tags]);
@@ -156,9 +156,7 @@ function ShowVideo() {
             return
         }
 
-        const searchQuery = `${videoDetails.title} ${videoDetails.categories.map(t => t.name).join(' ')} ${videoDetails.tags.map(t => t.name).join(' ')}`;
-
-        const videoPromise = dispatch(fetchRelatedVideos([searchQuery, 0, 13, "_score,rating", '', '', '', '', '', '']));
+        const videoPromise = dispatch(fetchRelatedVideos([videoDetails.id]));
         const catsPromise = dispatch(fetchCategories(""));
         const tagsPromise = dispatch(fetchTags(""));
         const sourcesPromise = dispatch(fetchSources(""));

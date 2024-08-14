@@ -1,6 +1,8 @@
 package com.gum.pmanager.data.repository;
 
+import com.gum.pmanager.data.model.CategoryEntity;
 import com.gum.pmanager.data.model.SearchFilters;
+import com.gum.pmanager.data.model.TagEntity;
 import com.gum.pmanager.data.model.VideoMetadataEntity;
 import org.hibernate.search.engine.search.aggregation.AggregationKey;
 import org.hibernate.search.engine.search.predicate.SearchPredicate;
@@ -11,6 +13,7 @@ import org.hibernate.search.engine.search.sort.dsl.SortOrder;
 import org.hibernate.search.mapper.orm.Search;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 
@@ -19,6 +22,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 public class SearchRepositoryImpl implements SearchRepository {
     private final EntityManager entityManager;
@@ -71,6 +75,63 @@ public class SearchRepositoryImpl implements SearchRepository {
                 .fetch(pageable.getPageSize() * pageable.getPageNumber(), pageable.getPageSize());
 
         return new PageImpl<>(result.hits(), pageable, result.total().hitCount());
+    }
+
+    public List<VideoMetadataEntity> recommended(VideoMetadataEntity sourceVideo) {
+        var session = Search.session(entityManager);
+        Pageable pageable = PageRequest.of(0, 16);
+        SearchResult<VideoMetadataEntity> result = session
+                .search(VideoMetadataEntity.class)
+                .where(p -> p.bool()
+                        .mustNot(f -> f.id().matching(sourceVideo.getId()))
+                        .must(p2 -> {
+                            var query = p2.bool()
+                                    .should(p3 -> p3.match()
+                                            .field("title").boost( 2.0f )
+                                            .field("description")
+                                            .field("tags.name")
+                                            .field("categories.name")
+                                            .field("notes")
+                                            .matching(sourceVideo.getTitle()).boost(2.0f));
+
+                            if (!sourceVideo.getNotes().isEmpty()) {
+                                query.should(p3 -> p3.match().field("notes").matching(sourceVideo.getNotes()));
+                            }
+
+                            if (!sourceVideo.getDescription().isEmpty()) {
+                                query.should(p3 -> p3.match().field("description").matching(sourceVideo.getDescription()));
+                            }
+
+                            if (!sourceVideo.getSource().isEmpty()) {
+                                query.should(p3 -> p3.match().field("source").matching(sourceVideo.getSource()));
+                            }
+
+                            if (!sourceVideo.getTags().isEmpty()) {
+                                query.should(p3 -> p3.terms()
+                                        .field("tags.name").boost(2.0f)
+                                        .field("categories.name")
+                                        .field("description")
+                                        .field("title")
+                                        .field("notes")
+                                        .matchingAny(sourceVideo.getTags().stream().map(TagEntity::getName).collect(Collectors.toList())));
+                            }
+
+                            if (!sourceVideo.getCategories().isEmpty()) {
+                                query.should(p3 -> p3.terms()
+                                        .field("categories.name").boost(2.0f)
+                                        .field("tags.name")
+                                        .field("description")
+                                        .field("title")
+                                        .field("notes")
+                                        .matchingAny(sourceVideo.getCategories().stream().map(CategoryEntity::getName).collect(Collectors.toList())));
+                            }
+
+                            return query;
+                        }))
+                .sort(s -> s.score().desc().then().field("rating").desc().then().field("views").desc())
+                .fetch(pageable.getPageSize() * pageable.getPageNumber(), pageable.getPageSize());
+
+        return new PageImpl<>(result.hits(), pageable, result.total().hitCount()).toList();
     }
 
     @Override

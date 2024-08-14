@@ -12,8 +12,22 @@ services:
       - 5432:5432
     networks:
       - postgres
+  pmanager:
+    image: pmanager:latest
+    container_name: pmanager
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://pg01:5432/postgres
+    volumes:
+      - app01:/application
+    ports:
+      - 8080:8080
+    networks:
+      - postgres
 volumes:
   data01:
+    driver: local
+  app01:
     driver: local
 
 networks:
