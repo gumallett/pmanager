@@ -159,8 +159,8 @@ public class SearchRepositoryImpl implements SearchRepository {
         return searchSession
                 .search(VideoMetadataEntity.class)
                 .where(p -> queryString(query, p))
-                .aggregation(aggKey, f -> f.terms().field("categories.name", String.class))
-                .fetch(0)
+                .aggregation(aggKey, f -> f.terms().field("categories.name", String.class).maxTermCount(1000))
+                .fetch(1000)
                 .aggregation(aggKey);
     }
 
@@ -172,8 +172,8 @@ public class SearchRepositoryImpl implements SearchRepository {
         return searchSession
                 .search(VideoMetadataEntity.class)
                 .where(p -> queryString(query, p))
-                .aggregation(aggKey, f -> f.terms().field("tags.name_sort", String.class))
-                .fetch(0)
+                .aggregation(aggKey, f -> f.terms().field("tags.name_sort", String.class).maxTermCount(1000))
+                .fetch(0, 1000)
                 .aggregation(aggKey);
     }
 
@@ -185,8 +185,8 @@ public class SearchRepositoryImpl implements SearchRepository {
         return searchSession
                 .search(VideoMetadataEntity.class)
                 .where(p -> queryString(query, p))
-                .aggregation(aggKey, f -> f.terms().field("source_sort", String.class))
-                .fetch(0)
+                .aggregation(aggKey, f -> f.terms().field("source_sort", String.class).maxTermCount(1000))
+                .fetch(1000)
                 .aggregation(aggKey);
     }
 
