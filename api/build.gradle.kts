@@ -130,6 +130,5 @@ docker {
     setName("pmanager")
     tag("local", "latest")
     setDockerfile(File("$rootDir/api/Dockerfile"))
-    println(tasks["bootJar"].outputs.files.files)
     files(tasks.findByName("bootJar") ?: "${tasks["bootJar"].outputs}")
 }

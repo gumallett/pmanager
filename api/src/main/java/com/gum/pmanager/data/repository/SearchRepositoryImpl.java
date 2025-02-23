@@ -103,7 +103,7 @@ public class SearchRepositoryImpl implements SearchRepository {
                             }
 
                             if (!sourceVideo.getSource().isEmpty()) {
-                                query.should(p3 -> p3.match().field("source").matching(sourceVideo.getSource()));
+                                query.should(p3 -> p3.match().field("source").matching(sourceVideo.getSource()).boost(2.0f));
                             }
 
                             if (!sourceVideo.getTags().isEmpty()) {
@@ -113,17 +113,17 @@ public class SearchRepositoryImpl implements SearchRepository {
                                         .field("description")
                                         .field("title")
                                         .field("notes")
-                                        .matchingAny(sourceVideo.getTags().stream().map(TagEntity::getName).collect(Collectors.toList())));
+                                        .matchingAny(sourceVideo.getTags().stream().map(TagEntity::getName).collect(Collectors.toList())).boost(2.0f));
                             }
 
                             if (!sourceVideo.getCategories().isEmpty()) {
                                 query.should(p3 -> p3.terms()
-                                        .field("categories.name").boost(2.0f)
+                                        .field("categories.name").boost(10.0f)
                                         .field("tags.name")
                                         .field("description")
                                         .field("title")
                                         .field("notes")
-                                        .matchingAny(sourceVideo.getCategories().stream().map(CategoryEntity::getName).collect(Collectors.toList())));
+                                        .matchingAny(sourceVideo.getCategories().stream().map(CategoryEntity::getName).collect(Collectors.toList())).boost(2.0f));
                             }
 
                             return query;
