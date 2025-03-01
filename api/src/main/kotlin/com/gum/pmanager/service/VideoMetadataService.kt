@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.core.io.PathResource
 import org.springframework.core.io.Resource
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -39,7 +40,7 @@ interface VideoMetadataService {
     fun allCategories(query: String): Map<String, Long>
     fun allTags(query: String): Map<String, Long>
     fun allSources(query: String): Map<String, Long>
-    fun related(id: Long): List<VideoResponse>
+    fun related(id: Long, pageable: Pageable = PageRequest.of(0, 16)): List<VideoResponse>
     fun download(id: Long): Resource
     fun index(directory: String, dryrun: Boolean)
 }
@@ -142,10 +143,10 @@ class VideoMetadataServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun related(id: Long): List<VideoResponse> {
+    override fun related(id: Long, pageable: Pageable): List<VideoResponse> {
         val existing = videoMetadataRepository.findById(id)
             .orElseThrow { VideoNotFoundException("Not found") }
-        return videoMetadataRepository.recommended(existing).map { it.toVideoMetadataResponse() }
+        return videoMetadataRepository.recommended(existing, pageable).map { it.toVideoMetadataResponse() }
     }
 
     override fun download(id: Long): Resource {

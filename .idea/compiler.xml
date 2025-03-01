@@ -5,11 +5,11 @@
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/2.7.8/cb1e95433ef15ed363be6fcc538e8406aa7606f7/spring-boot-configuration-processor-2.7.8.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/3.1.12/c7ec09e422ebe05c60edc01cf36d0ac89743c616/spring-boot-configuration-processor-3.1.12.jar" />
         </processorPath>
         <module name="pmanager.indexer.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="11" />
+    <bytecodeTargetLevel target="17" />
   </component>
 </project>

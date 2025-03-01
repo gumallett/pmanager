@@ -35,12 +35,14 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:postgresql")
 }
 
 allOpen {
-    annotation("javax.persistence.Entity")
-    annotation("javax.persistence.Embeddable")
-    annotation("javax.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.Embeddable")
+    annotation("jakarta.persistence.MappedSuperclass")
 }
 
 tasks.withType<KotlinCompile> {
@@ -80,14 +82,14 @@ openApiGenerate {
     configOptions.set(mapOf(
         "dateLibrary" to "java8",
         "interfaceOnly" to "true",
-        "documentationProvider" to "none"
+        "documentationProvider" to "none",
+        "useSpringBoot3" to "true"
     ))
 }
 
 tasks.named<BootJar>("bootJar") {
     layered {
-        isEnabled = true
-        isIncludeLayerTools = true
+        enabled.set(true)
     }
 }
 

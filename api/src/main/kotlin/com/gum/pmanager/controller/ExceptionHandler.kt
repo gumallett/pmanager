@@ -18,7 +18,7 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
     @ExceptionHandler(value = [IllegalStateException::class])
     protected fun handleConflict(
         ex: RuntimeException?, request: WebRequest?
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Any>? {
         val bodyOfResponse = "Conflict"
         return handleExceptionInternal(
             ex!!, bodyOfResponse,
@@ -32,7 +32,7 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
     ) = handleExceptionInternal(ex!!, "Not found", HttpHeaders(), HttpStatus.NOT_FOUND, request!!)
 
     @ExceptionHandler(value = [DataIntegrityViolationException::class])
-    protected fun handleDataIntegrityViolation(ex: DataIntegrityViolationException?, request: WebRequest?): ResponseEntity<Any> {
+    protected fun handleDataIntegrityViolation(ex: DataIntegrityViolationException?, request: WebRequest?): ResponseEntity<Any>? {
         LOG.warn("Uncaught data integrity violation error", ex)
         if (ex?.rootCause?.message?.contains("duplicate key", true) == true) {
             return handleExceptionInternal(ex, "Bad request", HttpHeaders(), HttpStatus.BAD_REQUEST, request!!)

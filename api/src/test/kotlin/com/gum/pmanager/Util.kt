@@ -10,10 +10,10 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 
-fun createTestEntity() = VideoMetadataEntity(
-    title = "test",
+fun createTestEntity(uri: String = "test", title: String = "test") = VideoMetadataEntity(
+    title = title,
     description = "test",
-    uri = "test",
+    uri = uri,
     previewUri = "",
     thumbUri = "",
     categories = mutableListOf(),
@@ -31,10 +31,10 @@ fun createTestEntity() = VideoMetadataEntity(
     )
 )
 
-fun createTestVideoResponse() = VideoResponse(
-    title = "test",
+fun createTestVideoResponse(uri: String = "test", title: String = "test") = VideoResponse(
+    title = title,
     description = "test",
-    uri = "test",
+    uri = uri,
     categories = mutableListOf(),
     tags = mutableListOf(),
     source = "test",

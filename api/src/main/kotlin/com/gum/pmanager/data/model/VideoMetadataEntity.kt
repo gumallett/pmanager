@@ -4,6 +4,7 @@ import com.gum.pmanager.model.CategoryResponse
 import com.gum.pmanager.model.TagResponse
 import com.gum.pmanager.model.VideoFileInfoResponse
 import com.gum.pmanager.model.VideoResponse
+import jakarta.persistence.*
 import org.hibernate.search.engine.backend.types.Aggregable
 import org.hibernate.search.engine.backend.types.Projectable
 import org.hibernate.search.engine.backend.types.Sortable
@@ -12,7 +13,6 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneOffset
-import javax.persistence.*
 
 @Entity
 @Table(name = "video_metadata")

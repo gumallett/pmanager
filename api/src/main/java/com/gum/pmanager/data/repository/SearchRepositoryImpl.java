@@ -4,6 +4,7 @@ import com.gum.pmanager.data.model.CategoryEntity;
 import com.gum.pmanager.data.model.SearchFilters;
 import com.gum.pmanager.data.model.TagEntity;
 import com.gum.pmanager.data.model.VideoMetadataEntity;
+import jakarta.persistence.EntityManager;
 import org.hibernate.search.engine.search.aggregation.AggregationKey;
 import org.hibernate.search.engine.search.predicate.SearchPredicate;
 import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateClausesStep;
@@ -13,11 +14,9 @@ import org.hibernate.search.engine.search.sort.dsl.SortOrder;
 import org.hibernate.search.mapper.orm.Search;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.EntityManager;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -77,9 +76,8 @@ public class SearchRepositoryImpl implements SearchRepository {
         return new PageImpl<>(result.hits(), pageable, result.total().hitCount());
     }
 
-    public List<VideoMetadataEntity> recommended(VideoMetadataEntity sourceVideo) {
-        var session = Search.session(entityManager);
-        Pageable pageable = PageRequest.of(0, 16);
+    public List<VideoMetadataEntity> recommended(VideoMetadataEntity sourceVideo, Pageable pageable) {
+        final var session = Search.session(entityManager);
         SearchResult<VideoMetadataEntity> result = session
                 .search(VideoMetadataEntity.class)
                 .where(p -> p.bool()
@@ -132,11 +130,6 @@ public class SearchRepositoryImpl implements SearchRepository {
                 .fetch(pageable.getPageSize() * pageable.getPageNumber(), pageable.getPageSize());
 
         return new PageImpl<>(result.hits(), pageable, result.total().hitCount()).toList();
-    }
-
-    @Override
-    public List<VideoMetadataEntity> search(String query, Pageable pageable) {
-        return pagedSearch(query, pageable).toList();
     }
 
     @Override

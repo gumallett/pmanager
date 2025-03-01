@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository
 import java.time.Instant
 
 
-@Repository
 interface VideoMetadataRepository : JpaRepository<VideoMetadataEntity, Long>, SearchRepository {
     fun findByUri(uri: String) : VideoMetadataEntity?
 

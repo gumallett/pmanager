@@ -1,5 +1,6 @@
 package com.gum.pmanager.service
 
+import com.gum.pmanager.IntTest
 import com.gum.pmanager.createTestEntity
 import com.gum.pmanager.data.model.VideoMetadataEntity
 import com.gum.pmanager.data.repository.VideoMetadataRepository
@@ -8,20 +9,18 @@ import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.domain.PageRequest
 import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.transaction.TestTransaction
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZoneOffset
 
-@SpringBootTest
 @TestPropertySource(properties = ["spring.flyway.cleanOnValidationError=true",
     "spring.jpa.properties.hibernate.search.automatic_indexing.synchronization.strategy=sync",
     "spring.jpa.properties.hibernate.search.backend.directory.root=",
     "spring.jpa.properties.hibernate.search.backend.indexes.VideoMetadataEntity.directory.root="
 ])
-class VideoMetadataServiceSearchTests {
+class VideoMetadataServiceSearchTests : IntTest() {
 
     @Autowired
     lateinit var videoMetadataService: VideoMetadataService
@@ -54,6 +53,7 @@ class VideoMetadataServiceSearchTests {
     fun `search should return video`() {
         val entity = createAndSaveTestEntity()
         ensureTx()
+        entityId = entity.id
 
         val listResult = videoMetadataService.search(entity.title, PageRequest.of(0, 10))
 
@@ -81,9 +81,10 @@ class VideoMetadataServiceSearchTests {
     @Transactional
     fun `related search should return related video`() {
         val entity = createAndSaveTestEntity()
-        val entity2 = createAndSaveTestEntity()
-        entity2.title = "test related video"
+        val entity2 = createAndSaveTestEntity(uri = "test2", title = "test2")
         ensureTx()
+        entityId = entity.id
+        entity2Id = entity2.id
 
         val listResult = videoMetadataService.related(entity.id!!)
 
@@ -107,19 +108,9 @@ class VideoMetadataServiceSearchTests {
         Assertions.assertThat(res.videoFileInfo?.propertySize).isEqualTo(entity2.videoFileInfo.size)
     }
 
-    private fun createAndSaveTestEntity(): VideoMetadataEntity {
+    private fun createAndSaveTestEntity(uri: String = "test", title: String = "test"): VideoMetadataEntity {
         ensureTx()
-        val entity = videoMetadataRepository.saveAndFlush(createTestEntity())
-        entityId = entity.id
-        TestTransaction.flagForCommit()
-        TestTransaction.end()
-        return entity
-    }
-
-    private fun createAndSaveTestEntity2(): VideoMetadataEntity {
-        ensureTx()
-        val entity = videoMetadataRepository.saveAndFlush(createTestEntity())
-        entity2Id = entity.id
+        val entity = videoMetadataRepository.saveAndFlush(createTestEntity(uri = uri, title = title))
         TestTransaction.flagForCommit()
         TestTransaction.end()
         return entity

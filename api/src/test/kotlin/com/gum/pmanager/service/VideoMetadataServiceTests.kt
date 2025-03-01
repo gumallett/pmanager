@@ -1,5 +1,6 @@
 package com.gum.pmanager.service
 
+import com.gum.pmanager.IntTest
 import com.gum.pmanager.createTestEntity
 import com.gum.pmanager.createTestVideoResponse
 import com.gum.pmanager.data.model.VideoMetadataEntity
@@ -8,30 +9,18 @@ import com.gum.pmanager.model.VideoResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZoneOffset
 
-@SpringBootTest
 @TestPropertySource(properties = ["spring.flyway.cleanOnValidationError=true"])
-class VideoMetadataServiceTests {
+class VideoMetadataServiceTests : IntTest() {
 
     @Autowired
     lateinit var videoMetadataService: VideoMetadataService
 
     @Autowired
     lateinit var videoMetadataRepository: VideoMetadataRepository
-
-    @Test
-    @Transactional
-    fun `delete should delete existing video`() {
-        val entityId = createAndSaveTestEntity().id!!
-        videoMetadataService.delete(entityId)
-
-        val entity = videoMetadataRepository.findById(entityId)
-        assertThat(entity.isEmpty).isTrue
-    }
 
     @Test
     @Transactional

@@ -6,6 +6,7 @@ import com.gum.pmanager.model.*
 import com.gum.pmanager.service.MassIndexerService
 import com.gum.pmanager.service.ResourceService
 import com.gum.pmanager.service.VideoMetadataService
+import jakarta.validation.Valid
 import org.springframework.core.io.Resource
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.Duration
-import javax.validation.Valid
 
 @RestController
 @CrossOrigin
