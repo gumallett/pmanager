@@ -75,7 +75,6 @@ function VideoDetails({ videoDetail, sources }) {
     function handleDelete(perma = false) {
         setDeleteOpen(false);
         dispatch(deleteVideo([videoDetail.id, perma])).then((res) => {
-            console.log(res);
             if (res.meta.requestStatus === 'fulfilled') {
                 navigate("/videos");
             } else {

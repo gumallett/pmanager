@@ -134,3 +134,4 @@ export const selectSources = (state) => state.videos.sources;
 
 export const selectTotalPages = (state) => state.videos.meta.totalPages;
 export const selectTotalRecords = (state) => state.videos.meta.totalRecords;
+export const selectStatus = (state) => state.videos.meta.status;

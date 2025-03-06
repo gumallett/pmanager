@@ -60,13 +60,19 @@ export const videoSlice = createSlice({
 
 export const relatedVideosSlice = createSlice({
     name: 'relatedVideos',
-    initialState: videosAdapter.getInitialState(),
+    initialState: {results: videosAdapter.getInitialState(), status: ''},
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(fetchRelatedVideos.fulfilled, (state, action) =>
-            {
-                videosAdapter.setAll(state, action.payload.records)
+            .addCase(fetchRelatedVideos.pending, (state, action) => {
+                state.status = 'loading'
+            })
+            .addCase(fetchRelatedVideos.rejected, (state, action) => {
+                state.status = 'error'
+            })
+            .addCase(fetchRelatedVideos.fulfilled, (state, action) => {
+                state.status = 'loaded'
+                videosAdapter.setAll(state.results, action.payload.records)
             })
     }
 });
@@ -110,7 +116,8 @@ export const videoDetailsReducer = combineReducers({
 });
 
 export const selectVideoDetails = (state) => state.videoDetails.videoDetails;
-export const selectRelatedVideos = (state) => videosAdapter.getSelectors((state) => state.videoDetails.relatedVideos).selectAll(state);
+export const selectRelatedVideos = (state) => videosAdapter.getSelectors((state) => state.videoDetails.relatedVideos.results).selectAll(state);
 export const selectTags = (state) => state.videoDetails.tags;
 export const selectCategories = (state) => state.videoDetails.categories;
 export const selectSources = (state) => state.videoDetails.sources;
+export const selectStatus = (state) => state.videoDetails.relatedVideos.status;

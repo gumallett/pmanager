@@ -1,7 +1,17 @@
 import {Fragment, useEffect, useMemo, useState} from "react";
 import {useParams} from "react-router-dom";
 import "video.js/dist/video-js.css"
-import {Autocomplete, Button, Container, Grid, IconButton, TextField, Typography} from "@mui/material";
+import {
+    Autocomplete,
+    Box,
+    Button,
+    CircularProgress,
+    Container,
+    Grid,
+    IconButton,
+    TextField,
+    Typography
+} from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import VideoPlayer from "./VideoPlayer";
 import VideoInfoBar from "./VideoInfoBar";
@@ -14,7 +24,7 @@ import {
     fetchRelatedVideos, fetchSources, fetchTags,
     fetchVideo,
     selectCategories, selectRelatedVideos,
-    selectSources,
+    selectSources, selectStatus,
     selectTags,
     selectVideoDetails,
     updateCategories,
@@ -132,6 +142,7 @@ function ShowVideo() {
     const tags = useSelector(selectTags);
     const cats = useSelector(selectCategories);
     const sources = useSelector(selectSources);
+    const status = useSelector(selectStatus);
     const sourcesValues = useMemo(() => sources && sources ? sources.map(it => it.name) : [], [sources]);
 
     const recommendedVideos = useMemo(() => videos && videos.length ? videos : [], [videos]);
@@ -229,7 +240,7 @@ function ShowVideo() {
             {detailsVisible ? <VideoDetails videoDetail={videoDetails} sources={sourcesValues} /> : ""}
 
             <Typography variant={"h5"} sx={{textAlign: "left", p: 2}}>Related Videos:</Typography>
-            <VideosListGrid videos={recommendedVideos} />
+            {status === "loaded" ? <VideosListGrid videos={recommendedVideos} /> : <Box sx={{m: "10rem"}}><CircularProgress size={"10rem"} /></Box>}
 
             <div><br/></div>
         </Container>
