@@ -5,7 +5,7 @@
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/3.1.12/c7ec09e422ebe05c60edc01cf36d0ac89743c616/spring-boot-configuration-processor-3.1.12.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/3.2.12/c129b36cdb95ee2a048742889aca2d12017d96be/spring-boot-configuration-processor-3.2.12.jar" />
         </processorPath>
         <module name="pmanager.indexer.main" />
       </profile>

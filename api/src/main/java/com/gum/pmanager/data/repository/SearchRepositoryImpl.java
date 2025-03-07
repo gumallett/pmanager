@@ -185,12 +185,12 @@ public class SearchRepositoryImpl implements SearchRepository {
 
     private BooleanPredicateClausesStep<?> queryString(String query, SearchPredicateFactory p) {
         var qs = p.simpleQueryString()
-                .field("title").boost(3.0f)
+                .field("title").boost(2.0f)
                 .field("description")
                 .field("notes")
                 .field("source")
                 .field("tags.name").boost(2.0f)
-                .field("categories.name")
+                .field("categories.name").boost(2.0f)
                 .matching(query);
 
         return p.bool().must(StringUtils.hasLength(query) ? qs : p.matchAll());
