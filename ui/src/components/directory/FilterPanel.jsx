@@ -33,7 +33,7 @@ function FilterPanel({tags, categories, sources}) {
         deserializedParams.lengthTo ? deserializedParams.lengthTo / 60 / 1000 : RANGE_MAX
     ]);
 
-    const handleRangeChange = useCallback((event, newvalue) => {
+    const handleRangeChange = useCallback((newvalue) => {
         if (newvalue[1] === RANGE_MAX) {
             search.set('lengthFrom', newvalue[0] * 60 * 1000);
             search.set('lengthTo', '');
@@ -50,12 +50,12 @@ function FilterPanel({tags, categories, sources}) {
         return debounce(handleRangeChange, 300);
     }, [handleRangeChange]);
 
-    useEffect(() => {
-        if (tmpLength) {
-            debouncedSearch(null, tmpLength);
+    const onRangeChange = useCallback((event, newvalue) => {
+        setTmpLength(newvalue);
+        if (newvalue) {
+            debouncedSearch(newvalue);
         }
-        return () => debouncedSearch.cancel();
-    }, [tmpLength, debouncedSearch]);
+    }, [debouncedSearch, setTmpLength]);
 
     return (
         <Card sx={{mt: 2, ml: 2, textAlign: "left", height: "870px", overflow: "auto"}}>
@@ -82,7 +82,7 @@ function FilterPanel({tags, categories, sources}) {
                     <Slider
                         getAriaLabel={() => "Duration Range"}
                         value={tmpLength}
-                        onChange={(event, newvalue) => setTmpLength(newvalue)}
+                        onChange={onRangeChange}
                         min={0}
                         max={60}
                         getAriaValueText={value => value === RANGE_MAX ? `${RANGE_MAX}+` : value}
