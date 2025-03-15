@@ -1,11 +1,6 @@
 openapi: 3.0.0
 servers:
-  # Local server
-  # Added by API Auto Mocking Plugin
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/gum/videos/1.0.0
-  - description: local server
-    url: https://localhost/gum/videos/1.0.0
+  - url: /gum/videos/1.0.0
 info:
   description: This is an api for managing a video collection.
   version: "1.0.0"

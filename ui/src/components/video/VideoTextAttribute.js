@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import {Fragment, useEffect, useState} from "react";
 import {Autocomplete, Grid, TextField, Typography} from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 
@@ -17,6 +17,10 @@ function VideoTextAttribute({ stringValue = "", label = "", span = 12,
     const classes = useStyles();
     const [editing] = useState(editable);
     const [value, setValue] = useState(stringValue);
+
+    useEffect(() => {
+        setValue(stringValue);
+    }, [stringValue]);
 
     function autoCompleteChanged(event, value) {
         onChange(value);

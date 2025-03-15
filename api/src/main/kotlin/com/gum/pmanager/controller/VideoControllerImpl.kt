@@ -14,14 +14,12 @@ import org.springframework.data.domain.Sort
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.CrossOrigin
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.Duration
 
 @RestController
 @CrossOrigin
+@RequestMapping("/gum/videos/1.0.0")
 class VideoControllerImpl(
     private val videoService: VideoMetadataService,
     private val resourceService: ResourceService,

@@ -14,7 +14,7 @@ apply(plugin = "io.spring.dependency-management")
 
 group = "com.gum"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.VERSION_21
 
 repositories {
     mavenCentral()
@@ -38,16 +38,16 @@ allOpen {
 }
 
 tasks.withType<KotlinCompile> {
+    dependsOn("openApiGenerate")
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
+        jvmTarget = "21"
     }
-    dependsOn("openApiGenerate")
 }
 
 kotlin {
     sourceSets["main"].apply {
-        kotlin.srcDir("$buildDir/generate-resources/main/src/main/kotlin")
+        kotlin.srcDir("${project.layout.buildDirectory.get()}/generated/src/main/kotlin")
     }
 }
 
@@ -57,12 +57,13 @@ tasks.withType<Test> {
 
 openApiMeta {
     packageName.set("com.gum.pmanager.api")
-    outputFolder.set("$buildDir/meta")
+    outputFolder.set("${project.layout.buildDirectory.get()}/meta")
 }
 
 openApiGenerate {
     generatorName.set("kotlin")
     inputSpec.set("${rootDir}/swagger-lib/video-api.yaml")
+    outputDir.set("${project.layout.buildDirectory.get()}/generated")
 
     configOptions.set(mapOf(
         "library" to "jvm-okhttp4",

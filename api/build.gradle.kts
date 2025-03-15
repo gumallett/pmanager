@@ -16,7 +16,7 @@ apply(plugin = "io.spring.dependency-management")
 
 group = "com.gum"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.VERSION_21
 
 repositories {
     mavenCentral()
@@ -30,6 +30,7 @@ dependencies {
     implementation(libs.bundles.hibernateSearch)
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
@@ -46,16 +47,16 @@ allOpen {
 }
 
 tasks.withType<KotlinCompile> {
+    dependsOn("openApiGenerate")
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
+        jvmTarget = "21"
     }
-    dependsOn("openApiGenerate")
 }
 
 kotlin {
     sourceSets["main"].apply {
-        kotlin.srcDir("$buildDir/generated/src/main/kotlin")
+        kotlin.srcDir("${project.layout.buildDirectory.get()}/generated/src/main/kotlin")
     }
 }
 
@@ -65,13 +66,13 @@ tasks.withType<Test> {
 
 openApiMeta {
     packageName.set("com.gum.pmanager.api")
-    outputFolder.set("$buildDir/meta")
+    outputFolder.set("${project.layout.buildDirectory.get()}/meta")
 }
 
 openApiGenerate {
     generatorName.set("kotlin-spring")
     inputSpec.set("${rootDir}/swagger-lib/video-api.yaml")
-    outputDir.set("$buildDir/generated")
+    outputDir.set("${project.layout.buildDirectory.get()}/generated")
     apiPackage.set("com.gum.pmanager.api")
     modelPackage.set("com.gum.pmanager.model")
     globalProperties.set(mapOf(
@@ -117,15 +118,6 @@ tasks.create("dockerStopPostgres") {
 tasks.create<Exec>("dockerStopPostgresProd") {
     workingDir("$rootDir/docker/postgres")
     commandLine("docker-compose", "-f", "docker-compose.yml", "down")
-}
-
-tasks.create<Exec>("dockerStartElasticsearch") {
-    commandLine("docker", "run", "-d", "--name", "pm-elastic", "-p", "9200:9200", "-p", "9300:9300", "-e", "discovery.type=single-node", "-e", "ES_JAVA_OPTS=-Xms750m -Xmx750m", "docker.elastic.co/elasticsearch/elasticsearch:7.12.1")
-}
-
-tasks.create<Exec>("dockerStopElasticsearch") {
-    commandLine("docker", "stop", "pm-elastic")
-    commandLine("docker", "rm", "pm-elastic")
 }
 
 docker {

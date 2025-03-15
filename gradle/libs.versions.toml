@@ -1,0 +1,16 @@
+[versions]
+kotlin = "1.9.24"
+springboot = "3.4.3"
+openapi = "7.12.0"
+hibernate-search = "7.2.2.Final"
+
+[plugins]
+springboot = {id = "org.springframework.boot", version.ref = "springboot"}
+openapi = {id = "org.openapi.generator", version.ref = "openapi"}
+
+[libraries]
+hibernateSearch = {module = "org.hibernate.search:hibernate-search-mapper-orm", version.ref = "hibernate-search"}
+hibernateSearchBackend = {module = "org.hibernate.search:hibernate-search-backend-lucene", version.ref = "hibernate-search"}
+
+[bundles]
+hibernateSearch = ["hibernateSearch", "hibernateSearchBackend"]
