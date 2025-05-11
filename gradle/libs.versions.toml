@@ -1,6 +1,6 @@
 [versions]
 kotlin = "1.9.24"
-springboot = "3.4.3"
+springboot = "3.4.5"
 openapi = "7.12.0"
 hibernate-search = "7.2.2.Final"
 

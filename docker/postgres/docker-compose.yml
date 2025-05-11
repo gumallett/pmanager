@@ -18,7 +18,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://pg01:5432/postgres
     volumes:
-      - app01:/application/index
+      - app01:/app/index
     ports:
       - 8080:8080
     networks:
